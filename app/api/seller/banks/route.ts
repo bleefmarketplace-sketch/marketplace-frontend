@@ -38,14 +38,14 @@ export async function POST(request: NextRequest) {
 // PATCH: Set a specific bank as Primary
 export async function PATCH(
     request: NextRequest,
-    { params }: { params: { id: string } }
 ) {
     try {
         const token = await getAuthToken();
-        const bankId = params.id;
+           const searchParams = new URL(request.url).searchParams;
+        const id = searchParams.get("id");
 
         const response = await axios.patch(
-            `${process.env.BASE_URL}/seller/banks/${bankId}/primary`,
+            `${process.env.BASE_URL}/seller/banks/${id}/primary`,
             {}, // Empty body
             {
                 headers: { Authorization: `Bearer ${token}` }
@@ -61,14 +61,18 @@ export async function PATCH(
 // DELETE: Remove a bank account
 export async function DELETE(
     request: NextRequest,
-    { params }: { params: { id: string } }
+    //   context: { params: Promise<{ id: string }> }
 ) {
     try {
         const token = await getAuthToken();
-        const bankId = params.id;
+        const searchParams = new URL(request.url).searchParams;
+        const id = searchParams.get("id");
+        
+       
+    
 
         const response = await axios.delete(
-            `${process.env.BASE_URL}/seller/banks/${bankId}`,
+            `${process.env.BASE_URL}/seller/banks/${id}`,
             {
                 headers: { Authorization: `Bearer ${token}` }
             }

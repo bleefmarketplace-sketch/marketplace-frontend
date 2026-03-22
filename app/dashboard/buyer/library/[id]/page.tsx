@@ -1,12 +1,11 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { Suspense, useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { 
     ChevronLeft, Play, FileText, Download, 
     Lock, CheckCircle, ShieldCheck, Loader2, MessageSquare
 } from 'lucide-react';
-import { Card } from '@/components/Card';
 import { Button } from '@/components/Button';
 import { useApi } from '@/hooks/useApi';
 
@@ -21,7 +20,7 @@ export default function VaultViewerPage() {
         const fetchVault = async () => {
             try {
                 // Returns array of assets with secureUrl
-                const data = await fetcher<any[]>(`/api/creator/vault/${id}`);
+                const data = await fetcher(`/api/creator/vault/${id}`);
                 setAssets(data);
                 if (data.length > 0) setActiveAsset(data[0]);
             } finally { setLoading(false); }
@@ -32,6 +31,7 @@ export default function VaultViewerPage() {
     if (loading) return <div className="h-screen flex items-center justify-center"><Loader2 className="animate-spin text-emerald-600" /></div>;
 
     return (
+        <Suspense>
         <div className="min-h-screen bg-gray-50 flex flex-col">
             {/* Top Bar */}
             <div className="bg-white border-b px-6 py-4 flex items-center justify-between sticky top-0 z-30">
@@ -119,5 +119,6 @@ export default function VaultViewerPage() {
                 </aside>
             </main>
         </div>
+        </Suspense>
     );
 }

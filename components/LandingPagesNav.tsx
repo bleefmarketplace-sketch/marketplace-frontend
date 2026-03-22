@@ -88,7 +88,7 @@ const LandingPagesNav = () => {
                     <Link href="/dashboard" className="text-gray-600 hover:text-emerald-600">
                       <User size={20} />
                     </Link>
-                    <button onClick={logout} className="text-gray-400 hover:text-red-500">
+                    <button onClick={() => logout()} className="text-gray-400 hover:text-red-500">
                       <LogOut size={20} />
                     </button>
                   </div>
@@ -131,7 +131,7 @@ const LandingPagesNav = () => {
                   <Button variant="ghost" fullWidth onClick={() => router.push('/dashboard')} className="justify-start gap-2">
                     <User size={18} /> My Account
                   </Button>
-                  <Button variant="ghost" fullWidth onClick={logout} className="justify-start gap-2 text-red-500">
+                  <Button variant="ghost" fullWidth onClick={() => logout()} className="justify-start gap-2 text-red-500">
                     <LogOut size={18} /> Logout
                   </Button>
                 </div>

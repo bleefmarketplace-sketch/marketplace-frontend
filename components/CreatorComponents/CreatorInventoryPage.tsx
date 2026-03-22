@@ -20,7 +20,7 @@ export default function CreatorInventoryPage() {
 
     const loadData = async () => {
         try {
-            const data = await fetcher<any[]>('/api/creator/products');
+            const data = await fetcher('/api/creator/products');
             setProducts(data);
         } finally { setLoading(false); }
     };

@@ -81,7 +81,7 @@ const CartPage = () => {
               <div className="relative w-24 h-24 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0">
                 <Image
                   fill
-                  src={item.product.image}
+                  src={item.product?.image}
                   className="object-cover"
                   alt={item.product.title}
                   sizes="96px"

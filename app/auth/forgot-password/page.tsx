@@ -1,10 +1,15 @@
 "use client";
 import { ForgotPassword } from '@/components/pages/Forgot-password'
-import React from 'react'
+import { Loader2 } from 'lucide-react';
+import React, { Suspense } from 'react'
 
 const Page = () => {
   return (
-    <div><ForgotPassword/></div>
+    <Suspense fallback={
+      <div className="flex justify-center py-20"><Loader2 className="animate-spin text-emerald-600" />
+      </div>}>
+      <ForgotPassword />
+    </Suspense>
   )
 }
 

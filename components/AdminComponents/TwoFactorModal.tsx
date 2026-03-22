@@ -35,7 +35,7 @@ export const TwoFactorModal = ({ isOpen, onClose, onSuccess }: TwoFactorModalPro
     const initiateSetup = async () => {
         setStep('loading');
         try {
-            const {data} = await fetcher<any>('/api/auth/2FA/setup', { method: 'POST' });
+            const {data} = await fetcher('/api/auth/2FA/setup', { method: 'POST' });
             setSetupData(data);
             
             const qrImage = await QRCode.toDataURL(data.otpauthUrl);

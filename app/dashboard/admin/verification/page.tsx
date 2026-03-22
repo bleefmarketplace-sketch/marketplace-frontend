@@ -18,7 +18,7 @@ export default function VerificationQueuePage() {
 
     const loadQueue = useCallback(async () => {
         try {
-            const res = await fetcher<any[]>('/api/admin/verify/verify-queue'); 
+            const res = await fetcher('/api/admin/verify/verify-queue'); 
             setQueue(res?.data);
         } catch (e) { toast.error("Failed to load queue"); }
         finally { setLoading(false); }

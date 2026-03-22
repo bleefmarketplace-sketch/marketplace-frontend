@@ -1,10 +1,9 @@
 import React, { useState } from 'react';
-import { Button } from '../components/Button';
+ 
 import { ArrowRight, CheckCircle, Sprout, Users, Shield, Menu, X, MousePointer, Search, Star } from 'lucide-react';
-import { LandingMarketplace } from './LandingMarketplace';
-import { LandingCommunity } from './LandingCommunity';
-import { LandingLearning } from './LandingLearning';
-import { PendingAction } from '../App';
+import { PendingAction } from '../types';
+import { Button } from '../Button';
+ 
 
 interface LandingPageProps {
   onGetStarted: () => void;
@@ -196,8 +195,8 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onLogin,
 
             {/* CTA Buttons */}
             <div className="hidden md:flex gap-3">
-              <Button variant="ghost" onClick={onLogin}>Log In</Button>
-              <Button onClick={onGetStarted}>Get Started</Button>
+              <Button variant="ghost" onClick={() =>onLogin}>Log In</Button>
+              <Button onClick={() =>onGetStarted}>Get Started</Button>
             </div>
 
             {/* Mobile Menu Toggle */}
@@ -232,11 +231,11 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onLogin,
 
       {/* Main Content */}
       <main className="flex-1">
-        {currentPage === 'home' && <LandingHome />}
+    {/*     {currentPage === 'home' && <LandingHome />}
         {currentPage === 'marketplace' && <LandingMarketplace onGetStarted={onGetStarted} onAction={onAction} />}
         {currentPage === 'community' && <LandingCommunity onGetStarted={onGetStarted} onAction={onAction} />}
         {currentPage === 'learning' && <LandingLearning onGetStarted={onGetStarted} onAction={onAction} />}
-      </main>
+      */} </main>
 
       {/* Footer */}
       <footer className="bg-gray-900 text-gray-400 py-12">
@@ -273,8 +272,8 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onLogin,
           </div>
         </div>
         <div className="max-w-7xl mx-auto px-4 mt-12 text-center text-sm border-t border-gray-800 pt-8">
-          <p>&copy; 2024 AgriMarket Platform. All rights reserved.</p>
-        </div>
+          <p>&copy; 2026 AgriMarket Platform. All rights reserved.</p>
+          </div>
       </footer>
     </div>
   );

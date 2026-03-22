@@ -16,7 +16,7 @@ const Page: React.FC<LandingPageProps> = ({ onGetStarted, onLogin, onAction }) =
 
     <>
       <div className="min-h-screen bg-white font-sans text-gray-900 flex flex-col">
-        <LandingPagesNav onGetStarted={() => { }}  onAction={() => { }} />
+        <LandingPagesNav  />
         <Learning onGetStarted={onGetStarted} onAction={onAction} />
         <Footer />
       </div>

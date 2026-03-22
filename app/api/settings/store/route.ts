@@ -75,12 +75,13 @@ export async function PATCH(
 
 // DELETE: Remove Product
 export async function DELETE(
-
-    context: { params: Promise<{ id: string }> }
+request: Request,
 ) {
     try {
         const token = await getAuthToken();
-        const id = context.params
+        const searchParams = new URL(request.url).searchParams;
+        const id = searchParams.get("id");
+       
 
         await axios.delete(
             `${process.env.BASE_URL}/products/${id}`,

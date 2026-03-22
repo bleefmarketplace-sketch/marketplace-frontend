@@ -196,7 +196,7 @@ export default function AdminDashboard() {
     const getStats = async () => {
         try {
             // fetcher returns the 'data' part: { gmv, revenue, totalOrders, ... }
-            const result = await fetcher<any>('/api/admin/stats');
+            const result = await fetcher('/api/admin/stats');
             setStats(result.data);
         } catch (error) {
             console.error("Dashboard Load Error:", error);

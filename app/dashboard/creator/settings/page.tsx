@@ -20,7 +20,7 @@ import {
   User,
   X,
 } from "lucide-react";
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { Suspense, useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "react-toastify";
 import Image from "next/image";
 import { useApi } from "@/hooks/useApi";
@@ -293,7 +293,7 @@ const Page = () => {
   /* ---------------- UI ---------------- */
 
   return (
-    <>
+    <Suspense>
 
       <div className="space-y-6 animate-in fade-in duration-300">
 
@@ -625,7 +625,7 @@ const Page = () => {
         />
       </div>
 
-    </>
+    </Suspense>
   );
 };
 

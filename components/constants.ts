@@ -1,59 +1,6 @@
 import { Product, Order, Course, Group, Transaction, Post } from './types';
 
-export const MOCK_PRODUCTS: Product[] = [
-  {
-    id: '1',
-    title: 'Organic Fertilizer 50kg',
-    price: 45.00,
-    image: 'https://picsum.photos/400/300?random=1',
-    category: 'Feed & Supplies',
-    vendor: 'GreenEarth Co.',
-    location: 'Iowa, USA',
-    rating: 4.8,
-    reviews: 124,
-    stock: 50,
-    description: 'High quality organic fertilizer suitable for all crop types. Enriched with natural minerals.'
-  },
-  {
-    id: '2',
-    title: 'Holstein Dairy Cow',
-    price: 1200.00,
-    image: 'https://picsum.photos/400/300?random=2',
-    category: 'Livestock',
-    vendor: 'Happy Farms',
-    location: 'Wisconsin, USA',
-    rating: 4.9,
-    reviews: 56,
-    stock: 2,
-    description: 'Healthy, vaccinated Holstein heifer ready for dairy production.'
-  },
-  {
-    id: '3',
-    title: 'Heavy Duty Tractor',
-    price: 25000.00,
-    image: 'https://picsum.photos/400/300?random=3',
-    category: 'Equipment',
-    vendor: 'AgriMachinery Ltd.',
-    location: 'Texas, USA',
-    rating: 4.5,
-    reviews: 12,
-    stock: 1,
-    description: 'Refurbished 2018 model with low hours. Excellent condition.'
-  },
-  {
-    id: '4',
-    title: 'Corn Seeds - Drought Resistant',
-    price: 85.00,
-    image: 'https://picsum.photos/400/300?random=4',
-    category: 'Seeds',
-    vendor: 'SeedGen',
-    location: 'Nebraska, USA',
-    rating: 4.7,
-    reviews: 89,
-    stock: 200,
-    description: 'Genetically optimized corn seeds for arid climates.'
-  }
-];
+ 
 
 export const MOCK_ORDERS: Order[] = [
   {

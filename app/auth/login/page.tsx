@@ -1,8 +1,8 @@
 "use client";
-import React, { useState } from 'react';
+import React, { Suspense, useState } from 'react';
 import { Button } from '@/components/Button';
 import { Input } from '@/components/Input';
-import { Mail, Lock, ArrowLeft, Sprout } from 'lucide-react';
+import { Mail, Lock, ArrowLeft, Sprout, Loader2 } from 'lucide-react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
@@ -70,6 +70,11 @@ const LoginPage = () => {
   };
 
   return (
+    <Suspense fallback={
+      <div className="flex justify-center py-20">
+        <Loader2 className="animate-spin text-emerald-600" />
+      </div>
+    }>
     <div className="min-h-screen flex items-center justify-center relative bg-gray-900 overflow-hidden">
       {/* Background with Overlay */}
       <div className="absolute inset-0 z-0">
@@ -180,6 +185,7 @@ const LoginPage = () => {
           description="Enter the code from your authenticator app to complete sign in."
        />
     </div>
+    </Suspense>
   );
 };
 

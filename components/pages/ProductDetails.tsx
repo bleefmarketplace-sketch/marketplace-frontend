@@ -35,8 +35,7 @@ export default function ProductDetails() {
             try {
                 const res = await fetch(`/api/marketplace/${id}`);
                 const data = await res.json();
-                console.log("Fetched product data:", data);
-                
+                 
                 setProduct(data);
                 setActiveImage(data.primaryImage);
                 if (data.reviews) setReviews(data.reviews);
@@ -93,7 +92,7 @@ export default function ProductDetails() {
                 setIsReviewing(false);
                 setNewReview({ rating: 5, comment: '', isAnonymous: false });
 
-                fetchProduct();
+              
             } else {
                 alert(data.message || "Failed to post review");
             }

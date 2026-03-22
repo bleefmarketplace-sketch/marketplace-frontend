@@ -14,6 +14,8 @@ export interface Product {
   description: string;
   price: number;
   stock: number;
+  image: string;
+  vendor: string;
   
   // Images
   primaryImage: string;
@@ -34,14 +36,28 @@ export interface Product {
 
    seller: {
     id: string;
-    companyName: string;  
+    companyName: string; 
+    businessName: string; 
   };
   sellerProfileId: string;
+
+  reviews: Array<{
+    id: string;
+    rating: number;
+    comment: string;
+    reviewer: {
+      id: string;
+      name: string;
+      avatar: string;
+    };
+  }>;
+
 
   attributes: Record<string, any>;
   // status: ProductStatus;
   createdAt: string | Date;
   updatedAt: string | Date;
+
 
   // Frontend local state only
   quantity?: number; // Used for Cart management

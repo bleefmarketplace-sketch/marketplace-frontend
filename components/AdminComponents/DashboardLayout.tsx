@@ -25,12 +25,13 @@ import {
   Library,
   Star,
   Store,
+  User,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
-import { useAuth } from "@/context/AuthContext";
+import { useAuth, UserRole } from "@/context/AuthContext";
 import { NotificationBell } from "../NotificationBell";
 
 interface LayoutProps {
@@ -81,7 +82,7 @@ export const DashboardLayout: React.FC<LayoutProps> = ({ children }) => {
 
   const role = user?.role;
 
-  const getNavItems = (role?: Role): NavItem[] => {
+  const getNavItems = (role?: UserRole): NavItem[] => {
     if (!role) return [];
 
     switch (role) {
@@ -225,7 +226,7 @@ export const DashboardLayout: React.FC<LayoutProps> = ({ children }) => {
             />
           </div>
 
-          <button onClick={() => logout}>
+          <button onClick={() => logout()}>
             <LogOut size={20} />
           </button>
 
@@ -304,7 +305,7 @@ export const DashboardLayout: React.FC<LayoutProps> = ({ children }) => {
 
                   <div className="border-t border-gray-100 p-2">
                     <button
-                      onClick={logout}
+                      onClick={() => logout()}
                       className="w-full text-left px-4 py-2 text-sm font-semibold text-red-500 hover:bg-red-50 rounded-lg"
                     >
                       Logout

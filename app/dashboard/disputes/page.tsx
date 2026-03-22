@@ -28,7 +28,7 @@ export default function DisputeDetailPage() {
     // 1. Fetch Dispute Data
     const loadDispute = async () => {
         try {
-            const data = await fetcher<any>(`/api/disputes/${id}`);
+            const data = await fetcher(`/api/disputes/${id}`);
             setDispute(data);
         } catch (e) {
             toast.error("Failed to load dispute details");

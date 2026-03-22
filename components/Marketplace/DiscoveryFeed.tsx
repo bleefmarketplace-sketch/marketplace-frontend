@@ -7,6 +7,7 @@ import { Star, MapPin, Plus, Leaf, ShieldCheck } from 'lucide-react';
 import { toast } from 'react-toastify';
 import { useCartStore } from '@/store/useCartStore';
 import { useTracking } from '@/hooks/useTracking';
+import { Product } from '../types';
 
 interface Category {
   id: string;
@@ -21,20 +22,7 @@ interface Seller {
   rating: number;
 }
 
-interface Product {
-  id: string;
-  title: string;
-  price: number;
-  stock: number;
-  primaryImage: string;
-  location: string;
-  averageRating: number;
-  reviewCount: number;
-  isOrganic: boolean;
-  isVerifiedVendor: boolean;
-  category?: Category;
-  seller?: Seller;
-}
+ 
 
 interface DiscoveryFeedProps {
   title?: string;

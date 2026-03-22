@@ -26,7 +26,7 @@ export default function AdminCategoriesPage() {
     const loadData = useCallback(async () => {
         setLoading(true);
         try {
-            const res = await fetcher<any[]>('/api/admin/categories');
+            const res = await fetcher('/api/admin/categories');
             setCategories(res.data || []);
         } catch (e) { toast.error("Failed to load categories"); }
         finally { setLoading(false); }

@@ -32,12 +32,7 @@ export async function POST(request: Request) {
   } catch (error) {
     const axiosError = error as AxiosError<any>;
 
-    // Server-side logging ONLY
-    
-
-     
-
-    // Network / backend unavailable
+   
     return NextResponse.json(
       {
         success: false,

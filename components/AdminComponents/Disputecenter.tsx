@@ -13,33 +13,65 @@ import { useApi } from '@/hooks/useApi';
 import { useRouter } from 'next/navigation'; // Corrected for App Router
 import { toast } from 'react-toastify';
 
+type DisputeStatus = 'pending' | 'escalated' | 'resolved';
+
+type DisputeItem = {
+  id: string;
+  productSnapshotImage?: string;
+  productSnapshotTitle?: string;
+  priceAtPurchase: number;
+};
+
+type DisputeOrder = {
+  totalAmount: number;
+  items?: DisputeItem[];
+};
+
+type DisputeMessage = {
+  message: string;
+};
+
+type Dispute = {
+  id: string;
+  status: DisputeStatus;
+  reason: string;
+  createdAt: string;
+  order: DisputeOrder;
+  buyer: {
+    fullName: string;
+  };
+  messages?: DisputeMessage[];
+};
+
 const AdminDisputeCenter = () => {
-    const fetcher = useApi();
+  const fetcher = useApi() as (url: string, options?: RequestInit) => Promise<{ data: Dispute[] }>;
     const router = useRouter();
     
-    // --- STATE ---
-    const [disputes, setDisputes] = useState<any[]>([]);
+   
     const [loading, setLoading] = useState(true);
     const [filter, setFilter] = useState<'all' | 'escalated'>('escalated');
-    const [selectedDispute, setSelectedDispute] = useState<any | null>(null);
+   const [disputes, setDisputes] = useState<Dispute[]>([]);
+const [selectedDispute, setSelectedDispute] = useState<Dispute | null>(null);
     const [processing, setProcessing] = useState(false);
 
     // --- LOAD DATA ---
     const loadDisputes = useCallback(async () => {
-        setLoading(true);
-        try {
-            const res = await fetcher('/api/admin/disputes');
-            setDisputes(res.data);
-            // Auto-select the first escalated case if available
-            const data = res.data || [];
-            const escalated = data.find((d) => d.status === 'escalated');
-            if (escalated) setSelectedDispute(escalated);
-        } catch (e: any) {
-            toast.error(e.message || "Failed to load cases");
-        } finally {
-            setLoading(false);
-        }
-    }, [fetcher]);
+  setLoading(true);
+  try {
+    const res = await fetcher('/api/admin/disputes');
+
+    const data = res.data || [];
+    setDisputes(data);
+
+    const escalated = data.find((d) => d.status === 'escalated');
+    if (escalated) setSelectedDispute(escalated);
+
+  } catch (e: any) {
+    toast.error(e.message || "Failed to load cases");
+  } finally {
+    setLoading(false);
+  }
+}, [fetcher]);
 
     useEffect(() => { loadDisputes(); }, [loadDisputes]);
 
@@ -128,7 +160,7 @@ const AdminDisputeCenter = () => {
                                             </span>
                                             <span className="text-[10px] text-gray-300 font-mono">#{d.id.slice(0,8)}</span>
                                         </div>
-                                        <p className="font-black text-gray-900">${Number(d.order.totalAmount).toLocaleString()}</p>
+                                        <p className="font-black text-gray-900">${Number(d?.order.totalAmount ?? 0).toLocaleString()}</p>
                                     </div>
 
                                     <h4 className="text-lg font-bold text-gray-900 mb-2">{d.reason}</h4>
@@ -141,7 +173,7 @@ const AdminDisputeCenter = () => {
                                     <div className="mt-4 pt-4 border-t border-gray-50 flex items-center justify-between">
                                         <div className="flex items-center gap-2">
                                             <div className="w-6 h-6 rounded-full bg-gray-200 flex items-center justify-center text-[10px] font-bold">B</div>
-                                            <span className="text-xs font-bold text-gray-700">{d.buyer.fullName}</span>
+                                            <span className="text-xs font-bold text-gray-700">{d?.buyer.fullName ?? 'Unknown Buyer'}</span>
                                         </div>
                                         <ArrowRight size={16} className="text-gray-300" />
                                     </div>
@@ -222,7 +254,7 @@ const AdminDisputeCenter = () => {
                                             {selectedDispute.order.items?.map((item: any) => (
                                                 <div key={item.id} className="flex items-center gap-3">
                                                     <div className="w-8 h-8 rounded bg-white/10 relative overflow-hidden">
-                                                        <Image unoptimized fill src={item.productSnapshotImage} alt="" className="object-cover" />
+                                                        <Image unoptimized fill src={item.productSnapshotImage || '/placeholder.png'} alt="" className="object-cover" />
                                                     </div>
                                                     <p className="text-xs font-medium truncate flex-1">{item.productSnapshotTitle}</p>
                                                     <p className="text-xs font-black text-emerald-400">₦{item.priceAtPurchase}</p>
@@ -235,7 +267,7 @@ const AdminDisputeCenter = () => {
                                         <div className="flex items-start gap-3">
                                             <Info className="text-amber-600 shrink-0 mt-0.5" size={18} />
                                             <p className="text-[11px] text-amber-800 leading-relaxed font-medium">
-                                                <b>Resolution Rule:</b> Releasing funds moves the escrow to the Seller's wallet. Refunding returns the full subtotal to the Buyer's payout queue.
+                                                <b>Resolution Rule:</b> Releasing funds moves the escrow to the Seller. Refunding returns the full subtotal to the Buyer.
                                             </p>
                                         </div>
                                     </div>

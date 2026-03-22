@@ -4,11 +4,11 @@ import { getAuthToken, handleAxiosError } from "@/helpers/__helper";
 
 export async function PATCH(
     request: NextRequest,
-    { params }: { params: { id: string } }
+   context: { params: Promise<{ id: string }> }
 ) {
     try {
         const token = await getAuthToken();
-        const { id } = params;
+        const  id  = await context.params;
 
         // Calls NestJS: @Patch('notifications/:id/read')
         const response = await axios.patch(

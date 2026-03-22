@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { Suspense, useState } from "react";
 import { Input } from "../Input";
 import { Button } from "../Button";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -76,7 +76,8 @@ export const ResetPassword = () => {
 
     /* -------------------- UI -------------------- */
     return (
-        <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+        <Suspense>   
+                 <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
             <div className="max-w-md w-full bg-white rounded-[40px] shadow-2xl overflow-hidden border border-gray-100 p-10">
 
                 {!isSuccess ? (
@@ -150,5 +151,7 @@ export const ResetPassword = () => {
                 )}
             </div>
         </div>
+        </Suspense>
+
     );
 };

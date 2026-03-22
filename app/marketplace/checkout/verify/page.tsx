@@ -1,5 +1,5 @@
 'use client';
-import { useEffect, useState } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { Loader2, CheckCircle2, XCircle } from 'lucide-react';
 import { Button } from '@/components/Button';
@@ -24,6 +24,7 @@ export default function VerifyOrderPage() {
     }, [reference]);
 
     return (
+        <Suspense>
         <div className="min-h-screen flex items-center justify-center bg-white p-4">
             <div className="max-w-md w-full text-center space-y-6">
                 {status === 'loading' && (
@@ -59,5 +60,6 @@ export default function VerifyOrderPage() {
                 )}
             </div>
         </div>
+        </Suspense>
     );
 }

@@ -9,7 +9,6 @@ import React, {
   useState,
 } from "react";
 
-import { MOCK_PRODUCTS } from "@/components/constants";
 import { PendingAction, Product } from "@/components/types";
 
 /* ------------------------------------------------------------------ */
@@ -19,6 +18,7 @@ import { PendingAction, Product } from "@/components/types";
 interface CartItem {
   product: Product;
   quantity: number;
+  image: string;
 }
 
 type ActiveTab = "All" | "Best Sellers" | "New Arrivals";
@@ -117,7 +117,11 @@ export const BuyerProvider: React.FC<BuyerProviderProps> = ({
             : p
         );
       }
-      return [...prev, { product, quantity: 1 }];
+      return [...prev, {
+        product,
+        quantity: 1,
+        image: product.image || "/placeholder.png",
+      },];
     });
 
     setNotification(`Added ${product.title} to cart`);
@@ -158,7 +162,9 @@ export const BuyerProvider: React.FC<BuyerProviderProps> = ({
 
       switch (action.type) {
         case "cart":
-          addToCart(action.data);
+          if (action.data) {
+            addToCart(action.data as Product);
+          }
           navigate("/buyer/cart");
           break;
 
@@ -182,37 +188,10 @@ export const BuyerProvider: React.FC<BuyerProviderProps> = ({
   /* -------------------- Derived Data -------------------- */
 
   const filteredProducts = useMemo(() => {
-    return MOCK_PRODUCTS.filter((product) => {
-      const matchesSearch =
-        product.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        product.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        product.vendor.toLowerCase().includes(searchQuery.toLowerCase());
+    return [];
 
-      const matchesCategory =
-        selectedCategory === "All" || product.category === selectedCategory;
-
-      let matchesTab = true;
-      if (activeTab === "Best Sellers") {
-        matchesTab = product.rating >= 4.8;
-      }
-
-      const min = priceRange.min ? Number(priceRange.min) : 0;
-      const max = priceRange.max ? Number(priceRange.max) : Infinity;
-      const matchesPrice =
-        product.price >= min && product.price <= max;
-
-      return (
-        matchesSearch &&
-        matchesCategory &&
-        matchesTab &&
-        matchesPrice
-      );
-    });
   }, [
-    searchQuery,
-    selectedCategory,
-    activeTab,
-    priceRange,
+
   ]);
 
   /* -------------------- Context Value -------------------- */

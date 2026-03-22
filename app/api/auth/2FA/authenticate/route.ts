@@ -27,7 +27,6 @@ export async function POST(req: NextRequest) {
         };
          return NextResponse.json(frontendResponse, { status: 200 });
     } catch (e) {
-        console.error("2FA Authentication Error:", e); // Debug log
         return handleAxiosError(e);
     }
 }

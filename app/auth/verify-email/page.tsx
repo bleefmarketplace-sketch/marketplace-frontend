@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import Image from "next/image";
 import { ArrowLeft } from "lucide-react";
@@ -52,6 +52,7 @@ const Page = () => {
     };
 
     return (
+        <Suspense>
         <div className="min-h-screen flex items-center justify-center relative bg-gray-900 px-4">
             <div className="absolute inset-0 z-0">
                 <Image
@@ -111,6 +112,7 @@ const Page = () => {
                 </div>
             </div>
         </div>
+        </Suspense>
     );
 }
 

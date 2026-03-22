@@ -1,9 +1,11 @@
 import BuyerOrdersPage from '@/components/BuyerComponents/Orders'
-import React from 'react'
+import React, { Suspense } from 'react'
 
 const Page = () => {
   return (
-    <BuyerOrdersPage/>
+    <Suspense>
+      <BuyerOrdersPage/>
+    </Suspense>
   )
 }
 

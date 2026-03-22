@@ -7,7 +7,7 @@ import { toast } from "react-toastify";
 import { decrypt, encrypt } from "@/secure/__enc";
 
 // --- Types ---
-export type UserRole = "buyer" | "seller" | "creator" | "admin" | "Merchant";
+export type UserRole = "buyer" | "seller" | "creator" | "admin";
 
 export interface User {
   id: string;
@@ -56,7 +56,7 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-const COOKIE_USER_KEY = "_user_";
+export const COOKIE_USER_KEY = "_user_";
 export const COOKIE_TOKEN_KEY = "_tkn_";
 export const COOKIE_REFRESH_KEY = "_ref_"
 
@@ -117,9 +117,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         logout(true);
       }
     } catch (error) {
-      
+      console.log(error)
     }
-  }, [token]);
+  }, [ logout]);
 
 
 

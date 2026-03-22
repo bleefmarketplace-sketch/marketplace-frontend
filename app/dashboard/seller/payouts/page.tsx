@@ -477,7 +477,7 @@ const WalletPage = () => {
                                 onChange={(e) => setNewBank(prev => ({ ...prev, bankCode: e.target.value, accountName: '' }))}
                             >
                                 <option value="">Choose Bank...</option>
-                                {banksList.map(b => <option key={b.id} value={b.code}>{b.name}</option>)}
+                                {banksList.map((b, i) => <option key={i} value={b.code}>{b.name}</option>)}
                             </select>
                         </div>
 

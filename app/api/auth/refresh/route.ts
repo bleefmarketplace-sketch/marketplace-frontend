@@ -2,7 +2,8 @@ import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 import axios from "axios";
 import { decrypt, encrypt } from "@/secure/__enc";
-import { COOKIE_REFRESH_KEY, COOKIE_TOKEN_KEY, getCookieOptions } from "@/context/AuthContext";
+import { COOKIE_REFRESH_KEY, COOKIE_TOKEN_KEY, COOKIE_USER_KEY, getCookieOptions } from "@/context/AuthContext";
+import { setCookie } from "cookies-next";
 
 export async function POST() {
     try {
@@ -24,6 +25,11 @@ export async function POST() {
         const responseHeaders = NextResponse.json({ success: true });
 
         const options = getCookieOptions()
+        const updatedUser = {
+        
+        ...response.data,
+        isOnboarded: true,
+      };
 
          setCookie(COOKIE_USER_KEY, JSON.stringify(updatedUser), getCookieOptions(7));
         
