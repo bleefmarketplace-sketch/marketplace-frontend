@@ -16,9 +16,7 @@ export async function POST(request: NextRequest) {
                 "Content-Type": "application/json"
             }
         });
-
-        console.log(response.data)
-
+ 
         return NextResponse.json(response.data);
     } catch (error) {
         return handleAxiosError(error);

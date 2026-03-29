@@ -177,7 +177,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
       const { user: userData } = data;
 
-      console.log(userData)
+      
 
 
       // Security Check: Verification

@@ -42,7 +42,7 @@ const [is2FAModalOpen, setIs2FAModalOpen] = useState(false);
             setIs2FAModalOpen(true);
         } else {
             // Turning it OFF -> Direct Confirmation
-            if (confirm("Disabling 2FA will leave your farm revenue vulnerable. Proceed?")) {
+            if (confirm("Disabling 2FA will leave your account vulnerable. Proceed?")) {
                 try {
                     await fetcher('/api/users/profile', {
                         method: 'PATCH',

@@ -46,7 +46,7 @@ type Dispute = {
 const AdminDisputeCenter = () => {
   const fetcher = useApi() as (url: string, options?: RequestInit) => Promise<{ data: Dispute[] }>;
     const router = useRouter();
-    
+
    
     const [loading, setLoading] = useState(true);
     const [filter, setFilter] = useState<'all' | 'escalated'>('escalated');

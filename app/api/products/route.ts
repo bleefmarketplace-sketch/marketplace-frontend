@@ -23,7 +23,7 @@ export async function POST(request: Request) {
         const body = await request.json();
 
 
-
+ 
         const response = await axios.post(
             `${process.env.BASE_URL}/products`,
             body,
@@ -36,7 +36,8 @@ export async function POST(request: Request) {
         );
 
         return NextResponse.json(response.data, { status: 201 });
-    } catch (error) {
+    } catch (error:any) {
+        console.log(error);
         return handleAxiosError(error);
     }
 }

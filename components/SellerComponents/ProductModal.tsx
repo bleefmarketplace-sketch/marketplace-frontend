@@ -250,7 +250,7 @@ console.log(initialData)
                                 ))}
                             </select>
                         </div>
-                        <Input name="location" label="Farm Location" defaultValue={initialData?.location} required />
+                        <Input name="location" label=" Location" defaultValue={initialData?.location} required />
                     </div>
 
                     <div className="space-y-1">

@@ -223,7 +223,7 @@ const Page = () => {
       setIs2FAModalOpen(true);
     } else {
       // Turning it OFF -> Direct Confirmation
-      if (confirm("Disabling 2FA will leave your farm revenue vulnerable. Proceed?")) {
+      if (confirm("Disabling 2FA will leave your account vulnerable. Proceed?")) {
         try {
           await fetcher('/api/users/profile', {
             method: 'PATCH',
@@ -471,17 +471,7 @@ const Page = () => {
                   </Button>
                 </Card>
 
-                <Card className="p-6 bg-blue-50 border-blue-100">
-                  <h3 className="font-bold text-blue-900 mb-2">
-                    Verified Vendor Badge
-                  </h3>
-                  <p className="text-sm text-blue-800 mb-4">
-                    Upload certification to gain buyer trust.
-                  </p>
-                  <Button variant="outline" className="bg-white w-full" disabled>
-                    Upload Documents (Coming Soon)
-                  </Button>
-                </Card>
+               
               </div>
             </div>
           </>

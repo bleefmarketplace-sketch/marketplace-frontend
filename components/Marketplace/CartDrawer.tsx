@@ -52,7 +52,7 @@ export const CartDrawer = ({ isOpen, onClose }: { isOpen: boolean; onClose: () =
                         <span className="text-xs font-bold">{item.quantity}</span>
                         <button onClick={() => updateQuantity(item.id, item.quantity + 1)} className="p-1 hover:bg-white rounded-full"><Plus size={12}/></button>
                     </div>
-                    <span className="font-black text-emerald-600">${(item.price * item.quantity).toLocaleString()}</span>
+                    <span className="font-black text-emerald-600">₦{(item.price * item.quantity).toLocaleString()}</span>
                   </div>
                 </div>
                 <button onClick={() => removeItem(item.id)} className="text-gray-300 hover:text-red-500 self-start p-1"><Trash2 size={16}/></button>
@@ -65,7 +65,7 @@ export const CartDrawer = ({ isOpen, onClose }: { isOpen: boolean; onClose: () =
           <div className="p-6 border-t bg-gray-50 space-y-4">
             <div className="flex items-center justify-between">
               <span className="text-gray-500 font-medium">Estimated Total</span>
-              <span className="text-2xl font-black text-gray-900">${getTotalPrice().toLocaleString()}</span>
+              <span className="text-2xl font-black text-gray-900">₦{getTotalPrice().toLocaleString()}</span>
             </div>
             <p className="text-[10px] text-gray-400 text-center uppercase tracking-wider font-bold">Shipping and taxes calculated at checkout</p>
             <Button onClick={() => router.push("/marketplace/checkout")} fullWidth size="lg" className="bg-emerald-600 hover:bg-emerald-700 rounded-full shadow-lg shadow-emerald-100 gap-2">

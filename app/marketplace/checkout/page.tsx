@@ -4,7 +4,7 @@ import { useCartStore } from '@/store/useCartStore';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { Button } from '@/components/Button';
-import { MapPin, ShieldCheck, Truck, ChevronLeft, CreditCard } from 'lucide-react';
+import { MapPin, ShieldCheck, Truck, ChevronLeft } from 'lucide-react';
 import { toast } from 'react-toastify';
 import OrderSuccessModal from '@/components/Marketplace/SuccessModal';
 
@@ -78,7 +78,7 @@ export default function CheckoutPage() {
         }
     };
 
-    if (items.length === 0) {
+   /*  if (items.length === 0) {
         return (
             <div className="min-h-screen flex flex-col items-center justify-center">
                 <p className="text-gray-500 mb-4">Your basket is empty</p>
@@ -86,7 +86,7 @@ export default function CheckoutPage() {
             </div>
         );
     }
-
+ */
     return (
         <div className="min-h-screen bg-[#f8f9fa] pb-20">
             <div className="max-w-6xl mx-auto px-4 pt-8">
@@ -132,7 +132,7 @@ export default function CheckoutPage() {
                                                 <p className="text-xs text-gray-400">Qty: {item.quantity} units</p>
                                             </div>
                                             <div className="text-right">
-                                                <p className="font-black text-gray-900">${(item.price * item.quantity).toLocaleString()}</p>
+                                                <p className="font-black text-gray-900">₦{(item.price * item.quantity).toLocaleString()}</p>
                                                 <p className="text-[10px] text-gray-400">${item.price} per unit</p>
                                             </div>
                                         </div>
@@ -150,7 +150,7 @@ export default function CheckoutPage() {
                             <div className="space-y-4 mb-8">
                                 <div className="flex justify-between text-gray-400">
                                     <span className="text-sm">Subtotal</span>
-                                    <span className="font-bold text-white">${getTotalPrice().toLocaleString()}</span>
+                                    <span className="font-bold text-white">₦{getTotalPrice().toLocaleString()}</span>
                                 </div>
                                 <div className="flex justify-between text-gray-400">
                                     <span className="text-sm">Est. Logistics</span>
@@ -158,7 +158,7 @@ export default function CheckoutPage() {
                                 </div>
                                 <div className="pt-4 border-t border-white/10 flex justify-between items-center">
                                     <span className="text-lg font-bold">Total</span>
-                                    <span className="text-3xl font-black text-emerald-400">${getTotalPrice().toLocaleString()}</span>
+                                    <span className="text-3xl font-black text-emerald-400">₦{getTotalPrice().toLocaleString()}</span>
                                 </div>
                             </div>
 
@@ -179,16 +179,7 @@ export default function CheckoutPage() {
                             </div>
                         </div>
 
-                        {/* Trust Card */}
-                        <div className="mt-6 bg-white rounded-3xl p-6 border border-gray-100 flex items-center gap-4">
-                            <div className="w-12 h-12 bg-emerald-50 rounded-2xl flex items-center justify-center text-emerald-600">
-                                <CreditCard size={24} />
-                            </div>
-                            <div>
-                                <h5 className="text-sm font-bold text-gray-900">Escrow Protection</h5>
-                                <p className="text-[10px] text-gray-500 leading-tight">Your funds are held safely until you confirm delivery.</p>
-                            </div>
-                        </div>
+                        
                     </div>
                 </div>
             </div>

@@ -93,7 +93,7 @@ export default function AdminCategoriesPage() {
     };
 
     return (
-        <div className="max-w-5xl mx-auto py-10 px-4 space-y-8">
+        <div className="max-w-5xl mx-auto  px-4 space-y-8">
             <div className="flex justify-between items-end">
                 <div>
                     <h1 className="text-3xl font-black text-gray-900 tracking-tight">Market Categories</h1>
@@ -185,8 +185,8 @@ export default function AdminCategoriesPage() {
                             }
                         </select>
                     </div>
-
-                    <Button fullWidth size="lg" disabled={saving} className="bg-emerald-600 rounded-2xl h-14">
+<>{console.log(categories)}</>
+                    <Button fullWidth size="md" disabled={saving} className="bg-emerald-600 rounded-2xl">
                         {saving ? <Loader2 className="animate-spin" /> : editingCategory ? "Update Category" : "Create Category"}
                     </Button>
                 </form>

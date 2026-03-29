@@ -321,7 +321,7 @@ export default function AdminDashboard() {
                     </div>
                 </Card>
 
-                <Card className="p-8 bg-white border-gray-100 shadow-sm rounded-[2.5rem]">
+               {/*  <Card className="p-8 bg-white border-gray-100 shadow-sm rounded-[2.5rem]">
                     <h3 className="font-black text-xl text-gray-900 mb-6">Gateway Status</h3>
                     <div className="space-y-4">
                         <div className="p-4 bg-gray-50 rounded-2xl flex items-center justify-between">
@@ -342,8 +342,8 @@ export default function AdminDashboard() {
                     <div className="mt-8 p-4 bg-blue-50 rounded-2xl border border-blue-100 text-[10px] text-blue-700 leading-relaxed font-medium">
                         Platform earnings are currently calculated at {stats.revenue > 0 ? (stats.revenue / stats.gmv * 100).toFixed(1) : '5.0'}% average commission.
                     </div>
-                </Card>
+                </Card> */}
             </div>
         </div>
-    );
+    )
 }

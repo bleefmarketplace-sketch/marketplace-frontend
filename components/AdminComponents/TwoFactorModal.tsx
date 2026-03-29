@@ -4,14 +4,15 @@ import React, { useState, useEffect } from 'react';
 import { Modal } from '@/components/Modal';
 import { Button } from '@/components/Button';
 import { Input } from '@/components/Input';
-import { 
-     Loader2, 
-    Copy, Check, Key 
+import {
+    Loader2,
+    Copy, Check, Key
 } from 'lucide-react';
 import QRCode from 'qrcode';
 import { toast } from 'react-toastify';
 import { useApi } from '@/hooks/useApi';
 import Image from 'next/image';
+import { useAuth } from '@/context/AuthContext';
 
 interface TwoFactorModalProps {
     isOpen: boolean;
@@ -35,9 +36,9 @@ export const TwoFactorModal = ({ isOpen, onClose, onSuccess }: TwoFactorModalPro
     const initiateSetup = async () => {
         setStep('loading');
         try {
-            const {data} = await fetcher('/api/auth/2FA/setup', { method: 'POST' });
+            const { data } = await fetcher('/api/auth/2FA/setup', { method: 'POST' });
             setSetupData(data);
-            
+
             const qrImage = await QRCode.toDataURL(data.otpauthUrl);
             setQrCodeUrl(qrImage);
             setStep('scan');
@@ -52,22 +53,39 @@ export const TwoFactorModal = ({ isOpen, onClose, onSuccess }: TwoFactorModalPro
             navigator.clipboard.writeText(setupData.secret);
             setCopied(true);
             setTimeout(() => setCopied(false), 2000);
-           
+
         }
     };
 
     const handleVerify = async () => {
-        if (verificationCode.length !== 6) return toast.error("Enter 6 digits");
+        if (verificationCode.length !== 6) {
+            return toast.error("Enter 6 digits");
+        }
+
         setLoading(true);
+
         try {
-            await fetcher('/api/auth/2FA/confirm', {
+            const res = await fetch('/api/auth/2FA/confirm', {
                 method: 'POST',
-                body: JSON.stringify({ code: verificationCode })
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ code: verificationCode }),
             });
+
+            const data = await res.json();
+
+
+            if (!res.ok) {
+                throw new Error(data?.message || "Verification failed");
+            }
+
             toast.success("2FA successfully enabled!");
             onSuccess();
+
         } catch (e: any) {
-            toast.error(e.message || "Invalid code");
+            console.error("2FA error:", e);
+            toast.error(e?.message || "Invalid or expired code");
         } finally {
             setLoading(false);
         }
@@ -83,13 +101,13 @@ export const TwoFactorModal = ({ isOpen, onClose, onSuccess }: TwoFactorModalPro
                 ) : step === 'scan' ? (
                     <div className="space-y-6 animate-in fade-in zoom-in duration-500">
                         <div className="text-center space-y-2 mb-4">
-                           
+
                             <p className="text-xs text-gray-500">Scan the QR code with Google Authenticator or Authy.</p>
                         </div>
 
                         <div className="bg-gray-50 p-4 rounded-[2.5rem] flex flex-col items-center border border-gray-100 shadow-inner relative">
                             {qrCodeUrl && <Image width={150} height={150} src={qrCodeUrl} className="rounded-2xl shadow-2xl border-8 border-white" alt="QR" />}
-                            
+
                             <div className="mt-8 w-full space-y-3">
                                 <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest text-center">Manual Entry Key</p>
                                 <div className="flex items-center gap-2 bg-white p-3 rounded-2xl border border-gray-100 shadow-sm">
@@ -109,24 +127,24 @@ export const TwoFactorModal = ({ isOpen, onClose, onSuccess }: TwoFactorModalPro
                 ) : (
                     <div className="space-y-6 animate-in slide-in-from-right-4 duration-500">
                         <div className="text-center space-y-2 mb-4">
-                             
+
                             <p className="text-xs text-gray-500">Enter the 6-digit code displayed in your app.</p>
                         </div>
 
                         <div className="space-y-4">
-                            <Input 
-                                placeholder="000 000" 
+                            <Input
+                                placeholder="000 000"
                                 maxLength={6}
                                 value={verificationCode}
                                 onChange={(e) => setVerificationCode(e.target.value)}
                                 className="flex item-center justify-center p-2  rounded-md text-center text-3xl font-black tracking-[0.5em]    bg-gray-50 border-none"
                             />
-                            
+
                         </div>
 
                         <div className="flex gap-3">
                             <Button variant="ghost" onClick={() => setStep('scan')} className="flex-1 rounded-2xl">Back</Button>
-                            <Button 
+                            <Button
                                 disabled={loading || verificationCode.length !== 6}
                                 onClick={handleVerify}
                                 className="flex-[2] bg-emerald-600  rounded-2xl font-black shadow-lg"
