@@ -250,15 +250,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const completeOnboarding = async (
     formData: OnboardingData
   ): Promise<boolean> => {
-    const userId = user?.id || searchParams.get("u");
-
-    if (!userId) {
-      router.replace("/auth/login");
-      return false;
-    }
+    
 
     try {
-      const response = await fetch(`/api/auth/onboard?id=${userId}`, {
+      const response = await fetch(`/api/auth/onboard`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

@@ -5,7 +5,7 @@ import UserManagement from '@/components/AdminComponents/UserManagement'
 const Page = () => {
   return (
     <div>
-      {/* <UserManagement /> */}
+      <UserManagement />
       </div>
   )
 }

@@ -160,12 +160,19 @@ const UserManagement = () => {
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-100">
+                        {loading && (
+                            <tr>
+                                <td colSpan={5} className="text-center py-6 text-gray-400">
+                                    Loading...
+                                </td>
+                            </tr>
+                        )}
                         {users.map(user => (
-                            
-                            <tr key={user.id}  className="bg-white hover:bg-gray-50">
-                            
+
+                            <tr key={user.id} className="bg-white hover:bg-gray-50">
+
                                 <td className="px-6 py-4" >
-                                    <div className="flex items-center gap-3 cursor-pointer"  onClick={() => setSelectedUser(user)}>
+                                    <div className="flex items-center gap-3 cursor-pointer" onClick={() => setSelectedUser(user)}>
                                         <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center font-bold text-gray-600 text-xs">
                                             {user.role.charAt(0)}
                                         </div>
@@ -180,12 +187,12 @@ const UserManagement = () => {
                                         user.role === 'creator' ? 'bg-orange-100 text-orange-700' :
                                             'bg-blue-100 text-blue-700'
                                         }`}>{user.role}</span>
-                                        <span>{user.role === 'seller' && <UserBadge volume={user.lifetimeSalesVolume} />}
+                                    <span>{user.role === 'seller' && <UserBadge volume={user.lifetimeSalesVolume} />}
 
-                                            {user.role === 'creator' && <UserBadge volume={user.lifetimeSalesVolume} />}
-                                              
-                                          
-                                            </span>
+                                        {user.role === 'creator' && <UserBadge volume={user.lifetimeSalesVolume} />}
+
+
+                                    </span>
                                 </td>
                                 <td className="px-6 py-4">
                                     {user.status === 'active' && <span className="text-green-600 flex items-center gap-1 font-medium"><CheckCircle size={14} /> Active</span>}
@@ -196,27 +203,27 @@ const UserManagement = () => {
                                     {new Date(user.createdAt).toLocaleDateString()}
                                 </td>
                                 <td className="px-6 py-4 text-right">
-                                    
+
                                     {user.deletedAt ? (
                                         <button
-                                        className="pr-3 text-blue-600 cursor-pointer"
+                                            className="pr-3 text-blue-600 cursor-pointer"
                                             onClick={() => restoreUser(user.id)}
-                                            
+
                                         >
                                             <ArchiveRestore size={16} color="blue" />
                                         </button>
                                     )
-                                    : (
-                                        <button
-                                        className="pr-3 cursor-pointer"
-                                        onClick={(e) => {
-                                            e.stopPropagation()
-                                            setDeleteUser(user)
-                                        }}
-                                    >
-                                        <Trash size={16} color="red" />
-                                    </button>
-                                    )
+                                        : (
+                                            <button
+                                                className="pr-3 cursor-pointer"
+                                                onClick={(e) => {
+                                                    e.stopPropagation()
+                                                    setDeleteUser(user)
+                                                }}
+                                            >
+                                                <Trash size={16} color="red" />
+                                            </button>
+                                        )
                                     }
                                     {user.status === 'active' ? (
                                         <button
@@ -234,7 +241,7 @@ const UserManagement = () => {
                                                 e.stopPropagation();
                                                 updateUserStatus(user.id, 'activate');
                                             }}
-                                             className='cursor-pointer'
+                                            className='cursor-pointer'
                                         >
                                             <CheckCircle size={16} />
                                         </button>

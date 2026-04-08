@@ -6,14 +6,9 @@ import { Button } from '@/components/Button';
 import { Input } from '@/components/Input';
 import {
     User, Lock, ShieldCheck, Camera,
-    Loader2, Save,
+    Loader2, 
     Settings2,
     Plus,
-    Leaf,
-    MapPin,
-    Scale,
-    Briefcase,
-    Phone,
     ShieldAlert,
     X
 } from 'lucide-react';

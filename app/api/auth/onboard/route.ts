@@ -33,25 +33,12 @@ export async function POST(request: Request) {
         /* 2. REQUEST DATA               */
         /* ----------------------------- */
         const body = await request.json();
-        const { searchParams } = new URL(request.url);
-        const userId = searchParams.get("id");
-
-        if (!userId) {
-            return NextResponse.json(
-                {
-                    success: false,
-                    code: "INVALID_REQUEST",
-                    message: "User ID is required",
-                },
-                { status: 400 }
-            );
-        }
-
+        
         /* ----------------------------- */
         /* 3. BACKEND REQUEST            */
         /* ----------------------------- */
         const response = await axios.patch(
-            `${process.env.BASE_URL}/auth/${userId}/onboard`,
+            `${process.env.BASE_URL}/auth/123456/onboard`,
             body,
             {
                 headers: {
@@ -61,6 +48,8 @@ export async function POST(request: Request) {
             }
         );
 
+
+        console.log("Onboarding response:", response.data); // Debug log
         /* ----------------------------- */
         /* 4. SUCCESS RESPONSE           */
         /* ----------------------------- */
