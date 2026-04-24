@@ -23,7 +23,7 @@ export default function SellerOrdersPage() {
         try {
             const res = await fetcher('/api/seller/sales');
 
-           
+
             setSales(res || []);
         } catch (err) {
             toast.error("Failed to load incoming orders");
@@ -109,8 +109,8 @@ export default function SellerOrdersPage() {
 
                                                 <div className="flex gap-4 lg:flex-col">
                                                     <div className="relative w-20 h-20 lg:w-full lg:h-32 rounded-xl overflow-hidden bg-gray-50 border border-gray-100 shrink-0">
-                                                        <Image unoptimized fill   src={sale.productSnapshotImage} 
-            alt={sale.productSnapshotTitle} className="object-cover" />
+                                                        <Image unoptimized fill src={sale.productSnapshotImage}
+                                                            alt={sale.productSnapshotTitle} className="object-cover" />
                                                     </div>
                                                     <div>
                                                         <h4 className="font-bold text-gray-900 text-sm line-clamp-2 leading-snug">{sale.productSnapshotTitle}</h4>
@@ -158,7 +158,7 @@ export default function SellerOrdersPage() {
                                             {/* Column 3: Payout Info */}
                                             <div className="lg:col-span-2 p-6 border-l border-gray-50 flex flex-col justify-center text-center lg:text-left">
                                                 <p className="text-[9px] font-black text-gray-400 uppercase tracking-[0.2em] mb-1">Your Payout</p>
-                                                <p className="text-3xl font-black text-gray-900 tracking-tighter">${earnings.toLocaleString()}</p>
+                                                <p className="text-3xl font-black text-gray-900 tracking-tighter">₦{earnings.toLocaleString()}</p>
 
                                                 <div className="mt-4 space-y-2">
                                                     {sale.order.paymentStatus === 'escrow_held' ? (

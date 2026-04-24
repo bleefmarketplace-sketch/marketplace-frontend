@@ -50,7 +50,7 @@ export default function CheckoutPage() {
 
             const data = await res.json();
 
-            // FIX: The ID is inside data.order.id based on your console log
+            
             if (res.ok && data.order?.id) {
                 setPlacedOrderId(data.order.id);
 

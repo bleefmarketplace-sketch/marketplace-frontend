@@ -9,7 +9,6 @@ export async function GET() {
         const response = await axios.get(`${process.env.BASE_URL}/disputes/my-disputes`, {
             headers: { Authorization: `Bearer ${token}` }
         });
-        console.log("Fetched disputes:", response.data);
         return NextResponse.json({ success: true, data: response.data });
     } catch (e) { return handleAxiosError(e); }
 }

@@ -190,7 +190,7 @@ export default function AdminDashboard() {
     const fetcher = useApi();
     const [stats, setStats] = useState<any>(null);
     const [loading, setLoading] = useState(true);
-    console.log(stats)
+   
 
     useEffect(() => {
     const getStats = async () => {

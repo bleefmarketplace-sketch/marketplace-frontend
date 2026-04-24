@@ -5,7 +5,7 @@ import { Input } from '@/components/Input';
 import { Button } from '@/components/Button';
 import { Video, FileText, Plus, Trash2, GripVertical, Loader2 } from 'lucide-react';
 
-export const ContentBuilderModal = ({ isOpen, onClose, onSave }: any) => {
+ const ContentBuilderModal = ({ isOpen, onClose, onSave }: any) => {
     const [form, setForm] = useState({
         title: '',
         description: '',
@@ -89,3 +89,5 @@ export const ContentBuilderModal = ({ isOpen, onClose, onSave }: any) => {
         </Modal>
     );
 };
+
+export default ContentBuilderModal

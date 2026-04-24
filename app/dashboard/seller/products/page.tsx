@@ -29,7 +29,6 @@ const Page = () => {
   const [isProductModalOpen, setIsProductModalOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
 
-  /* ---------------- FETCH PRODUCTS ---------------- */
   /* ---------------- FETCH WITH PAGINATION & SEARCH ---------------- */
   const fetchProducts = useCallback(async () => {
     setLoading(true);

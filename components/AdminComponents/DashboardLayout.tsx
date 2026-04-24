@@ -20,6 +20,7 @@ import {
   Store,
   User,
   CirclePlus,
+  ShieldCheck,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import Image from "next/image";
@@ -81,6 +82,7 @@ export const DashboardLayout: React.FC<LayoutProps> = ({ children }) => {
         return [
           { key: "overview", label: "Overview", icon: LayoutDashboard, path: "/dashboard/admin" },
           { key: "users", label: "Users", icon: Users, path: "/dashboard/admin/users" },
+          { key: "verify-sellers", label: "Verify Sellers", icon: ShieldCheck, path: "/dashboard/admin/verification" },
           { key: "disputes", label: "Disputes", icon: Gavel, path: "/dashboard/admin/disputes" },
           { key: "categories", label: "Categories", icon: CirclePlus, path: "/dashboard/admin/categories" },
           { key: "settings", label: "Settings", icon: Settings, path: "/dashboard/admin/settings" },

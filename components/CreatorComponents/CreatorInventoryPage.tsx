@@ -1,163 +1,218 @@
 'use client';
-
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { Card } from '@/components/Card';
 import { Button } from '@/components/Button';
-import { 
-    Plus, Video, FileText, Globe, Zap, 
-    ShieldCheck, BarChart, MoreVertical, 
-    Clock, CheckCircle, AlertTriangle, Search,
-    Sparkles, Layout,
-    Loader2
+import {
+  Plus, BookOpen, Shield, Trash2,
+  Loader2, CheckCircle, Clock, AlertTriangle, Search
 } from 'lucide-react';
-import { useApi } from '@/hooks/useApi';
 import Image from 'next/image';
+import { toast } from 'react-toastify';
+import { useApi } from '@/hooks/useApi';
+import ContentBuilder from '@/components/CreatorComponents/ContentBuilder';
+
+interface DigitalProduct {
+  id: string;
+  title: string;
+  description: string;
+  price: number;
+  status: string;
+  primaryImage: string;
+  createdAt: string;
+  type: string;
+  digitalMetadata?: {
+    trustScore: number;
+    aiAuditLog?: {
+      summary: string;
+      riskFlags: string[];
+      suggestedAction: string;
+    };
+  };
+}
+
+const STATUS_CONFIG: Record<string, { label: string; color: string; icon: any }> = {
+  published: { label: 'Live', color: 'bg-emerald-100 text-emerald-700', icon: CheckCircle },
+  draft: { label: 'Draft', color: 'bg-gray-100 text-gray-600', icon: Clock },
+  processing: { label: 'Processing', color: 'bg-blue-100 text-blue-700', icon: Clock },
+  pending_review: { label: 'In Review', color: 'bg-amber-100 text-amber-700', icon: AlertTriangle },
+  rejected: { label: 'Rejected', color: 'bg-red-100 text-red-700', icon: AlertTriangle },
+};
 
 export default function CreatorInventoryPage() {
-    const fetcher = useApi();
-    const [products, setProducts] = useState<any[]>([]);
-    const [loading, setLoading] = useState(true);
+  const fetcher = useApi();
+  const [products, setProducts] = useState<DigitalProduct[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [showBuilder, setShowBuilder] = useState(false);
+  const [search, setSearch] = useState('');
 
-    const loadData = async () => {
-        try {
-            const data = await fetcher('/api/creator/products');
-            setProducts(data);
-        } finally { setLoading(false); }
-    };
+  const load = useCallback(async () => {
+    try {
+      const res = await fetcher('/api/creator/products');
+      setProducts(res.data || res || []);
+    } catch {
+      toast.error('Failed to load content');
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
-    useEffect(() => { loadData(); }, []);
+  useEffect(() => { load(); }, [load]);
 
-    return (
-        <div className="max-w-7xl mx-auto py-5 px-4 space-y-8 pb-20">
-            {/* Header */}
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-                <div>
-                    <h1 className="text-4xl font-black text-gray-900 tracking-tight flex items-center gap-3">
-                        <Layout className="text-emerald-600" /> Creator Studio
-                    </h1>
-                    <p className="text-gray-500 font-medium mt-1">Publish agricultural guides, videos, and technical blueprints.</p>
-                </div>
-                <Button className="bg-emerald-600 hover:bg-emerald-700  px-4 rounded-2xl font-black uppercase tracking-widest text-xs shadow-xl shadow-emerald-100 gap-2">
-                    <Plus size={20} /> Create New 
-                </Button>
-            </div>
+  const handleDelete = async (id: string) => {
+    if (!confirm('Delete this content? This cannot be undone.')) return;
+    try {
+      await fetcher(`/api/products/${id}`, { method: 'DELETE' });
+      toast.success('Content removed');
+      setProducts(p => p.filter(pr => pr.id !== id));
+    } catch (e: any) {
+      toast.error(e.message || 'Failed to delete');
+    }
+  };
 
-            {/* --- CREATOR STATS --- */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <Card className="bg-emerald-900 text-white border-none p-8 rounded-[2.5rem] shadow-2xl relative overflow-hidden group">
-                    <div className="relative z-10">
-                        <p className="text-emerald-400 text-[10px] font-black uppercase tracking-[0.2em] mb-2">Content Revenue</p>
-                        <h2 className="text-4xl font-black">₦1,250,000</h2>
-                        <div className="mt-4 flex items-center gap-2 text-emerald-200 text-xs font-bold bg-white/10 w-fit px-3 py-1 rounded-full">
-                            <Zap size={14} className="fill-emerald-400 text-emerald-400" /> Instant Payouts Active
-                        </div>
-                    </div>
-                    <Globe className="absolute -right-10 -bottom-10 w-48 h-48 text-white/5 group-hover:rotate-12 transition-transform duration-1000" />
-                </Card>
+  const filtered = products.filter(p =>
+    !search || p.title.toLowerCase().includes(search.toLowerCase())
+  );
 
-                <Card className="p-8 rounded-[2.5rem] border-none ring-1 ring-gray-100 shadow-sm flex flex-col justify-between">
-                    <div>
-                        <p className="text-gray-400 text-[10px] font-black uppercase tracking-[0.2em] mb-1">Total Students</p>
-                        <h3 className="text-3xl font-black text-gray-900">482</h3>
-                    </div>
-                    <div className="pt-4 border-t border-gray-50 flex items-center gap-2 text-emerald-600 text-xs font-bold">
-                        <BarChart size={14} /> Top 5% of Creators
-                    </div>
-                </Card>
+  if (showBuilder) {
+    return <ContentBuilder onClose={() => { setShowBuilder(false); load(); }} />;
+  }
 
-                <Card className="p-8 rounded-[2.5rem] border-none ring-1 ring-gray-100 shadow-sm flex flex-col justify-between">
-                    <div>
-                        <p className="text-gray-400 text-[10px] font-black uppercase tracking-[0.2em] mb-1">Avg. Trust Score</p>
-                        <h3 className="text-3xl font-black text-gray-900">94/100</h3>
-                    </div>
-                    <div className="pt-4 border-t border-gray-50 flex items-center gap-2 text-blue-600 text-xs font-bold uppercase tracking-widest">
-                        <ShieldCheck size={14} /> AI Verified Content
-                    </div>
-                </Card>
-            </div>
+  if (loading) return (
+    <div className="flex justify-center py-32">
+      <Loader2 className="animate-spin text-emerald-600" size={40} />
+    </div>
+  );
 
-            {/* --- DIGITAL LISTINGS --- */}
-            <div className="space-y-4">
-                <h3 className="text-sm font-black text-gray-400 uppercase tracking-widest px-2">Published Content</h3>
-                
-                {loading ? (
-                    <div className="flex justify-center py-20"><Loader2 className="animate-spin text-emerald-600" /></div>
-                ) : (
-                    <div className="grid gap-4">
-                        {products.map((item) => (
-                            <Card key={item.id} className="p-0 overflow-hidden border-none ring-1 ring-gray-100 shadow-sm hover:shadow-md transition-all rounded-[2rem]">
-                                <div className="flex flex-col md:flex-row items-center">
-                                    {/* Thumbnail */}
-                                    <div className="w-full md:w-48 h-48 md:h-auto aspect-square relative bg-gray-50 shrink-0">
-                                        <Image unoptimized fill src={item.primaryImage} alt="" className="object-cover" />
-                                        <div className="absolute top-3 left-3 bg-black/60 backdrop-blur text-white p-1.5 rounded-lg">
-                                            {item.digitalAssets?.[0]?.fileType === 'video' ? <Video size={14}/> : <FileText size={14}/>}
-                                        </div>
-                                    </div>
-
-                                    {/* Info */}
-                                    <div className="flex-1 p-6 md:p-8 grid md:grid-cols-2 gap-6 w-full">
-                                        <div>
-                                            <h4 className="text-xl font-black text-gray-900 mb-1 leading-tight">{item.title}</h4>
-                                            <p className="text-xs text-gray-400 font-medium mb-4">{item.category?.name}</p>
-                                            
-                                            <div className="flex items-center gap-4">
-                                                <div className="text-center">
-                                                    <p className="text-[10px] font-black text-gray-400 uppercase">Price</p>
-                                                    <p className="text-sm font-black text-emerald-600">₦{item.price}</p>
-                                                </div>
-                                                <div className="h-8 w-px bg-gray-100" />
-                                                <div className="text-center">
-                                                    <p className="text-[10px] font-black text-gray-400 uppercase">Sales</p>
-                                                    <p className="text-sm font-black text-gray-900">{item.totalSales || 0}</p>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        {/* AI Audit Status Area */}
-                                        <div className="bg-gray-50 rounded-3xl p-5 border border-gray-100 flex flex-col justify-center">
-                                            <div className="flex items-center justify-between mb-2">
-                                                <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest flex items-center gap-1">
-                                                    <Sparkles size={10} className="text-emerald-500" /> AI Trust Audit
-                                                </span>
-                                                <span className={`text-[10px] font-black px-2 py-0.5 rounded-md uppercase ${
-                                                    item.status === 'published' ? 'bg-emerald-100 text-emerald-700' : 
-                                                    item.status === 'processing' ? 'bg-blue-100 text-blue-700' : 'bg-amber-100 text-amber-700'
-                                                }`}>
-                                                    {item.status}
-                                                </span>
-                                            </div>
-                                            
-                                            {item.status === 'processing' ? (
-                                                <div className="flex items-center gap-2 text-xs text-blue-600 font-bold animate-pulse">
-                                                    <Clock size={14} /> Currently analyzing technical accuracy...
-                                                </div>
-                                            ) : (
-                                                <div className="flex items-center gap-3">
-                                                    <div className="flex-1 h-2 bg-gray-200 rounded-full overflow-hidden">
-                                                        <div 
-                                                            className="h-full bg-emerald-500 rounded-full transition-all duration-1000" 
-                                                            style={{ width: `${item.digitalMetadata?.trustScore || 0}%` }}
-                                                        />
-                                                    </div>
-                                                    <span className="text-sm font-black text-gray-900">{item.digitalMetadata?.trustScore || 0}%</span>
-                                                </div>
-                                            )}
-                                        </div>
-                                    </div>
-
-                                    {/* Final Action */}
-                                    <div className="p-6 border-t md:border-t-0 md:border-l border-gray-50 flex items-center justify-center">
-                                        <button className="p-4 hover:bg-gray-50 rounded-2xl text-gray-400 transition-colors">
-                                            <MoreVertical size={24} />
-                                        </button>
-                                    </div>
-                                </div>
-                            </Card>
-                        ))}
-                    </div>
-                )}
-            </div>
+  return (
+    <div className="max-w-5xl mx-auto py-8 px-4 space-y-6 animate-in fade-in duration-300">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-black text-gray-900">Content Vault</h1>
+          <p className="text-gray-500 text-sm">Manage your digital courses, guides and resources</p>
         </div>
-    );
+        <Button
+          onClick={() => setShowBuilder(true)}
+          className="bg-emerald-600 hover:bg-emerald-700 gap-2 rounded-2xl shrink-0"
+        >
+          <Plus size={18} /> Upload Content
+        </Button>
+      </div>
+
+      {/* Search */}
+      <div className="relative">
+        <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+        <input
+          type="text"
+          placeholder="Search content..."
+          className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-1 focus:ring-emerald-500"
+          value={search}
+          onChange={e => setSearch(e.target.value)}
+        />
+      </div>
+
+      {filtered.length === 0 ? (
+        <Card className="p-20 text-center border-dashed border-2">
+          <BookOpen className="mx-auto text-gray-200 mb-4" size={56} />
+          <h3 className="text-xl font-bold text-gray-400">
+            {search ? 'No content matches your search' : 'No content yet'}
+          </h3>
+          {!search && (
+            <>
+              <p className="text-gray-400 text-sm mt-2 max-w-sm mx-auto">
+                Upload your first course, guide, or digital resource to start earning from your expertise.
+              </p>
+              <Button
+                onClick={() => setShowBuilder(true)}
+                className="mt-6 bg-emerald-600 hover:bg-emerald-700 gap-2"
+              >
+                <Plus size={18} /> Create First Content
+              </Button>
+            </>
+          )}
+        </Card>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {filtered.map(product => {
+            const statusConf = STATUS_CONFIG[product.status] || STATUS_CONFIG.draft;
+            const StatusIcon = statusConf.icon;
+
+            return (
+              <Card key={product.id} className="overflow-hidden hover:shadow-md transition-shadow">
+                <div className="flex gap-4 p-5">
+                  <div className="relative w-20 h-20 rounded-xl overflow-hidden bg-gray-100 shrink-0">
+                    {product.primaryImage ? (
+                      <Image fill src={product.primaryImage} alt={product.title} className="object-cover" unoptimized />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center">
+                        <BookOpen size={28} className="text-gray-300" />
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-start justify-between gap-2">
+                      <h3 className="font-bold text-gray-900 text-sm truncate">{product.title}</h3>
+                      <span className={`text-[10px] font-bold uppercase px-2 py-0.5 rounded-full flex items-center gap-1 shrink-0 ${statusConf.color}`}>
+                        <StatusIcon size={10} /> {statusConf.label}
+                      </span>
+                    </div>
+
+                    <p className="text-xs text-gray-500 mt-1 line-clamp-2">{product.description}</p>
+
+                    <div className="flex items-center gap-3 mt-3">
+                      <span className="font-black text-emerald-600 text-sm">
+                        ₦{Number(product.price).toLocaleString()}
+                      </span>
+
+                      {product.digitalMetadata?.trustScore != null && (
+                        <div className="flex items-center gap-1 text-xs">
+                          <Shield size={12} className={
+                            product.digitalMetadata.trustScore >= 75 ? 'text-emerald-500' :
+                            product.digitalMetadata.trustScore >= 50 ? 'text-amber-500' : 'text-red-500'
+                          } />
+                          <span className="font-bold text-gray-600">
+                            {product.digitalMetadata.trustScore}/100
+                          </span>
+                        </div>
+                      )}
+
+                      <span className="text-xs text-gray-400 ml-auto">
+                        {new Date(product.createdAt).toLocaleDateString()}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* AI Flags Banner */}
+               {/*  {product.digitalMetadata?.aiAuditLog?.riskFlags?.length > 0 && (
+                  <div className="mx-5 mb-4 bg-amber-50 border border-amber-100 rounded-xl p-3">
+                    <p className="text-xs font-bold text-amber-700 flex items-center gap-1 mb-1">
+                      <AlertTriangle size={12} /> AI Flags
+                    </p>
+                    <div className="flex flex-wrap gap-1">
+                      {product.digitalMetadata.aiAuditLog.riskFlags.slice(0, 3).map((flag, i) => (
+                        <span key={i} className="text-[10px] bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full">
+                          {flag.replace(/_/g, ' ')}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )} */}
+
+                {/* Actions */}
+                <div className="flex gap-2 px-5 pb-5">
+                  <button
+                    onClick={() => handleDelete(product.id)}
+                    className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                  >
+                    <Trash2 size={16} />
+                  </button>
+                </div>
+              </Card>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
 }

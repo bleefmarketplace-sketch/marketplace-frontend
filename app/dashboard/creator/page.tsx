@@ -1,209 +1,167 @@
 'use client';
-
 import React, { useEffect, useState } from 'react';
 import { Card } from '@/components/Card';
-import { Button } from '@/components/Button';
 import {
-  TrendingUp, Users, GraduationCap, Sparkles,
-  Plus, ArrowUpRight, Zap, PlayCircle,
-  FileText, Award, Calendar, ChevronRight,
-  Loader2, Wallet
+  DollarSign, Users, BookOpen, Star,
+  TrendingUp, Plus, Loader2, ArrowRight, Shield
 } from 'lucide-react';
+import { Button } from '@/components/Button';
 import { useApi } from '@/hooks/useApi';
-import { useAuth } from '@/context/AuthContext';
-import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { toast } from 'react-toastify';
 
-const Page = () => {
+interface CreatorStats {
+  revenue: number;
+  students: number;
+  salesCount: number;
+  avgTrustScore: number;
+}
+
+export default function CreatorDashboardPage() {
   const fetcher = useApi();
-  const { user } = useAuth();
-  const [stats, setStats] = useState<any>(null);
+  const router = useRouter();
+  const [stats, setStats] = useState<CreatorStats | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchData = async () => {
+    const load = async () => {
       try {
-        const res = await fetcher('/api/creator/stats')
-
-        setStats(res?.data)
-      } catch (e) {
-        toast.error("Failed to fetch")
+        const res = await fetcher('/api/creator/stats');
+        setStats(res.data || res);
+      } catch {
+        toast.error('Failed to load dashboard stats');
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
-    }
-    fetchData()
-  }, [fetcher]);
+    };
+    load();
+  }, []);
 
   if (loading) return (
-    <div className="flex items-center justify-center h-[60vh]">
+    <div className="flex justify-center py-32">
       <Loader2 className="animate-spin text-emerald-600" size={40} />
     </div>
   );
 
+  const STAT_CARDS = [
+    {
+      label: 'Total Revenue',
+      value: `₦${(stats?.revenue || 0).toLocaleString()}`,
+      icon: DollarSign,
+      color: 'bg-emerald-900 text-white',
+      sub: 'From all content sales',
+    },
+    {
+      label: 'Total Students',
+      value: (stats?.students || 0).toLocaleString(),
+      icon: Users,
+      color: 'bg-white',
+      sub: 'Unique buyers',
+    },
+    {
+      label: 'Content Sales',
+      value: (stats?.salesCount || 0).toLocaleString(),
+      icon: BookOpen,
+      color: 'bg-white',
+      sub: 'Units sold',
+    },
+    {
+      label: 'Avg AI Trust Score',
+      value: `${stats?.avgTrustScore || 0}/100`,
+      icon: Shield,
+      color: 'bg-white',
+      sub: 'Content quality score',
+    },
+  ];
+
   return (
-    <div className="max-w-7xl mx-auto py-8 px-4 space-y-8 pb-20 animate-in fade-in duration-500">
-      {/* --- HEADER SECTION --- */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+    <div className="max-w-5xl mx-auto py-8 px-4 space-y-8 animate-in fade-in duration-300">
+      <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-4xl font-black text-gray-900 tracking-tight">Creator Studio</h1>
-          <p className="text-gray-500 font-medium mt-1 text-sm flex items-center gap-2">
-            Welcome back, {user?.fullName} <span className="h-1 w-1 bg-gray-300 rounded-full" />
-            Manage your digital agricultural assets.
-          </p>
+          <h1 className="text-2xl font-black text-gray-900">Creator Studio</h1>
+          <p className="text-gray-500 text-sm">Your content performance overview</p>
         </div>
-        <div className="flex gap-3">
-          <Button variant="ghost" className="rounded-2xl border-gray-100 font-bold text-xs h-12 px-6">
-            <Wallet size={16} className="mr-2" /> Earnings
-          </Button>
-          <Link href="/dashboard/creator/inventory">
-            <Button className="bg-emerald-600 hover:bg-emerald-700 h-12 px-6 rounded-2xl font-black uppercase tracking-widest text-[10px] shadow-xl shadow-emerald-100 gap-2">
-              <Plus size={18} /> New Content
-            </Button>
-          </Link>
-        </div>
+        <Button
+          onClick={() => router.push('/dashboard/creator/inventory')}
+          className="bg-emerald-600 hover:bg-emerald-700 gap-2 rounded-2xl"
+        >
+          <Plus size={18} /> New Content
+        </Button>
       </div>
 
-      {/* --- TOP ROW: CORE METRICS --- */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <MetricCard
-          label="Total Revenue"
-          value={`₦${stats?.revenue?.toLocaleString() || '0'}`}
-          subValue="+12% vs last month"
-          icon={<TrendingUp size={20} className="text-emerald-600" />}
-          color="bg-emerald-50"
-        />
-        <MetricCard
-          label="Active Students"
-          value={stats?.students || 0}
-          subValue="Unique knowledge buyers"
-          icon={<Users size={20} className="text-blue-600" />}
-          color="bg-blue-50"
-        />
-        <MetricCard
-          label="Content Quality"
-          value={`${stats?.avgTrustScore || 0}%`}
-          subValue="Avg. AI Trust Score"
-          icon={<Sparkles size={20} className="text-purple-600" />}
-          color="bg-purple-50"
-        />
-        <MetricCard
-          label="Enrollments"
-          value={stats?.salesCount || 0}
-          subValue="Total copies sold"
-          icon={<GraduationCap size={20} className="text-amber-600" />}
-          color="bg-amber-50"
-        />
+      {/* Stats */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        {STAT_CARDS.map((card, i) => (
+          <Card key={i} className={`p-6 relative overflow-hidden ${card.color} border-gray-100`}>
+            <p className={`text-xs font-bold uppercase tracking-widest mb-2 ${i === 0 ? 'text-emerald-400' : 'text-gray-400'}`}>
+              {card.label}
+            </p>
+            <p className={`text-3xl font-black ${i === 0 ? 'text-white' : 'text-gray-900'}`}>
+              {card.value}
+            </p>
+            <p className={`text-xs mt-1 ${i === 0 ? 'text-emerald-300' : 'text-gray-400'}`}>
+              {card.sub}
+            </p>
+            <card.icon
+              className={`absolute -right-3 -bottom-3 ${i === 0 ? 'text-white/5' : 'text-gray-100'}`}
+              size={70}
+            />
+          </Card>
+        ))}
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-
-        {/* --- LEFT: PERFORMANCE FEED --- */}
-        <div className="lg:col-span-8 space-y-8">
-          {/* Course Performance Card */}
-          <Card className="p-8 rounded-[2.5rem] border-none shadow-sm ring-1 ring-gray-100 bg-white">
-            <div className="flex items-center justify-between mb-8">
-              <h3 className="text-xl font-black text-gray-900">Top Performing Guides</h3>
-              <button className="text-xs font-bold text-emerald-600 hover:underline">Full Analytics</button>
+      {/* Quick Actions */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <Card
+          className="p-6 cursor-pointer hover:shadow-md transition-shadow group"
+          onClick={() => router.push('/dashboard/creator/inventory')}
+        >
+          <div className="flex items-center justify-between mb-4">
+            <div className="w-12 h-12 bg-emerald-100 text-emerald-600 rounded-2xl flex items-center justify-center">
+              <BookOpen size={22} />
             </div>
+            <ArrowRight size={18} className="text-gray-300 group-hover:text-emerald-500 transition-colors" />
+          </div>
+          <h3 className="font-bold text-gray-900">Content Vault</h3>
+          <p className="text-sm text-gray-500 mt-1">Manage your courses, guides and digital products</p>
+        </Card>
 
-            <div className="space-y-6">
-              {[1, 2, 3].map((i) => (
-                <div key={i} className="flex items-center gap-4 group cursor-pointer">
-                  <div className="w-14 h-14 bg-gray-50 rounded-2xl flex items-center justify-center text-gray-400 group-hover:bg-emerald-50 group-hover:text-emerald-600 transition-colors border">
-                    <PlayCircle size={24} />
-                  </div>
-                  <div className="flex-1">
-                    <h4 className="text-sm font-bold text-gray-900 leading-snug">Advanced Irrigation Management for Dry Seasons</h4>
-                    <div className="flex items-center gap-4 mt-1 text-[10px] text-gray-400 font-bold uppercase tracking-widest">
-                      <span>142 Students</span>
-                      <span className="h-1 w-1 bg-gray-200 rounded-full" />
-                      <span className="text-emerald-600">₦45,000 Earned</span>
-                    </div>
-                  </div>
-                  <ArrowUpRight size={18} className="text-gray-300 group-hover:text-emerald-500 transition-all" />
-                </div>
-              ))}
+        <Card
+          className="p-6 cursor-pointer hover:shadow-md transition-shadow group"
+          onClick={() => router.push('/dashboard/creator/settings')}
+        >
+          <div className="flex items-center justify-between mb-4">
+            <div className="w-12 h-12 bg-blue-100 text-blue-600 rounded-2xl flex items-center justify-center">
+              <Star size={22} />
             </div>
-          </Card>
-
-          {/* AI Audit Queue */}
-          <Card className="p-8 rounded-[2.5rem] border-none shadow-sm ring-1 ring-gray-100 bg-white">
-            <div className="flex items-center gap-2 mb-6">
-              <Zap size={18} className="text-blue-500 fill-blue-500" />
-              <h3 className="text-xl font-black text-gray-900">Recent Content Audits</h3>
-            </div>
-            <div className="bg-blue-50 rounded-3xl p-6 flex items-center justify-between">
-              <div className="flex items-center gap-4">
-                <div className="p-3 bg-white rounded-2xl shadow-sm text-blue-600">
-                  <FileText size={24} />
-                </div>
-                <div>
-                  <p className="text-sm font-bold text-blue-900">Cattle Health Protocols V2</p>
-                  <p className="text-xs text-blue-700/60 font-medium">Processing through AI Scrutiny Pipeline...</p>
-                </div>
-              </div>
-              <span className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-[10px] font-black uppercase tracking-widest animate-pulse">
-                Analyzing
-              </span>
-            </div>
-          </Card>
-        </div>
-
-        {/* --- RIGHT: SIDEBAR (Earnings & Reputation) --- */}
-        <div className="lg:col-span-4 space-y-8">
-          {/* Instant Payout Status */}
-          <Card className="p-8 rounded-[2.5rem] border-none bg-gray-900 text-white shadow-xl relative overflow-hidden">
-            <div className="relative z-10">
-              <p className="text-emerald-400 text-[10px] font-black uppercase tracking-widest mb-4">Available Payout</p>
-              <h2 className="text-4xl font-black mb-6">₦{stats?.revenue?.toLocaleString()}</h2>
-              <Button fullWidth className="bg-emerald-600 hover:bg-emerald-700 h-12 rounded-xl font-bold gap-2">
-                Withdraw Now <ArrowUpRight size={16} />
-              </Button>
-              <p className="text-[10px] text-gray-500 mt-6 leading-relaxed italic">
-                Digital product payouts bypass standard escrow and are available for withdrawal after a 24-hour safety buffer.
-              </p>
-            </div>
-            <Award className="absolute -right-6 -bottom-6 text-white/5 w-40 h-40" />
-          </Card>
-
-          {/* Badge Progress */}
-          <Card className="p-8 rounded-[2.5rem] border-none shadow-sm ring-1 ring-gray-100 bg-white">
-            <h4 className="text-xs font-black text-gray-400 uppercase tracking-widest mb-6">Reputation Tier</h4>
-            <div className="space-y-4 text-center">
-              <div className="w-20 h-20 bg-blue-50 text-blue-600 rounded-3xl flex items-center justify-center mx-auto border-4 border-white shadow-lg">
-                <Award size={40} />
-              </div>
-              <div>
-                <h3 className="font-black text-gray-900 uppercase tracking-tight">Verified Creator</h3>
-                <p className="text-xs text-gray-400 mt-1">100M+ Volume for <span className="text-amber-500 font-bold">Elite Badge</span></p>
-              </div>
-              <div className="w-full h-2 bg-gray-50 rounded-full overflow-hidden">
-                <div className="h-full bg-blue-500 w-[15%]" />
-              </div>
-            </div>
-          </Card>
-        </div>
-
+            <ArrowRight size={18} className="text-gray-300 group-hover:text-blue-500 transition-colors" />
+          </div>
+          <h3 className="font-bold text-gray-900">Creator Profile</h3>
+          <p className="text-sm text-gray-500 mt-1">Update your bio, specialization and social links</p>
+        </Card>
       </div>
+
+      {/* AI Trust Score Info */}
+      <Card className="p-6 bg-gradient-to-r from-emerald-50 to-teal-50 border-emerald-100">
+        <div className="flex items-start gap-4">
+          <div className="w-10 h-10 bg-emerald-100 rounded-xl flex items-center justify-center shrink-0">
+            <Shield size={20} className="text-emerald-600" />
+          </div>
+          <div>
+            <h3 className="font-bold text-gray-900">AI Content Audit</h3>
+            <p className="text-sm text-gray-600 mt-1">
+              Every piece of content you publish is automatically reviewed by our AI audit system.
+              It checks for accuracy, agricultural relevance, and content safety. Products scoring above
+              75 are auto-approved. Scores below 50 go to manual review.
+            </p>
+            <div className="flex gap-4 mt-3 text-xs font-bold">
+              <span className="text-emerald-600">✓ 75+ → Auto-published</span>
+              <span className="text-amber-600">⚠ 50–74 → Flagged for review</span>
+              <span className="text-red-600">✗ Below 50 → Rejected</span>
+            </div>
+          </div>
+        </div>
+      </Card>
     </div>
   );
 }
-
-// --- SUB-COMPONENT: METRIC CARD ---
-const MetricCard = ({ label, value, subValue, icon, color }: any) => (
-  <Card className="p-6 rounded-[2rem] border-none shadow-sm ring-1 ring-gray-100 bg-white">
-    <div className="flex justify-between items-start mb-4">
-      <div className={`p-3 rounded-2xl ${color}`}>
-        {icon}
-      </div>
-    </div>
-    <div>
-      <p className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-1">{label}</p>
-      <h3 className="text-2xl font-black text-gray-900 tracking-tight">{value}</h3>
-      <p className="text-[10px] text-gray-400 font-bold mt-2">{subValue}</p>
-    </div>
-  </Card>
-);
-
-export default Page;

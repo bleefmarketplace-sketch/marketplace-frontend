@@ -1,73 +1,152 @@
-"use client"
-import { Button } from '@/components/Button';
+'use client';
+import React, { useEffect, useState } from 'react';
 import { Card } from '@/components/Card';
-import { useBuyer } from '@/context/BuyerContext';
-import { ArrowLeft, MapPin, ShieldCheck, Star } from 'lucide-react';
-import { useRouter } from 'next/router';
-import React from 'react'
+import { Input } from '@/components/Input';
+import {
+  Search, ShieldCheck, Star, MapPin,
+  Package, Loader2, Store, ArrowRight
+} from 'lucide-react';
+import { Button } from '@/components/Button';
+import { useRouter } from 'next/navigation';
+import Image from 'next/image';
+import { toast } from 'react-toastify';
 
-const Page = () => {
-    const router = useRouter();
-
-    const {setSearchQuery} = useBuyer();
-
-    const vendors = [
-        { name: 'GreenEarth Co.', rating: 4.9, products: 24, location: 'Iowa, USA', verified: true },
-        { name: 'Happy Farms', rating: 4.8, products: 12, location: 'Wisconsin, USA', verified: true },
-        { name: 'AgriMachinery Ltd.', rating: 4.5, products: 8, location: 'Texas, USA', verified: true },
-        { name: 'SeedGen', rating: 4.7, products: 45, location: 'Nebraska, USA', verified: true },
-        { name: 'Organic Valley', rating: 4.6, products: 18, location: 'California, USA', verified: true },
-        { name: 'Midwest Tools', rating: 4.4, products: 30, location: 'Ohio, USA', verified: false },
-    ];
-     
-
-  return (
-     <div className="space-y-6 animate-in slide-in-from-right-8 duration-300">
-             <div className="flex items-center gap-4">
-                <Button variant="ghost" size="sm" onClick={() => router.push('/dashboard/buyer/marketplace')}>
-                    <ArrowLeft size={20} />
-                </Button>
-                <h1 className="text-2xl font-bold">All Vendors</h1>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {vendors.map((vendor, i) => (
-                    <Card key={i} className="hover:border-primary-500 transition-all cursor-pointer">
-                        <div className="flex items-center gap-4 mb-4">
-                             <div className="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center text-2xl font-bold text-gray-500 border border-gray-200">
-                                 {vendor.name.charAt(0)}
-                             </div>
-                             <div>
-                                 <h3 className="font-bold text-lg text-gray-900 flex items-center gap-1">
-                                     {vendor.name} 
-                                     {vendor.verified && <ShieldCheck size={18} className="text-blue-500" />}
-                                 </h3>
-                                 <p className="text-sm text-gray-500 flex items-center gap-1">
-                                     <MapPin size={14} /> {vendor.location}
-                                 </p>
-                             </div>
-                        </div>
-                        <div className="grid grid-cols-2 gap-4 border-t border-gray-100 pt-4">
-                             <div className="text-center">
-                                 <p className="text-lg font-bold text-gray-900">{vendor.products}</p>
-                                 <p className="text-xs text-gray-500">Products</p>
-                             </div>
-                             <div className="text-center border-l border-gray-100">
-                                 <p className="text-lg font-bold text-gray-900 flex items-center justify-center gap-1">
-                                     {vendor.rating} <Star size={14} className="fill-yellow-400 text-yellow-400" />
-                                 </p>
-                                 <p className="text-xs text-gray-500">Rating</p>
-                             </div>
-                        </div>
-                        <Button fullWidth variant="secondary" className="mt-4" onClick={() => {
-                            setSearchQuery(vendor.name);
-                            router.push('/dashboard/buyer/marketplace');
-                        }}>View Products</Button>
-                    </Card>
-                ))}
-            </div>
-        </div>
-  )
+interface Seller {
+  id: string;
+  businessName: string;
+  description: string;
+  location: string;
+  rating: number;
+  totalProducts: number;
+  isVerified: boolean;
+  logoUrl?: string;
+  user?: { isVerified: boolean };
 }
 
-export default Page
+export default function BuyerVendorsPage() {
+  const router = useRouter();
+  const [sellers, setSellers] = useState<Seller[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState('');
+  const [page, setPage] = useState(1);
+  const [total, setTotal] = useState(0);
+
+  useEffect(() => {
+    const load = async () => {
+      setLoading(true);
+      try {
+        const res = await fetch(`/api/marketplace/sellers?page=${page}&limit=12&search=${search}`);
+        const data = await res.json();
+        setSellers(data.data || data.stores || []);
+        setTotal(data.total || 0);
+      } catch {
+        toast.error('Failed to load vendors');
+      } finally {
+        setLoading(false);
+      }
+    };
+    const delay = setTimeout(load, 300);
+    return () => clearTimeout(delay);
+  }, [search, page]);
+
+  return (
+    <div className="space-y-6 animate-in fade-in duration-300">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-black text-gray-900">All Vendors</h1>
+          <p className="text-gray-500 text-sm">Browse verified farms and suppliers</p>
+        </div>
+        <div className="w-full sm:w-72">
+          <Input
+            placeholder="Search vendors..."
+            icon={<Search size={18} />}
+            value={search}
+            onChange={e => { setSearch(e.target.value); setPage(1); }}
+          />
+        </div>
+      </div>
+
+      {loading ? (
+        <div className="flex justify-center py-20">
+          <Loader2 className="animate-spin text-emerald-600" size={32} />
+        </div>
+      ) : sellers.length === 0 ? (
+        <div className="text-center py-20 bg-white rounded-2xl border-2 border-dashed border-gray-100">
+          <Store className="mx-auto mb-4 text-gray-200" size={48} />
+          <h3 className="font-bold text-gray-400">No vendors found</h3>
+          <p className="text-sm text-gray-400 mt-1">Try a different search term</p>
+        </div>
+      ) : (
+        <>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {sellers.map(seller => (
+              <Card
+                key={seller.id}
+                className="p-6 hover:shadow-lg transition-shadow cursor-pointer group"
+                onClick={() => router.push(`/marketplace?seller=${seller.id}`)}
+              >
+                <div className="flex items-start gap-4 mb-4">
+                  <div className="w-14 h-14 rounded-2xl bg-emerald-100 flex items-center justify-center font-black text-emerald-700 text-xl shrink-0 overflow-hidden">
+                    {seller.logoUrl ? (
+                      <Image src={seller.logoUrl} alt={seller.businessName} width={56} height={56} className="object-cover" unoptimized />
+                    ) : (
+                      seller.businessName?.[0] || 'S'
+                    )}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-1.5">
+                      <h3 className="font-bold text-gray-900 truncate">{seller.businessName}</h3>
+                      {(seller.user?.isVerified || seller.isVerified) && (
+                        <ShieldCheck size={16} className="text-emerald-500 shrink-0" />
+                      )}
+                    </div>
+                    <div className="flex items-center gap-1 mt-0.5">
+                      <MapPin size={12} className="text-gray-400" />
+                      <span className="text-xs text-gray-500">{seller.location || 'Nigeria'}</span>
+                    </div>
+                  </div>
+                </div>
+
+                {seller.description && (
+                  <p className="text-sm text-gray-600 line-clamp-2 mb-4">{seller.description}</p>
+                )}
+
+                <div className="flex items-center justify-between pt-4 border-t border-gray-100">
+                  <div className="flex items-center gap-3 text-xs text-gray-500">
+                    {seller.rating > 0 && (
+                      <span className="flex items-center gap-1">
+                        <Star size={12} className="fill-amber-400 text-amber-400" />
+                        <strong className="text-gray-700">{Number(seller.rating).toFixed(1)}</strong>
+                      </span>
+                    )}
+                    <span className="flex items-center gap-1">
+                      <Package size={12} />
+                      {seller.totalProducts || 0} products
+                    </span>
+                  </div>
+                  <span className="text-emerald-600 text-xs font-bold flex items-center gap-1 group-hover:underline">
+                    Visit Store <ArrowRight size={12} />
+                  </span>
+                </div>
+              </Card>
+            ))}
+          </div>
+
+          {total > 12 && (
+            <div className="flex justify-center gap-3 pt-4">
+              <Button variant="outline" disabled={page === 1} onClick={() => setPage(p => p - 1)}>
+                Previous
+              </Button>
+              <span className="flex items-center text-sm font-bold text-gray-600 px-4">
+                Page {page}
+              </span>
+              <Button variant="outline" disabled={page * 12 >= total} onClick={() => setPage(p => p + 1)}>
+                Next
+              </Button>
+            </div>
+          )}
+        </>
+      )}
+    </div>
+  );
+}
