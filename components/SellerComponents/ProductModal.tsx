@@ -8,6 +8,7 @@ import { Modal } from "../Modal";
 import Image from "next/image";
 import { toast } from "react-toastify";
 import { useApi } from "@/hooks/useApi";
+import { slugify } from "@/helpers/slugify";
 
 interface Category {
     id: string;
@@ -30,6 +31,10 @@ const ProductModal: React.FC<ProductModalProps> = ({
     const fetcher = useApi()
     const [categories, setCategories] = useState<Category[]>([]);
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [slug, setSlug] = useState(initialData?.slug || "");
+    const [title, setTitle] = useState(initialData?.title || "");
+    const [slugEdited, setSlugEdited] = useState(false);
+
 
     // --- Primary Image State ---
     const [primaryFile, setPrimaryFile] = useState<File | null>(null);
@@ -42,7 +47,7 @@ const ProductModal: React.FC<ProductModalProps> = ({
     const [otherPreviews, setOtherPreviews] = useState<string[]>(
         initialData?.otherImages || []
     );
- 
+
 
     const fetchCategories = useCallback(async () => {
         const res = await fetcher("/api/categories");
@@ -54,11 +59,11 @@ const ProductModal: React.FC<ProductModalProps> = ({
             toast.error("Failed to load categories")
         }
 
-    }, [])
+    }, [fetcher])
 
-    useEffect(() => { 
-        fetchCategories() 
-    }, []);
+    useEffect(() => {
+        fetchCategories()
+    }, [fetchCategories]);
 
     /* ---------------- API: UPLOAD SINGLE (PRIMARY) ---------------- */
     const uploadPrimaryImage = async (file: File): Promise<string> => {
@@ -137,10 +142,11 @@ const ProductModal: React.FC<ProductModalProps> = ({
                 ...newUploadedUrls,
             ];
 
- 
+
             // 4. Construct Payload (Matches your new DTO)
             const payload = {
-                title: formData.get("title"),
+                title,
+                slug,
                 description: formData.get("description"),
                 price: Number(formData.get("price")),
                 stock: Number(formData.get("stock")),
@@ -164,7 +170,20 @@ const ProductModal: React.FC<ProductModalProps> = ({
             setIsSubmitting(false);
         }
     };
-console.log(initialData)
+
+
+    useEffect(() => {
+        if (!initialData) {
+            setSlug(slugify(title));
+        }
+    }, [title, initialData]);
+
+
+    useEffect(() => {
+        if (!slugEdited) {
+            setSlug(slugify(title));
+        }
+    }, [title, slugEdited]);
     return (
         <Modal isOpen={isOpen} onClose={onClose} title={initialData ? "Edit Product" : "Add Product"}>
             <form onSubmit={handleSubmit} className="space-y-6 max-h-[80vh]  px-1">
@@ -228,7 +247,29 @@ console.log(initialData)
 
                 {/* BASIC INFO */}
                 <div className="space-y-4">
-                    <Input name="title" label="Product Title" defaultValue={initialData?.title} required />
+                    <Input name="title" label="Product Title" defaultValue={initialData?.title}
+                        onChange={(e) => setTitle(e.target.value)}
+                        required />
+
+                    <div className="space-y-1">
+                        <label className="text-sm font-medium">Product URL</label>
+
+                        <div className="flex items-center border rounded-lg px-3 py-2 bg-gray-50 text-sm">
+                            <span className="text-gray-400 mr-1">{process.env.NEXT_PUBLIC_FRONTEND_URL}/marketplace/</span>
+                            <input
+                                value={slug}
+                                onChange={(e) => {
+                                    setSlug(slugify(e.target.value));
+                                    setSlugEdited(true); // stop auto updates
+                                }}
+                                className="bg-transparent outline-none flex-1 text-gray-700"
+                            />
+                        </div>
+
+                        <p className="text-xs text-gray-400">
+                            This is how your product link will appear to customers
+                        </p>
+                    </div>
 
                     <div className="grid grid-cols-2 gap-4">
                         <Input name="price" label="Price (₦)" type="number" step="0.01" defaultValue={initialData?.price} required />

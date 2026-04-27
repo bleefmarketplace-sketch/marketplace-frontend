@@ -1,5 +1,5 @@
 
-import { DashboardLayout } from "@/components/AdminComponents/DashboardLayout";
+import { DashboardLayout } from "@/components/AdminComponents/DashboardLayout2";
 
 
  

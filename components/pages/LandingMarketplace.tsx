@@ -73,6 +73,8 @@ export const Marketplace = () => {
         fetchProducts();
     }, [fetchProducts]);
 
+    console.log(products)
+
 
     const handleOpenProduct = (product: Product) => {
 

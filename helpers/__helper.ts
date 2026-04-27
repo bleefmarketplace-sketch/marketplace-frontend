@@ -23,3 +23,4 @@ export function handleAxiosError(error: unknown) {
     }
     return NextResponse.json({ success: false, message: "Service Unavailable" }, { status: 500 });
 }
+

@@ -190,7 +190,9 @@ const Page = () => {
                           <div className="flex justify-end gap-2   transition-opacity">
                             <Link
                               className="p-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-                              href={`/dashboard/seller/products/${product.id}`}>
+                              href={`/marketplace/${product.slug}`}
+                             /*  href={`/dashboard/seller/products/${product.id}`} */
+                              >
                               <Eye size={16} />
                             </Link>
                             <button
