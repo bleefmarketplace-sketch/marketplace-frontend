@@ -78,8 +78,9 @@ export const Marketplace = () => {
 
     const handleOpenProduct = (product: Product) => {
 
+
          trackEvent('click', product.id, { category: product.categoryId });
-        window.open(`/marketplace/${product.id}`, '_blank');
+        window.open(`/marketplace/${product.slug}`, '_blank');
     };
 
     const clearFilters = () => {

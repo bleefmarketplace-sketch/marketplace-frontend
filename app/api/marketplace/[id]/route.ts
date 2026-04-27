@@ -8,10 +8,12 @@ export async function GET(
   context: { params: Promise<{ id: string }> }
 ) {
   const { id } = await context.params;
+
+  console.log("Fetching product with slug:", id);
   
   try {
     const response = await axios.get(
-      `${process.env.BASE_URL}/products/${id}`,
+      `${process.env.BASE_URL}/products/slug/${id}`,
       
     );
 
