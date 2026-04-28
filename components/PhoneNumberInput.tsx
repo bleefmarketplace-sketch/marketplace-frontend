@@ -49,7 +49,7 @@ export const PhoneNumberInput: React.FC<PhoneNumberInputProps> = ({
           value={value}
           onChange={(val) => onChange(val || "")}
           className="w-full"
-          inputClass="
+          /* inputClass="
             w-full bg-transparent
             py-2 pl-10 pr-3
             text-sm placeholder-gray-400
@@ -61,7 +61,7 @@ export const PhoneNumberInput: React.FC<PhoneNumberInputProps> = ({
               text-sm text-gray-700
               focus:outline-none
             `,
-          }}
+          }} */
         />
       </div>
 

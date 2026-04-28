@@ -40,7 +40,7 @@ const CartPage = () => {
   };
 
   const handleCheckout = () => {
-    router.push("/dashboard/buyer/checkout");
+    router.push("/marketplace/checkout");
   };
 
   const handleBackToShop = () => {

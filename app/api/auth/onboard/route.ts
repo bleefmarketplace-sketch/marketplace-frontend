@@ -3,6 +3,7 @@ import axios, { AxiosError } from "axios";
 import { cookies } from "next/headers";
 import { decrypt } from "@/secure/__enc";
 import * as jose from "jose";
+import { getAuthToken } from "@/helpers/__helper";
 
 type BackendErrorResponse = {
   message?: string | string[];
@@ -15,9 +16,8 @@ export async function POST(request: Request) {
     /* ----------------------------- */
     /* 1. AUTH TOKEN                 */
     /* ----------------------------- */
-    const cookieStore = await cookies();
-    const encToken = cookieStore.get("_tkn_")?.value;
-    const token = encToken ? decrypt(encToken) : null;
+    const token = await getAuthToken();
+   
 
     if (!token) {
       return NextResponse.json(
@@ -26,10 +26,12 @@ export async function POST(request: Request) {
       );
     }
 
+   
+
     /* ----------------------------- */
     /* 2. DECODE TOKEN TO GET USER ID */
     /* ----------------------------- */
-    // FIX: Was hardcoded as '123456'. Now reads actual user ID from JWT payload.
+    
     let userId: string;
     try {
       const decoded = jose.decodeJwt(token);
@@ -72,7 +74,7 @@ export async function POST(request: Request) {
     const axiosError = error as AxiosError<BackendErrorResponse>;
     const status = axiosError.response?.status || 500;
     const data = axiosError.response?.data;
-
+ 
     let message = "Service temporarily unavailable";
     let code = "SERVER_ERROR";
 

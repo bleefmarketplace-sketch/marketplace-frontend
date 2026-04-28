@@ -9,7 +9,7 @@ import { useRouter } from 'next/navigation';
 import { PhoneNumberInput } from '@/components/PhoneNumberInput';
 
 const OnboardingPage = () => {
-    const { completeOnboarding, isLoading: authLoading } = useAuth();
+    const { user, completeOnboarding, isLoading: authLoading } = useAuth();
     const router = useRouter();
     const [step, setStep] = useState(1);
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -77,13 +77,13 @@ const OnboardingPage = () => {
     };
 
     const handleFinalRedirect = () => {
-        router.push('/auth/login');
+        router.push(`/dashboard/${user?.role}`);
     };
 
     const renderRoleSelection = () => (
         <div className="space-y-6 animate-in fade-in slide-in-from-right-8 duration-500">
             <div className="text-center mb-8">
-                <h2 className="text-3xl font-bold text-gray-900">What brings you to AgriMarket?</h2>
+                <h2 className="text-3xl font-bold text-gray-900">What brings you to here?</h2>
                 <p className="text-gray-600 mt-2">Choose the role that best fits your goals. You can always change this later.</p>
             </div>
 

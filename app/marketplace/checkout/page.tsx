@@ -44,7 +44,7 @@ export default function CheckoutPage() {
             // Handle Unauthorized
             if (res.status === 401) {
                 toast.info("Please login to complete your order");
-                router.push("/auth/login?redirect=/checkout");
+                router.push("/auth/login?redirect=/marketplace/checkout");
                 return;
             }
 
