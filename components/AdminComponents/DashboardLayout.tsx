@@ -6,7 +6,8 @@ import {
   LayoutDashboard, Package, Settings, Bell, LogOut,
   Gavel, Heart, MessageSquare, Library, Star, Store,
   User, CirclePlus, ShieldCheck, BarChart2, CreditCard,
-  TrendingUp, Shield, Layers
+  TrendingUp, Shield, Layers,
+  Mail
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import Image from "next/image";
@@ -63,11 +64,11 @@ export const DashboardLayout: React.FC<LayoutProps> = ({ children }) => {
           { key: "users", label: "Users", icon: Users, path: "/dashboard/admin/users" },
           { key: "verify-sellers", label: "Verify Sellers", icon: ShieldCheck, path: "/dashboard/admin/verification" },
           { key: "disputes", label: "Disputes", icon: Gavel, path: "/dashboard/admin/disputes" },
-          { key: "moderation", label: "Moderation", icon: Shield, path: "/dashboard/admin/moderation" },
+          /* { key: "moderation", label: "Moderation", icon: Shield, path: "/dashboard/admin/moderation" }, */
           { key: "payouts", label: "Payouts", icon: CreditCard, path: "/dashboard/admin/payouts" },
           { key: "financials", label: "Financials", icon: TrendingUp, path: "/dashboard/admin/financials" },
           { key: "categories", label: "Categories", icon: CirclePlus, path: "/dashboard/admin/categories" },
-          { key: "logs", label: "Logs", icon: Layers, path: "/dashboard/admin/logs" },
+          { key: "Newsletter", label: "Newsletter", icon: Mail, path: "/dashboard/admin/newsletter" },
           { key: "settings", label: "Settings", icon: Settings, path: "/dashboard/admin/settings" },
         ];
       default:

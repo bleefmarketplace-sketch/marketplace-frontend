@@ -56,10 +56,7 @@ export const ForgotPassword = () => {
       const data = await res.json();
       throw new Error(data.message || "Failed to send reset email");
     }
-
-    // ⏱️ Store email for 6 hours ONLY
-    setCookie("u_mail", encrypt(email), getCookieOptions(6));
-
+ 
     setIsSubmitted(true);
     setRetryAfter(30); // retry cooldown (seconds)
   } catch (err: any) {

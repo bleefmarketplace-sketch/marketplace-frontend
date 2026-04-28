@@ -1,16 +1,11 @@
 import { NextResponse } from "next/server";
 import axios, { AxiosError } from "axios";
-import { cookies } from "next/headers";
-import { decrypt } from "@/secure/__enc";
+
 
 export async function POST(request: Request) {
   try {
     const body = await request.json();
 
-    const cookieStore = await cookies();
-
-    const enc_email = cookieStore.get("u_mail")?.value;
-    const email = enc_email ? decrypt(enc_email) : null;
 
     // 1. Validate input early
     if (!body?.token) {
@@ -20,12 +15,13 @@ export async function POST(request: Request) {
       );
     }
 
+     
+
     // 2. Sanitize payload
     const payload = {
-      email: email,
-      token: body.token,
-      newPassword: body.newPassword,
-    };
+        token: body.token,
+        newPassword: body.newPassword,
+      };
 
     // 3. Call backend verification endpoint
     await axios.post(
@@ -34,7 +30,6 @@ export async function POST(request: Request) {
       {
         headers: {
           "Content-Type": "application/json",
-
         },
       }
     );

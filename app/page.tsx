@@ -18,6 +18,8 @@ function NewsletterPopup() {
   const [open, setOpen] = useState(false);
   const [email, setEmail] = useState("");
   const [submitted, setSubmitted] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
   useEffect(() => {
     const seen = sessionStorage.getItem("nl_seen");
@@ -32,37 +34,52 @@ function NewsletterPopup() {
     setOpen(false);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email) return;
-    setSubmitted(true);
-    setTimeout(dismiss, 2500);
+    setLoading(true);
+    setError("");
+
+    try {
+      const res = await fetch("/api/newsletter/subscribe", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
+      const data = await res.json();
+
+      if (data.success) {
+        setSubmitted(true);
+        setTimeout(dismiss, 3000);
+      } else {
+        setError(data.message || "Something went wrong. Try again.");
+      }
+    } catch {
+      setError("Could not connect. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   if (!open) return null;
 
   return (
     <div className="fixed inset-0 z-[999] flex items-end sm:items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in duration-300">
-      <div className="relative bg-white rounded-3xl shadow-2xl max-w-md w-full overflow-hidden animate-in slide-in-from-bottom-4 sm:slide-in-from-bottom-0 sm:zoom-in-95 duration-400">
-        {/* Green banner top */}
+      <div className="relative bg-white rounded-3xl shadow-2xl max-w-md w-full overflow-hidden animate-in slide-in-from-bottom-4 sm:zoom-in-95 duration-400">
         <div className="bg-gradient-to-r from-emerald-600 to-green-500 p-6 text-white relative overflow-hidden">
           <div className="absolute -right-6 -top-6 w-28 h-28 rounded-full bg-white/10" />
-          <div className="absolute -right-2 bottom-0 w-16 h-16 rounded-full bg-white/5" />
           <button onClick={dismiss} className="absolute top-4 right-4 text-white/70 hover:text-white transition-colors">
             <X size={20} />
           </button>
-          
           <h2 className="text-2xl font-black leading-snug">
             Get fresh deals straight from Nigerian farms — weekly!
           </h2>
         </div>
-
-        {/* Body */}
         <div className="p-6">
           {!submitted ? (
             <>
               <p className="text-gray-500 text-sm mb-5">
-                Join <strong className="text-gray-800">4,000+ farmers & buyers</strong> who receive weekly price updates, new seller alerts and agri-tips. No spam, unsubscribe anytime.
+                Join <strong className="text-gray-800">4,000+ farmers & buyers</strong> who receive weekly price updates and agri-tips. No spam, unsubscribe anytime.
               </p>
               <form onSubmit={handleSubmit} className="space-y-3">
                 <input
@@ -71,14 +88,18 @@ function NewsletterPopup() {
                   placeholder="Your email address..."
                   value={email}
                   onChange={e => setEmail(e.target.value)}
-                  className="w-full border border-gray-200 rounded-2xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-400 transition-all"
+                  className="w-full border border-gray-200 rounded-2xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-400"
                 />
-                <button type="submit"
-                  className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 rounded-2xl transition-all flex items-center justify-center gap-2 shadow-lg shadow-emerald-100">
-                  Subscribe & Get 5% Off My First Order <ArrowRight size={16} />
+                {error && <p className="text-red-500 text-xs">{error}</p>}
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="w-full bg-emerald-600 hover:bg-emerald-700 disabled:opacity-60 text-white font-bold py-3 rounded-2xl transition-all flex items-center justify-center gap-2"
+                >
+                  {loading ? "Subscribing..." : <>Subscribe & Get 5% Off <ArrowRight size={16} /></>}
                 </button>
               </form>
-              <button onClick={dismiss} className="w-full text-center text-xs text-gray-400 mt-4 hover:text-gray-600 transition-colors">
+              <button onClick={dismiss} className="w-full text-center text-xs text-gray-400 mt-4 hover:text-gray-600">
                 No thanks, I&apos;ll miss out
               </button>
             </>
