@@ -14,7 +14,7 @@ export async function DELETE(
         const response = await axios.delete(`${process.env.BASE_URL}/categories/${id}`, {
             headers: { Authorization: `Bearer ${token}` }
         });
-        return NextResponse.json({ success: true, data: response.data });
+        return NextResponse.json({ success: true, data: response.data.data });
     } catch (e) { return handleAxiosError(e); }
 }
 
@@ -30,6 +30,6 @@ export async function PATCH(
         const response = await axios.patch(`${process.env.BASE_URL}/categories/${id}`, body, {
             headers: { Authorization: `Bearer ${token}` }
         });
-        return NextResponse.json({ success: true, data: response.data });
+        return NextResponse.json({ success: true, data: response.data.data });
     } catch (e) { return handleAxiosError(e); }
 }

@@ -76,18 +76,18 @@ const WalletPage = () => {
     // --- INITIAL LOAD ---
     const loadInitialData = useCallback(async () => {
         try {
-            const [banks, userBanks, walletData, /* txData */] = await Promise.all([
+            const [banks, userBanks, walletData, txData] = await Promise.all([
                 safeFetch<Bank[]>('/api/payments/banks'),
                 safeFetch<SavedBank[]>('/api/seller/banks'),
                 safeFetch<WalletData>('/api/wallet/balance'),
-                // safeFetch<Transaction[]>('/api/wallet/transactions')
+                safeFetch<Transaction[]>('/api/wallet/transactions')
             ]);
 
 
             setBanksList(banks);
             setSavedBanks(userBanks);
             setWallet(walletData);
-            // setTransactions(txData);
+            setTransactions(txData || []);
         } catch (err: any) {
             console.error("Data load failed:", err.message);
         } finally {
@@ -400,7 +400,7 @@ const WalletPage = () => {
                                             </div>
                                         </td>
                                         <td className={`px-8 py-5 font-black ${tx.amount < 0 ? 'text-red-500' : 'text-emerald-600'}`}>
-                                            {tx.amount < 0 ? '-' : '+'}${Math.abs(tx.amount).toLocaleString()}
+                                            {tx.amount < 0 ? '-' : '+'}₦{Math.abs(tx.amount).toLocaleString()}
                                         </td>
                                         <td className="px-8 py-5 text-right">
                                             <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${tx.status === 'completed' ? 'bg-emerald-50 text-emerald-600' : 'bg-amber-50 text-amber-600'
@@ -425,7 +425,7 @@ const WalletPage = () => {
                 <div className="space-y-6">
                     <div className="p-6 bg-emerald-900 rounded-3xl text-white shadow-xl shadow-emerald-100">
                         <p className="text-[10px] uppercase font-bold text-emerald-400 mb-1 tracking-widest">Available to withdraw</p>
-                        <p className="text-4xl font-black">${wallet?.availableBalance?.toLocaleString()}</p>
+                        <p className="text-4xl font-black">₦{wallet?.availableBalance?.toLocaleString()}</p>
                     </div>
 
                     <div className="space-y-4">

@@ -9,7 +9,7 @@ export async function GET() {
         const response = await axios.get(`${process.env.BASE_URL}/users/me`, {
             headers: { Authorization: `Bearer ${token}` }
         });
-        return NextResponse.json({ success: true, data: response.data });
+        return NextResponse.json({ success: true, data: response.data.data });
     } catch (error) {
         return handleAxiosError(error);
     }

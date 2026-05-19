@@ -23,7 +23,7 @@ export async function POST(request: Request) {
 
         // 2. MFA BRANCHING LOGIC
         // If the backend says MFA is required, we stop here and pass that info forward
-        if (backendData.mfaRequired) {
+        if (backendData.data.mfaRequired) {
              
             return NextResponse.json({
                 success: true,
@@ -35,7 +35,7 @@ export async function POST(request: Request) {
         // 3. STANDARD LOGIN BRANCHING
         // If we reach here, MFA is not enabled for this user.
         // We extract the tokens and user data.
-        const { user, accessToken, refreshToken } = backendData;
+        const { user, accessToken, refreshToken } = backendData?.data;
 
        
         const frontendResponse = {

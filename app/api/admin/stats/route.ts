@@ -7,10 +7,10 @@ export async function GET() {
     const token = await getAuthToken();
    
     const response = await axios.get(
-      `${process.env.BASE_URL}/system-settings/admin/stats`,
+      `${process.env.BASE_URL}/admin/stats`,
       { headers: { Authorization: `Bearer ${token}` } }
     );
-    return NextResponse.json({ success: true, data: response.data });
+    return NextResponse.json({ success: true, data: response.data.data });
   } catch (e) {
     return handleAxiosError(e);
   }

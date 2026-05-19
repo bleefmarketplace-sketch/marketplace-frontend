@@ -12,7 +12,7 @@ export async function GET() {
         });
 
         // Wrap in success: true to match your safeFetch/useApi logic
-        return NextResponse.json({ success: true, data: response.data });
+        return NextResponse.json({ success: true, data: response.data.data });
     } catch (e) {
         return handleAxiosError(e);
     }

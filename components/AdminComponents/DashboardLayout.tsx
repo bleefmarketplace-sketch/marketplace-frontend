@@ -20,9 +20,11 @@ interface LayoutProps { children: React.ReactNode; }
 type NavItem = { key: string; label: string; icon: LucideIcon; path: string; };
 
 export const DashboardLayout: React.FC<LayoutProps> = ({ children }) => {
-  const { logout, user } = useAuth();
+  const { logout, user, switchRole } = useAuth();
   const router = useRouter();
   const pathname = usePathname();
+
+  
   const role = user?.role;
 
   const getNavItems = (role?: UserRole): NavItem[] => {
@@ -64,7 +66,7 @@ export const DashboardLayout: React.FC<LayoutProps> = ({ children }) => {
           { key: "users", label: "Users", icon: Users, path: "/dashboard/admin/users" },
           { key: "verify-sellers", label: "Verify Sellers", icon: ShieldCheck, path: "/dashboard/admin/verification" },
           { key: "disputes", label: "Disputes", icon: Gavel, path: "/dashboard/admin/disputes" },
-          /* { key: "moderation", label: "Moderation", icon: Shield, path: "/dashboard/admin/moderation" }, */
+          { key: "moderation", label: "Moderation", icon: Shield, path: "/dashboard/admin/moderation" },
           { key: "payouts", label: "Payouts", icon: CreditCard, path: "/dashboard/admin/payouts" },
           { key: "financials", label: "Financials", icon: TrendingUp, path: "/dashboard/admin/financials" },
           { key: "categories", label: "Categories", icon: CirclePlus, path: "/dashboard/admin/categories" },
@@ -163,14 +165,88 @@ export const DashboardLayout: React.FC<LayoutProps> = ({ children }) => {
               </div>
 
               {/* Dropdown */}
-              <div className="hidden md:block absolute right-0 top-12 mt-1 w-44 bg-white rounded-2xl shadow-xl border border-gray-100 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50">
+              <div className="hidden md:block absolute right-0 top-12 mt-1 w-56 bg-white rounded-2xl shadow-xl border border-gray-100 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50">
                 <div className="p-2">
                   <Link href={`/dashboard/${role}/settings`}
                     className="block px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 rounded-xl font-medium">
                     Settings
                   </Link>
+
+                  {/* Switcher Divider */}
+                  {user?.role !== "admin" && (
+                    <>
+                      <div className="h-px bg-gray-100 my-1.5" />
+                      <div className="px-4 py-1 text-[10px] font-bold text-gray-400 uppercase tracking-wider">Switch View</div>
+                      
+                      {/* If currently buyer, and has a store, show switch to seller/creator */}
+                      {user?.role === "buyer" && (user?.hasCreatedStore || user?.hasCreatedCreatorProfile) && (
+                        <>
+                          <button
+                            onClick={() => switchRole("seller")}
+                            className="w-full text-left px-4 py-2.5 text-sm text-emerald-600 hover:bg-emerald-50 rounded-xl font-semibold flex items-center gap-2"
+                          >
+                            <Store size={15} /> Seller Dashboard
+                          </button>
+                          <button
+                            onClick={() => switchRole("creator")}
+                            className="w-full text-left px-4 py-2.5 text-sm text-emerald-600 hover:bg-emerald-50 rounded-xl font-semibold flex items-center gap-2"
+                          >
+                            <BookOpen size={15} /> Creator Dashboard
+                          </button>
+                        </>
+                      )}
+
+                      {/* If currently buyer, and does NOT have a store, show become merchant */}
+                      {user?.role === "buyer" && !user?.hasCreatedStore && !user?.hasCreatedCreatorProfile && (
+                        <Link
+                          href="/auth/onboarding"
+                          className="block px-4 py-2.5 text-sm text-emerald-600 hover:bg-emerald-50 rounded-xl font-semibold flex items-center gap-2"
+                        >
+                          <CirclePlus size={15} /> Become a Merchant
+                        </Link>
+                      )}
+
+                      {/* If currently seller, show switch to creator/buyer */}
+                      {user?.role === "seller" && (
+                        <>
+                          <button
+                            onClick={() => switchRole("creator")}
+                            className="w-full text-left px-4 py-2.5 text-sm text-emerald-600 hover:bg-emerald-50 rounded-xl font-semibold flex items-center gap-2"
+                          >
+                            <BookOpen size={15} /> Creator Dashboard
+                          </button>
+                          <button
+                            onClick={() => switchRole("buyer")}
+                            className="w-full text-left px-4 py-2.5 text-sm text-emerald-600 hover:bg-emerald-50 rounded-xl font-semibold flex items-center gap-2"
+                          >
+                            <Home size={15} /> Buyer Marketplace
+                          </button>
+                        </>
+                      )}
+
+                      {/* If currently creator, show switch to seller/buyer */}
+                      {user?.role === "creator" && (
+                        <>
+                          <button
+                            onClick={() => switchRole("seller")}
+                            className="w-full text-left px-4 py-2.5 text-sm text-emerald-600 hover:bg-emerald-50 rounded-xl font-semibold flex items-center gap-2"
+                          >
+                            <Store size={15} /> Seller Dashboard
+                          </button>
+                          <button
+                            onClick={() => switchRole("buyer")}
+                            className="w-full text-left px-4 py-2.5 text-sm text-emerald-600 hover:bg-emerald-50 rounded-xl font-semibold flex items-center gap-2"
+                          >
+                            <Home size={15} /> Buyer Marketplace
+                          </button>
+                        </>
+                      )}
+                    </>
+                  )}
+
+                  <div className="h-px bg-gray-100 my-1.5" />
                   <button onClick={() => logout()}
-                    className="w-full text-left px-4 py-2.5 text-sm font-semibold text-red-500 hover:bg-red-50 rounded-xl mt-1">
+                    className="w-full text-left px-4 py-2.5 text-sm font-semibold text-red-500 hover:bg-red-50 rounded-xl">
                     Logout
                   </button>
                 </div>

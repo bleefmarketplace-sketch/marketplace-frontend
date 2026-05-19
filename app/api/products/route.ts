@@ -5,7 +5,7 @@ import { getAuthToken, handleAxiosError } from "@/helpers/__helper";
 export async function GET(request: Request) {
     try {
         const { searchParams } = new URL(request.url);
-        
+      
         const response = await axios.get(`${process.env.BASE_URL}/products`, {
             params: Object.fromEntries(searchParams), // Pass filters (category, search, etc)
         });

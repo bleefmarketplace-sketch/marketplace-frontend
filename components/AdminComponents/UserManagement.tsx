@@ -56,8 +56,11 @@ const UserManagement = () => {
             );
             if (!res.ok) throw new Error('Failed to fetch users');
 
+            
+
             const result = await res.json();
-            setUsers(result.data);
+
+            setUsers(result.data.data);
             setTotal(result.total);
         } catch (err: any) {
             toast.error(err.message);

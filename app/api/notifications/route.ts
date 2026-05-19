@@ -11,7 +11,7 @@ export async function GET() {
             headers: { Authorization: `Bearer ${token}` }
         });
 
-         
+       
         return NextResponse.json({ 
             success: true, 
             data: response.data 

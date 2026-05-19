@@ -5,7 +5,7 @@ import { getAuthToken, handleAxiosError } from "@/helpers/__helper";
 export async function GET() {
     try {
         const response = await axios.get(`${process.env.BASE_URL}/categories`);
-        return NextResponse.json({ success: true, data: response.data });
+        return NextResponse.json({ success: true, data: response.data.data });
     } catch (e) { return handleAxiosError(e); }
 }
 
@@ -16,6 +16,6 @@ export async function POST(req: NextRequest) {
         const res = await axios.post(`${process.env.BASE_URL}/categories`, body, {
             headers: { Authorization: `Bearer ${token}` }
         });
-        return NextResponse.json({ success: true, data: res.data });
+        return NextResponse.json({ success: true, data: res.data.data });
     } catch (e) { return handleAxiosError(e); }
 }

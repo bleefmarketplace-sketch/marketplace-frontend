@@ -8,7 +8,7 @@ export async function GET() {
         const res = await axios.get(`${process.env.BASE_URL}/creator/my-content`, {
             headers: { Authorization: `Bearer ${token}` }
         });
-        return NextResponse.json({ success: true, data: res.data });
+        return NextResponse.json({ success: true, data: res.data.data });
     } catch (e) { return handleAxiosError(e); }
 }
 
@@ -19,6 +19,6 @@ export async function POST(req: NextRequest) {
         const res = await axios.post(`${process.env.BASE_URL}/creator/products`, body, {
             headers: { Authorization: `Bearer ${token}` }
         });
-        return NextResponse.json({ success: true, data: res.data });
+        return NextResponse.json({ success: true, data: res.data.data });
     } catch (e) { return handleAxiosError(e); }
 }

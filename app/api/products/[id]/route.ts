@@ -22,7 +22,7 @@ export async function GET(
  
     return NextResponse.json(response.data);
   } catch (e) {
-   handleAxiosError(e)
+   return handleAxiosError(e)
   }
 }
 
@@ -75,6 +75,6 @@ export async function DELETE(
       message: "Product deleted",
     });
   } catch (error) {
-      handleAxiosError(error)
+     return handleAxiosError(error)
   }
 }

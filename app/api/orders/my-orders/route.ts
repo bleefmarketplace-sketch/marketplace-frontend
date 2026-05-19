@@ -8,6 +8,6 @@ export async function GET() {
         const res = await axios.get(`${process.env.BASE_URL}/orders/my-purchases`, {
             headers: { Authorization: `Bearer ${token}` }
         });
-        return NextResponse.json({ success: true, data: res.data });
+        return NextResponse.json({ success: true, data: res.data.data });
     } catch (e) { return handleAxiosError(e); }
 }

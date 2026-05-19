@@ -7,6 +7,7 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/Button';
 import { useApi } from '@/hooks/useApi';
+import { useAuth } from '@/context/AuthContext';
 import { useRouter } from 'next/navigation';
 import { toast } from 'react-toastify';
 
@@ -23,25 +24,49 @@ export default function CreatorDashboardPage() {
   const [stats, setStats] = useState<CreatorStats | null>(null);
   const [loading, setLoading] = useState(true);
 
+  const { user } = useAuth();
+
   useEffect(() => {
     const load = async () => {
       try {
-        const res = await fetcher('/api/creator/stats');
-        setStats(res.data || res);
+        if (user?.hasCreatedCreatorProfile) {
+          const res = await fetcher('/api/creator/stats');
+          setStats(res.data || res);
+        }
       } catch {
         toast.error('Failed to load dashboard stats');
       } finally {
         setLoading(false);
       }
     };
-    load();
-  }, []);
+    if (user !== undefined) load();
+  }, [user]);
 
   if (loading) return (
     <div className="flex justify-center py-32">
       <Loader2 className="animate-spin text-emerald-600" size={40} />
     </div>
   );
+
+  if (user && !user.hasCreatedCreatorProfile) {
+    return (
+      <div className="max-w-3xl mx-auto py-20 px-4 text-center space-y-6">
+        <div className="w-24 h-24 bg-orange-100 text-orange-600 rounded-full flex items-center justify-center mx-auto">
+          <Star size={40} />
+        </div>
+        <h1 className="text-3xl font-black text-gray-900">Welcome to Creator Studio!</h1>
+        <p className="text-gray-500 max-w-lg mx-auto">
+          You are one step away from publishing content and building your community. Please set up your Creator Profile to get started.
+        </p>
+        <Button
+          onClick={() => router.push('/dashboard/creator/settings?tab=store')}
+          className="bg-emerald-600 hover:bg-emerald-700 h-12 px-8 rounded-xl font-bold"
+        >
+          Setup Creator Profile
+        </Button>
+      </div>
+    );
+  }
 
   const STAT_CARDS = [
     {
@@ -111,7 +136,7 @@ export default function CreatorDashboardPage() {
       </div>
 
       {/* Quick Actions */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <Card
           className="p-6 cursor-pointer hover:shadow-md transition-shadow group"
           onClick={() => router.push('/dashboard/creator/inventory')}
@@ -128,13 +153,27 @@ export default function CreatorDashboardPage() {
 
         <Card
           className="p-6 cursor-pointer hover:shadow-md transition-shadow group"
-          onClick={() => router.push('/dashboard/creator/settings')}
+          onClick={() => router.push('/dashboard/creator/circles')}
         >
           <div className="flex items-center justify-between mb-4">
             <div className="w-12 h-12 bg-blue-100 text-blue-600 rounded-2xl flex items-center justify-center">
-              <Star size={22} />
+              <Users size={22} />
             </div>
             <ArrowRight size={18} className="text-gray-300 group-hover:text-blue-500 transition-colors" />
+          </div>
+          <h3 className="font-bold text-gray-900">Community Circles</h3>
+          <p className="text-sm text-gray-500 mt-1">Build and moderate your exclusive farmer groups</p>
+        </Card>
+
+        <Card
+          className="p-6 cursor-pointer hover:shadow-md transition-shadow group"
+          onClick={() => router.push('/dashboard/creator/settings')}
+        >
+          <div className="flex items-center justify-between mb-4">
+            <div className="w-12 h-12 bg-orange-100 text-orange-600 rounded-2xl flex items-center justify-center">
+              <Star size={22} />
+            </div>
+            <ArrowRight size={18} className="text-gray-300 group-hover:text-orange-500 transition-colors" />
           </div>
           <h3 className="font-bold text-gray-900">Creator Profile</h3>
           <p className="text-sm text-gray-500 mt-1">Update your bio, specialization and social links</p>

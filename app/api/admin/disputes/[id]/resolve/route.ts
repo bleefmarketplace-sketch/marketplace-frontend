@@ -16,6 +16,6 @@ export async function POST(
             body, 
             { headers: { Authorization: `Bearer ${token}` } }
         );
-        return NextResponse.json({ success: true, data: response.data });
+        return NextResponse.json({ success: true, data: response.data.data });
     } catch (e) { return handleAxiosError(e); }
 }

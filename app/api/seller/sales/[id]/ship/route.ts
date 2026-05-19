@@ -22,7 +22,7 @@ export async function PATCH(
 
 
 
-        return NextResponse.json({ success: true, data: response.data });
+        return NextResponse.json({ success: true, data: response.data.data });
     } catch (error) {
         console.log(error)
         return handleAxiosError(error);

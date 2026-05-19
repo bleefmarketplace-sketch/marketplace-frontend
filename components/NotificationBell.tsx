@@ -47,11 +47,12 @@ export const NotificationBell = () => {
   const loadNotifications = async () => {
     try {
       const res = await fetcher('/api/notifications');
-      const data: NotificationItem[] = res?.data ?? [];
+      const data: NotificationItem[] = res.data.data ?? [];
 
       // 🔥 Use dummy preview if API returns empty
       const finalData = data.length === 0 ? dummyNotifications : data;
 
+     
       setNotifications(finalData);
       setUnreadCount(finalData.filter((n) => !n.isRead).length);
     } catch (error) {
@@ -87,7 +88,7 @@ export const NotificationBell = () => {
 
   const markRead = async (id: string, link?: string) => {
     try {
-      await fetcher(`/api/notifications/${id}/read`, { method: 'PATCH' });
+      await fetcher(`/api/notifications/${id}`, { method: 'PATCH' });
       setIsOpen(false);
       await loadNotifications();
       if (link) router.push(link);
@@ -112,10 +113,10 @@ export const NotificationBell = () => {
               absolute 
               -top-1 
               -right-1 
-              min-w-[100px] 
+              min-w-[20px] 
               h-5 
               px-1 
-              bg-red-500 
+              bg-black 
               text-white 
               text-[10px] 
               font-bold 

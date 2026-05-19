@@ -14,7 +14,7 @@ export async function GET() {
             });
 
           
-        return NextResponse.json({ success: true, data: res.data });
+        return NextResponse.json({ success: true, data: res.data.data });
     } catch (error) {
         return handleAxiosError(error);
     }
@@ -38,7 +38,7 @@ export async function POST(
         );
 
 
-        return NextResponse.json({ success: true, data: res.data });
+        return NextResponse.json({ success: true, data: res.data.data });
     } catch (error: any) {
 
         return NextResponse.json(
@@ -64,7 +64,7 @@ export async function PATCH(
             }
         );
 
-        return NextResponse.json({ success: true, data: res.data });
+        return NextResponse.json({ success: true, data: res.data.data });
     } catch (error: any) {
         return NextResponse.json(
             { message: error.response?.data?.message || "Update failed" },

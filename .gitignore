@@ -20,6 +20,9 @@
 # production
 /build
 
+# demo design
+/demos
+
 # misc
 .DS_Store
 *.pem

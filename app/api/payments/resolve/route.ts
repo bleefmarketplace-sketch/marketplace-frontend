@@ -13,7 +13,7 @@ export async function GET(request: NextRequest) {
             `${process.env.BASE_URL}/payment-gateways/resolve?account=${account}&bank=001`, 
             { headers: { Authorization: `Bearer ${token}` } }
         );
-        return NextResponse.json({ success: true, data: response.data });
+        return NextResponse.json({ success: true, data: response.data.data });
     } catch (error) {
         return handleAxiosError(error);
     }

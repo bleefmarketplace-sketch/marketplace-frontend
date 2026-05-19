@@ -149,7 +149,7 @@ export default function DigitalLibraryPage() {
                     size="sm"
                     onClick={() => {
                       if (item.product?.id) {
-                        router.push(`/dashboard/library/${item.product.id}`);
+                        router.push(`/dashboard/buyer/library/${item.product.id}`);
                       }
                     }}
                     className="bg-emerald-600 h-10 rounded-xl px-5 font-bold text-xs"

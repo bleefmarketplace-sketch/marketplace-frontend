@@ -6,9 +6,9 @@ export async function GET() {
     try {
         const token = await getAuthToken();
        
-        const response = await axios.get(`${process.env.BASE_URL}/disputes/my-disputes`, {
+        const response = await axios.get(`${process.env.BASE_URL}/admin/disputes`, {
             headers: { Authorization: `Bearer ${token}` }
         });
-        return NextResponse.json({ success: true, data: response.data });
+        return NextResponse.json({ success: true, data: response.data.data });
     } catch (e) { return handleAxiosError(e); }
 }

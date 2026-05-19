@@ -17,7 +17,7 @@ export interface User {
   isOnboarded: boolean;
   isVerified: boolean;
   fullName?: string;
-  phoneNumber: number;
+  phoneNumber: string;
   location: string;
   farmName: string;
   farmSize: string;
@@ -52,6 +52,8 @@ interface AuthContextType {
   logout: (returnToCurrent?: boolean) => void;
   completeOnboarding: (data: OnboardingData) => Promise<boolean>;
   refreshUserData: () => Promise<void>;
+  updateUser: (userData: User) => void;
+  switchRole: (role: UserRole) => Promise<boolean>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -192,9 +194,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
         return;
       }
-
-
-
       handleLoginSuccess(data, rememberMe);
 
        return data;
@@ -219,11 +218,19 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setUser(userData);
     setToken(rawToken);
 
+    console.log(userData)
+
     if (!userData.isOnboarded) {
       router.push(`/auth/onboarding?u=${userData.id}`);
     } else {
-      const redirectUrl = searchParams.get("redirect") || `/dashboard/${userData.role.toLowerCase()}`;
-      router.push(decodeURIComponent(redirectUrl));
+      const rawRedirect = searchParams.get("redirect");
+      let redirectUrl = `/dashboard/${userData.role.toLowerCase()}`;
+      
+      if (rawRedirect && rawRedirect.startsWith("/") && !rawRedirect.includes("://")) {
+        redirectUrl = decodeURIComponent(rawRedirect);
+      }
+      
+      router.push(redirectUrl);
     }
   };
 
@@ -314,6 +321,42 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
+  const switchRole = async (targetRole: UserRole): Promise<boolean> => {
+    setIsLoading(true);
+    try {
+      const response = await fetch("/api/auth/switch-role", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ role: targetRole }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || "Failed to switch role");
+      }
+
+      const { user: userData, token: rawToken, refreshToken: rawRefreshToken } = data;
+      const options = getCookieOptions(7);
+
+      setCookie(COOKIE_USER_KEY, JSON.stringify(userData), options);
+      setCookie(COOKIE_TOKEN_KEY, encrypt(rawToken), options);
+      if (rawRefreshToken) setCookie(COOKIE_REFRESH_KEY, encrypt(rawRefreshToken), options);
+
+      setUser(userData);
+      setToken(rawToken);
+
+      toast.success(`Successfully switched to ${targetRole} view!`);
+      router.push(`/dashboard/${targetRole.toLowerCase()}`);
+      return true;
+    } catch (err: any) {
+      toast.error(err.message || "Failed to switch role");
+      return false;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
 
 
   return (
@@ -326,7 +369,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       verify2FA,
       logout: (val) => logout(val),
       completeOnboarding,
-      refreshUserData
+      refreshUserData,
+      updateUser: updateLocalUser,
+      switchRole
     }}>
       {children}
     </AuthContext.Provider>

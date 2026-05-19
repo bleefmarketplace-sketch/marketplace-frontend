@@ -8,16 +8,16 @@ export const useApi = () => {
         let response = await fetch(url, options);
 
         // 1. If we get a 401, try to refresh
-        if (response.status === 401 && !url.includes('/api/auth/login')) {
+        if (response.status === 401 ||response.status === 403   && !url.includes('/api/auth/login')) {
             const refreshRes = await fetch('/api/auth/refresh', { method: 'POST' });
 
             if (refreshRes.ok) {
                 
                 response = await fetch(url, options);
             } else {
-                
+             /*    
                 logout(true);
-                throw new Error("Session expired. Please login again.");
+                throw new Error("Session expired. Please login again."); */
             }
         }
 

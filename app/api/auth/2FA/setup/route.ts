@@ -8,6 +8,6 @@ export async function POST() {
         const res = await axios.post(`${process.env.BASE_URL}/auth/2fa/setup`, {}, {
             headers: { Authorization: `Bearer ${token}` }
         });
-        return NextResponse.json({ success: true, data: res.data });
+        return NextResponse.json({ success: true, data: res.data.data });
     } catch (e) { return handleAxiosError(e); }
 }

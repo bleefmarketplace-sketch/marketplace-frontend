@@ -10,6 +10,8 @@ import Image from 'next/image';
 import { toast } from 'react-toastify';
 import { useApi } from '@/hooks/useApi';
 import ContentBuilder from '@/components/CreatorComponents/ContentBuilder';
+import { useAuth } from '@/context/AuthContext';
+import { useRouter } from 'next/navigation';
 
 interface DigitalProduct {
   id: string;
@@ -43,20 +45,28 @@ export default function CreatorInventoryPage() {
   const [products, setProducts] = useState<DigitalProduct[]>([]);
   const [loading, setLoading] = useState(true);
   const [showBuilder, setShowBuilder] = useState(false);
+  const [editingProduct, setEditingProduct] = useState<DigitalProduct | null>(null);
   const [search, setSearch] = useState('');
+
+  const { user } = useAuth();
+  const router = useRouter();
 
   const load = useCallback(async () => {
     try {
-      const res = await fetcher('/api/creator/products');
-      setProducts(res.data || res || []);
+      if (user?.hasCreatedCreatorProfile) {
+        const res = await fetcher('/api/creator/products');
+        setProducts(res.data || res || []);
+      }
     } catch {
       toast.error('Failed to load content');
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [fetcher, user]);
 
-  useEffect(() => { load(); }, [load]);
+  useEffect(() => { 
+    if (user !== undefined) load(); 
+  }, [load, user]);
 
   const handleDelete = async (id: string) => {
     if (!confirm('Delete this content? This cannot be undone.')) return;
@@ -73,15 +83,33 @@ export default function CreatorInventoryPage() {
     !search || p.title.toLowerCase().includes(search.toLowerCase())
   );
 
-  if (showBuilder) {
-    return <ContentBuilder onClose={() => { setShowBuilder(false); load(); }} />;
-  }
+
 
   if (loading) return (
     <div className="flex justify-center py-32">
       <Loader2 className="animate-spin text-emerald-600" size={40} />
     </div>
   );
+
+  if (user && !user.hasCreatedCreatorProfile) {
+    return (
+      <div className="max-w-3xl mx-auto py-20 px-4 text-center space-y-6 animate-in fade-in">
+        <div className="w-24 h-24 bg-orange-100 text-orange-600 rounded-full flex items-center justify-center mx-auto">
+          <BookOpen size={40} />
+        </div>
+        <h1 className="text-3xl font-black text-gray-900">Create Your Profile First</h1>
+        <p className="text-gray-500 max-w-lg mx-auto">
+          You need to set up your Creator Profile before you can upload and manage digital content.
+        </p>
+        <Button
+          onClick={() => router.push('/dashboard/creator/settings?tab=store')}
+          className="bg-emerald-600 hover:bg-emerald-700 h-12 px-8 rounded-xl font-bold"
+        >
+          Setup Creator Profile
+        </Button>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-5xl mx-auto py-8 px-4 space-y-6 animate-in fade-in duration-300">
@@ -202,8 +230,14 @@ export default function CreatorInventoryPage() {
                 {/* Actions */}
                 <div className="flex gap-2 px-5 pb-5">
                   <button
+                    onClick={() => setEditingProduct(product)}
+                    className="flex-1 flex items-center justify-center gap-2 py-2.5 bg-gray-50 hover:bg-emerald-50 text-gray-600 hover:text-emerald-700 font-bold text-xs rounded-xl transition-all border border-gray-100 hover:border-emerald-200"
+                  >
+                    Edit Content
+                  </button>
+                  <button
                     onClick={() => handleDelete(product.id)}
-                    className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                    className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors border border-transparent"
                   >
                     <Trash2 size={16} />
                   </button>
@@ -213,6 +247,16 @@ export default function CreatorInventoryPage() {
           })}
         </div>
       )}
+
+      <ContentBuilder 
+        isOpen={showBuilder || !!editingProduct}
+        product={editingProduct}
+        onClose={() => { 
+          setShowBuilder(false); 
+          setEditingProduct(null);
+          load(); 
+        }} 
+      />
     </div>
   );
 }

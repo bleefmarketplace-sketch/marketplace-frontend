@@ -85,11 +85,19 @@ const LandingPagesNav = () => {
                   </>
                 ) : (
                   <div className="flex items-center gap-4">
-                    <Link href="/dashboard" className="text-gray-600 hover:text-emerald-600">
-                      <User size={20} />
+                    <Link 
+                      href={user.role === 'buyer' ? '/account' : '/dashboard'} 
+                      className="w-9 h-9 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center hover:bg-emerald-100 transition-colors"
+                      title="Account"
+                    >
+                      <User size={18} />
                     </Link>
-                    <button onClick={() => logout()} className="text-gray-400 hover:text-red-500">
-                      <LogOut size={20} />
+                    <button 
+                        onClick={() => logout()} 
+                        className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-full transition-all"
+                        title="Logout"
+                    >
+                      <LogOut size={18} />
                     </button>
                   </div>
                 )}
@@ -128,10 +136,26 @@ const LandingPagesNav = () => {
                 </div>
               ) : (
                 <div className="flex flex-col gap-3">
-                  <Button variant="ghost" fullWidth onClick={() => router.push('/dashboard')} className="justify-start gap-2">
-                    <User size={18} /> My Account
+                  <Button 
+                    variant="ghost" 
+                    fullWidth 
+                    onClick={() => {
+                        router.push(user.role === 'buyer' ? '/account' : '/dashboard');
+                        setMobileMenuOpen(false);
+                    }} 
+                    className="justify-start gap-2"
+                  >
+                    <User size={18} /> {user.role === 'buyer' ? 'My Profile' : 'My Dashboard'}
                   </Button>
-                  <Button variant="ghost" fullWidth onClick={() => logout()} className="justify-start gap-2 text-red-500">
+                  <Button 
+                    variant="ghost" 
+                    fullWidth 
+                    onClick={() => {
+                        logout();
+                        setMobileMenuOpen(false);
+                    }} 
+                    className="justify-start gap-2 text-red-500"
+                  >
                     <LogOut size={18} /> Logout
                   </Button>
                 </div>

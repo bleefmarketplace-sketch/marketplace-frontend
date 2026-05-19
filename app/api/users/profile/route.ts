@@ -9,6 +9,6 @@ export async function PATCH(req: Request) {
         const res = await axios.patch(`${process.env.BASE_URL}/users/profile`, body, {
             headers: { Authorization: `Bearer ${token}` }
         });
-        return NextResponse.json({ success: true, data: res.data });
+        return NextResponse.json({ success: true, data: res.data.data });
     } catch (e) { return handleAxiosError(e); }
 }

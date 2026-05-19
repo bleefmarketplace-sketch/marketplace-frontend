@@ -8,7 +8,7 @@ export async function PATCH(
 ) {
     try {
         const token = await getAuthToken();
-        const  id  = await context.params;
+        const { id } = await context.params;
 
         // Calls NestJS: @Patch('notifications/:id/read')
         const response = await axios.patch(

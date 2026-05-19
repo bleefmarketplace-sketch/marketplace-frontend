@@ -7,7 +7,7 @@ export async function GET(request: Request) {
        
         const response = await axios.get(`${process.env.BASE_URL}/categories`);
 
-           return NextResponse.json({ success: true, data: response.data }); 
+           return NextResponse.json({ success: true, data: response.data.data }); 
     } catch (error) {
         return handleAxiosError(error);
     }

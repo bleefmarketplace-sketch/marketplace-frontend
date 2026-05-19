@@ -13,6 +13,7 @@ export default function CheckoutPage() {
     const { items, getTotalPrice, clearCart } = useCartStore();
     const [loading, setLoading] = useState(false);
     const [address, setAddress] = useState('');
+    const [paymentMethod, setPaymentMethod] = useState<'paystack' | 'flutterwave'>('paystack');
 
     const [showSuccessModal, setShowSuccessModal] = useState(false);
     const [placedOrderId, setPlacedOrderId] = useState('');
@@ -32,7 +33,8 @@ export default function CheckoutPage() {
         try {
             const orderData = {
                 items: items.map(i => ({ productId: i.id, quantity: i.quantity })),
-                shippingAddress: address
+                shippingAddress: address,
+                paymentMethod: paymentMethod
             };
 
             const res = await fetch('/api/orders', {
@@ -140,6 +142,35 @@ export default function CheckoutPage() {
                                 </div>
                             </div>
                         ))}
+                        <div className="bg-white rounded-[2rem] p-8 shadow-sm border border-gray-100">
+                            <h2 className="text-xl font-black text-gray-900 mb-6 flex items-center gap-2">
+                                <ShieldCheck className="text-emerald-600" /> Payment Method
+                            </h2>
+                            <div className="grid grid-cols-2 gap-4">
+                                <button 
+                                    onClick={() => setPaymentMethod('paystack')}
+                                    className={`p-6 rounded-3xl border-2 transition-all flex flex-col items-center gap-3 ${
+                                        paymentMethod === 'paystack' 
+                                        ? 'border-emerald-500 bg-emerald-50' 
+                                        : 'border-gray-50 bg-gray-50 hover:bg-gray-100'
+                                    }`}
+                                >
+                                    <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center shadow-sm font-black text-blue-600">P</div>
+                                    <span className={`text-xs font-black uppercase tracking-widest ${paymentMethod === 'paystack' ? 'text-emerald-700' : 'text-gray-400'}`}>Paystack</span>
+                                </button>
+                                <button 
+                                    onClick={() => setPaymentMethod('flutterwave')}
+                                    className={`p-6 rounded-3xl border-2 transition-all flex flex-col items-center gap-3 ${
+                                        paymentMethod === 'flutterwave' 
+                                        ? 'border-orange-500 bg-orange-50' 
+                                        : 'border-gray-50 bg-gray-50 hover:bg-gray-100'
+                                    }`}
+                                >
+                                    <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center shadow-sm font-black text-orange-500">F</div>
+                                    <span className={`text-xs font-black uppercase tracking-widest ${paymentMethod === 'flutterwave' ? 'text-orange-700' : 'text-gray-400'}`}>Flutterwave</span>
+                                </button>
+                            </div>
+                        </div>
                     </div>
 
                     {/* RIGHT: SUMMARY */}
@@ -153,12 +184,16 @@ export default function CheckoutPage() {
                                     <span className="font-bold text-white">₦{getTotalPrice().toLocaleString()}</span>
                                 </div>
                                 <div className="flex justify-between text-gray-400">
+                                    <span className="text-sm">VAT (7.5%)</span>
+                                    <span className="font-bold text-white">₦{(getTotalPrice() * 0.075).toLocaleString()}</span>
+                                </div>
+                                <div className="flex justify-between text-gray-400">
                                     <span className="text-sm">Est. Logistics</span>
                                     <span className="font-bold text-emerald-400">Calculated later</span>
                                 </div>
                                 <div className="pt-4 border-t border-white/10 flex justify-between items-center">
                                     <span className="text-lg font-bold">Total</span>
-                                    <span className="text-3xl font-black text-emerald-400">₦{getTotalPrice().toLocaleString()}</span>
+                                    <span className="text-3xl font-black text-emerald-400">₦{(getTotalPrice() * 1.075).toLocaleString()}</span>
                                 </div>
                             </div>
 
@@ -174,12 +209,10 @@ export default function CheckoutPage() {
                                 </Button>
 
                                 <div className="flex items-center justify-center gap-2 text-[10px] text-gray-500 font-bold uppercase tracking-widest mt-4">
-                                    <ShieldCheck size={14} className="text-emerald-500" /> Payment secured by Bleefy
+                                    <ShieldCheck size={14} className="text-emerald-500" /> Secure Payment via {paymentMethod === 'paystack' ? 'Paystack' : 'Flutterwave'}
                                 </div>
                             </div>
                         </div>
-
-                        
                     </div>
                 </div>
             </div>

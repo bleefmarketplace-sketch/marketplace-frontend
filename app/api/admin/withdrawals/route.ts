@@ -1,13 +1,22 @@
-import { getAuthToken, handleAxiosError } from "@/helpers/__helper";
+import { NextRequest, NextResponse } from "next/server";
 import axios from "axios";
-import { NextResponse } from "next/server";
+import { getAuthToken, handleAxiosError } from "@/helpers/__helper";
 
-export async function GET() {
-    try {
-        const token = await getAuthToken();
-        const res = await axios.get(`${process.env.BASE_URL}/wallet/admin/withdrawals`, {
-            headers: { Authorization: `Bearer ${token}` }
-        });
-        return NextResponse.json({ success: true, data: res.data });
-    } catch (e) { return handleAxiosError(e); }
+export async function GET(request: NextRequest) {
+  try {
+    const { searchParams } = new URL(request.url);
+    const status = searchParams.get("status");
+    const token = await getAuthToken();
+   
+    const response = await axios.get(
+      `${process.env.BASE_URL}/admin/withdrawals`,
+      { 
+        params: { status },
+        headers: { Authorization: `Bearer ${token}` } 
+      }
+    );
+    return NextResponse.json({ success: true, data: response.data.data });
+  } catch (e) {
+    return handleAxiosError(e);
+  }
 }

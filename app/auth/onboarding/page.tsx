@@ -114,7 +114,7 @@ const OnboardingPage = () => {
                     <p className="text-sm text-gray-500 mt-2 leading-relaxed">I want to sell my harvest, livestock, or machinery to a global market.</p>
                 </div>
 
-              {/*   <div
+                <div
                     onClick={() => setSelectedRole('creator')}
                     className={`cursor-pointer border-2 rounded-xl p-6 transition-all hover:-translate-y-1 relative overflow-hidden group ${selectedRole === 'creator' ? 'border-primary-600 bg-primary-50 ring-1 ring-primary-600' : 'border-gray-100 hover:border-primary-200'
                         }`}
@@ -125,7 +125,7 @@ const OnboardingPage = () => {
                     </div>
                     <h3 className="font-bold text-gray-900 text-lg">Creator</h3>
                     <p className="text-sm text-gray-500 mt-2 leading-relaxed">I want to share my knowledge, publish courses, and educate the community.</p>
-                </div> */}
+                </div>
             </div>
         </div>
     );

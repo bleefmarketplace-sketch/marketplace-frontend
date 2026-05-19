@@ -48,14 +48,14 @@ function NewsletterPopup() {
       });
       const data = await res.json();
 
-      if (data.success) {
+      if (data.success || data.data?.success) {
         setSubmitted(true);
-        setTimeout(dismiss, 3000);
+        setTimeout(dismiss, 5000); // Give user time to read success message
       } else {
-        setError(data.message || "Something went wrong. Try again.");
+        setError(data.message || "This email might already be subscribed.");
       }
     } catch {
-      setError("Could not connect. Please try again.");
+      setError("Network error. Please try again later.");
     } finally {
       setLoading(false);
     }
@@ -64,52 +64,63 @@ function NewsletterPopup() {
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-[999] flex items-end sm:items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in duration-300">
-      <div className="relative bg-white rounded-3xl shadow-2xl max-w-md w-full overflow-hidden animate-in slide-in-from-bottom-4 sm:zoom-in-95 duration-400">
-        <div className="bg-gradient-to-r from-emerald-600 to-green-500 p-6 text-white relative overflow-hidden">
-          <div className="absolute -right-6 -top-6 w-28 h-28 rounded-full bg-white/10" />
-          <button onClick={dismiss} className="absolute top-4 right-4 text-white/70 hover:text-white transition-colors">
-            <X size={20} />
+    <div className="fixed inset-0 z-[999] flex items-end sm:items-center justify-center p-4 bg-black/40 backdrop-blur-md animate-in fade-in duration-500">
+      <div className="relative bg-white/90 backdrop-blur-xl rounded-[2.5rem] shadow-[0_32px_64px_-16px_rgba(0,0,0,0.3)] max-w-md w-full overflow-hidden animate-in slide-in-from-bottom-8 sm:zoom-in-95 duration-500 border border-white/20">
+        <div className="bg-gradient-to-br from-emerald-600 via-emerald-500 to-green-400 p-8 text-white relative overflow-hidden">
+          <div className="absolute -right-8 -top-8 w-32 h-32 rounded-full bg-white/20 blur-2xl" />
+          <div className="absolute -left-8 -bottom-8 w-24 h-24 rounded-full bg-emerald-400/30 blur-xl" />
+          
+          <button onClick={dismiss} className="absolute top-5 right-5 text-white/60 hover:text-white transition-all hover:rotate-90 duration-300">
+            <X size={24} strokeWidth={3} />
           </button>
-          <h2 className="text-2xl font-black leading-snug">
-            Get fresh deals straight from Nigerian farms — weekly!
-          </h2>
+          
+          <div className="relative z-10">
+            <div className="w-12 h-12 bg-white/20 rounded-2xl flex items-center justify-center mb-4 backdrop-blur-md border border-white/30">
+              <Sprout size={24} className="text-white" />
+            </div>
+            <h2 className="text-3xl font-black leading-[1.1] tracking-tight">
+              Fresh Deals,<br />
+              <span className="text-emerald-100">Direct From Farms.</span>
+            </h2>
+          </div>
         </div>
-        <div className="p-6">
+        <div className="p-8 pt-6">
           {!submitted ? (
             <>
-              <p className="text-gray-500 text-sm mb-5">
-                Join <strong className="text-gray-800">4,000+ farmers & buyers</strong> who receive weekly price updates and agri-tips. No spam, unsubscribe anytime.
+              <p className="text-gray-600 text-sm leading-relaxed mb-6 font-medium">
+                Join <strong className="text-emerald-600 font-bold">4,000+ farmers & buyers</strong> receiving weekly price updates and exclusive agri-tips.
               </p>
-              <form onSubmit={handleSubmit} className="space-y-3">
-                <input
-                  type="email"
-                  required
-                  placeholder="Your email address..."
-                  value={email}
-                  onChange={e => setEmail(e.target.value)}
-                  className="w-full border border-gray-200 rounded-2xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-400"
-                />
-                {error && <p className="text-red-500 text-xs">{error}</p>}
+              <form onSubmit={handleSubmit} className="space-y-4">
+                <div className="relative group">
+                  <input
+                    type="email"
+                    required
+                    placeholder="name@example.com"
+                    value={email}
+                    onChange={e => setEmail(e.target.value)}
+                    className="w-full bg-gray-50 border-2 border-gray-100 rounded-2xl px-5 py-4 text-sm font-semibold focus:outline-none focus:border-emerald-500 focus:bg-white transition-all placeholder:text-gray-400 group-hover:border-gray-200"
+                  />
+                </div>
+                {error && <p className="text-rose-500 text-xs font-bold px-1 animate-pulse">{error}</p>}
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full bg-emerald-600 hover:bg-emerald-700 disabled:opacity-60 text-white font-bold py-3 rounded-2xl transition-all flex items-center justify-center gap-2"
+                  className="w-full bg-emerald-600 hover:bg-emerald-500 active:scale-[0.98] disabled:opacity-60 text-white font-black py-4 rounded-2xl transition-all flex items-center justify-center gap-3 shadow-xl shadow-emerald-600/20 text-base"
                 >
-                  {loading ? "Subscribing..." : <>Subscribe & Get 5% Off <ArrowRight size={16} /></>}
+                  {loading ? "Processing..." : <>Claim Your 5% Discount <ArrowRight size={18} strokeWidth={3} /></>}
                 </button>
               </form>
-              <button onClick={dismiss} className="w-full text-center text-xs text-gray-400 mt-4 hover:text-gray-600">
-                No thanks, I&apos;ll miss out
+              <button onClick={dismiss} className="w-full text-center text-xs font-bold text-gray-400 mt-6 hover:text-emerald-600 transition-colors tracking-wide uppercase">
+                I prefer paying full price
               </button>
             </>
           ) : (
-            <div className="text-center py-4 animate-in zoom-in duration-300">
-              <div className="w-16 h-16 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <CheckCircle size={32} className="text-emerald-600" />
+            <div className="text-center py-6 animate-in zoom-in-95 duration-500">
+              <div className="w-20 h-20 bg-emerald-50 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-inner border border-emerald-100">
+                <CheckCircle size={40} className="text-emerald-600" />
               </div>
-              <h3 className="font-black text-xl text-gray-900">You&apos;re in! 🎉</h3>
-              <p className="text-gray-500 text-sm mt-2">Check your inbox for your 5% discount code.</p>
+              <h3 className="font-black text-2xl text-gray-900 tracking-tight">You&apos;re All Set! 🎉</h3>
+              <p className="text-gray-500 text-sm mt-2 font-medium">Check your inbox for your exclusive code.</p>
             </div>
           )}
         </div>

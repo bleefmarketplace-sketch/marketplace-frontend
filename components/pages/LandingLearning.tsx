@@ -1,192 +1,196 @@
 "use client";
-import React, { useState } from 'react';
-
-import { BookOpen, PlayCircle, Award, CheckCircle, Star } from 'lucide-react';
-
- 
-import { Modal } from '../Modal';
+import React, { useState, useEffect, useCallback } from 'react';
+import { 
+    BookOpen, PlayCircle, Award, CheckCircle, Star, 
+    ArrowRight, Loader2, Sparkles, Filter 
+} from 'lucide-react';
 import Image from 'next/image';
 import { Button } from '../Button';
-import { MOCK_COURSES } from '../constants';
 import { Card } from '../Card';
-import { Course, PendingAction } from '../types';
+import { useApi } from '@/hooks/useApi';
+import { useRouter } from 'next/navigation';
 
-interface LandingLearningProps {
-  onGetStarted: () => void;
-  onAction: (action: PendingAction) => void;
-}
+export const Learning = () => {
+  const fetcher = useApi();
+  const router = useRouter();
+  const [courses, setCourses] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
 
-export const Learning: React.FC<LandingLearningProps> = ({ onGetStarted, onAction }) => {
-  const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
+  const fetchCourses = useCallback(async () => {
+    setLoading(true);
+    try {
+      const res = await fetcher('/api/products?type=digital');
+      setCourses(res.data || []);
+    } catch (e) {
+      console.error("Failed to fetch courses", e);
+    } finally {
+      setLoading(false);
+    }
+  }, [fetcher]);
+
+  useEffect(() => {
+    fetchCourses();
+  }, [fetchCourses]);
 
   return (
-    <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-       
-       <Modal
-         isOpen={!!selectedCourse}
-         onClose={() => setSelectedCourse(null)}
-         title="Course Preview"
-         size="lg"
-       >
-         {selectedCourse && (
-            <div className="flex flex-col md:flex-row gap-6">
-                <div className="md:w-1/3">
-                    <Image fill src={selectedCourse.image} className="w-full rounded-lg shadow-sm mb-4" alt="" />
-                    <div className="bg-orange-50 p-4 rounded-lg border border-orange-100 text-center">
-                        <span className="block text-3xl font-bold text-gray-900 mb-2">${selectedCourse.price}</span>
-                        <Button
-                            fullWidth 
-                            className="bg-orange-600 hover:bg-orange-700" 
-                            onClick={() => {
-                                setSelectedCourse(null);
-                                onAction({ type: 'enroll', data: selectedCourse });
-                            }}
-                        >
-                            Enroll Now
-                        </Button>
-                        <p className="text-xs text-gray-500 mt-2">30-day money-back guarantee</p>
-                    </div>
-                </div>
-                <div className="md:w-2/3 space-y-4">
-                    <h2 className="text-2xl font-bold text-gray-900">{selectedCourse.title}</h2>
-                    <p className="text-gray-600">Created by <span className="font-bold text-orange-600">{selectedCourse.creator}</span></p>
-                    
-                    <div className="flex gap-4 text-sm">
-                        <span className="flex items-center gap-1 text-yellow-500 font-bold"><Star size={16} fill="currentColor"/> {selectedCourse.rating}</span>
-                        <span className="text-gray-500">{selectedCourse.students.toLocaleString()} students</span>
-                        <span className="text-gray-500">Last updated Sept 2023</span>
-                    </div>
-
-                    <div className="space-y-4 pt-4 border-t border-gray-100">
-                        <h3 className="font-bold text-gray-900">What you&apos;ll learn</h3>
-                        <div className="grid grid-cols-2 gap-2 text-sm text-gray-700">
-                             <div className="flex items-start gap-2"><CheckCircle size={16} className="text-green-500 mt-0.5" /> Soil management mastery</div>
-                             <div className="flex items-start gap-2"><CheckCircle size={16} className="text-green-500 mt-0.5" /> Sustainable pest control</div>
-                             <div className="flex items-start gap-2"><CheckCircle size={16} className="text-green-500 mt-0.5" /> Irrigation efficiency</div>
-                             <div className="flex items-start gap-2"><CheckCircle size={16} className="text-green-500 mt-0.5" /> Maximizing crop yield</div>
-                        </div>
-                    </div>
-
-                    <div className="pt-4">
-                        <h3 className="font-bold text-gray-900 mb-2">Course Content</h3>
-                        <div className="space-y-2 text-sm">
-                             {['Introduction to Sustainable Farming', 'Understanding Soil pH', 'Water Conservation Techniques', 'Organic Certification Process'].map((lesson, i) => (
-                                 <div key={i} className="flex justify-between items-center p-3 bg-gray-50 rounded border border-gray-100">
-                                     <div className="flex items-center gap-3">
-                                         <PlayCircle size={16} className="text-gray-400" />
-                                         <span>{lesson}</span>
-                                     </div>
-                                     <span className="text-xs text-gray-400">12:30</span>
-                                 </div>
-                             ))}
-                        </div>
-                    </div>
-                </div>
-            </div>
-         )}
-       </Modal>
-
-       {/* Hero */}
-       <div className="relative bg-gray-900 text-white overflow-hidden mb-20">
+    <div className="animate-in fade-in duration-700 bg-white min-h-screen">
+       {/* Hero Section */}
+       <div className="relative bg-gray-900 text-white overflow-hidden">
           <div className="absolute inset-0">
              <Image 
-             fill
+               fill
                src="https://images.unsplash.com/photo-1615811361524-78849b2c900e?ixlib=rb-4.0.3&auto=format&fit=crop&w=1974&q=80" 
                alt="Learning" 
-               className="w-full h-full object-cover opacity-20"
+               className="w-full h-full object-cover opacity-10 blur-[2px]"
+               unoptimized
              />
+             <div className="absolute inset-0 bg-gradient-to-t from-gray-900 via-gray-900/40 to-transparent" />
           </div>
-          <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 md:py-32 flex flex-col md:flex-row items-center gap-12">
-             <div className="flex-1 space-y-8">
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-orange-500/20 text-orange-400 border border-orange-500/30 text-sm font-bold uppercase tracking-wider">
-                   <BookOpen size={14} /> AgriMarket Academy
-                </div>
-                <h1 className="text-5xl font-bold leading-tight">Master Modern Farming Techniques</h1>
-                <p className="text-xl text-gray-300">Access hundreds of expert-led courses on sustainable agriculture, livestock management, and agribusiness.</p>
-                <div className="flex gap-4">
-                   <Button size="lg" className="bg-orange-600 hover:bg-orange-700" onClick={onGetStarted}>Explore Courses</Button>
-                   <Button size="lg" variant="outline" className="text-white border-white hover:bg-white/10" onClick={onGetStarted}>Teach on AgriMarket</Button>
-                </div>
+          
+          <div className="relative z-10 max-w-7xl mx-auto px-6 py-24 md:py-40 flex flex-col items-center text-center">
+             <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-[10px] font-black uppercase tracking-[0.2em] mb-8">
+                <Sparkles size={14} className="animate-pulse" /> AgriMarket Academy
              </div>
-             
-             {/* Stats Card */}
-             <div className="w-full md:w-auto bg-white/10 backdrop-blur-md border border-white/20 p-6 rounded-2xl min-w-75">
-                <div className="space-y-6">
-                   <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 rounded-full bg-orange-500 flex items-center justify-center text-white">
-                         <PlayCircle size={24} />
-                      </div>
-                      <div>
-                         <p className="text-3xl font-bold">1,200+</p>
-                         <p className="text-gray-400 text-sm">Video Courses</p>
-                      </div>
-                   </div>
-                   <div className="h-px bg-white/10"></div>
-                   <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 rounded-full bg-blue-500 flex items-center justify-center text-white">
-                         <Award size={24} />
-                      </div>
-                      <div>
-                         <p className="text-3xl font-bold">50k+</p>
-                         <p className="text-gray-400 text-sm">Certificates Issued</p>
-                      </div>
-                   </div>
-                </div>
+             <h1 className="text-5xl md:text-7xl font-black leading-[1.05] tracking-tight max-w-4xl mb-8">
+                Cultivate Your Knowledge <br /> 
+                <span className="text-emerald-400">Direct From Experts.</span>
+             </h1>
+             <p className="text-lg md:text-xl text-gray-400 max-w-2xl font-medium leading-relaxed mb-12">
+                Join thousands of Nigerian farmers mastering precision agriculture, livestock management, and agribusiness through our verified expert guides.
+             </p>
+             <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
+                <Button 
+                    size="lg" 
+                    className="h-16 px-10 rounded-2xl bg-emerald-600 hover:bg-emerald-700 font-black uppercase tracking-widest text-sm shadow-xl shadow-emerald-900/40"
+                    onClick={() => document.getElementById('catalog')?.scrollIntoView({ behavior: 'smooth' })}
+                >
+                   Start Learning Now
+                </Button>
+                <Button 
+                    size="lg" 
+                    variant="outline" 
+                    className="h-16 px-10 rounded-2xl text-white border-white/20 hover:bg-white/5 font-black uppercase tracking-widest text-sm"
+                    onClick={() => router.push('/dashboard/seller/payouts')} // Mock redirect to seller area for teaching
+                >
+                   Become an Instructor
+                </Button>
              </div>
           </div>
        </div>
 
-       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-20 space-y-20">
-          
-          {/* Features */}
-          <section className="grid md:grid-cols-3 gap-8">
+       {/* Features Grid */}
+       <div className="max-w-7xl mx-auto px-6 -mt-20 relative z-20">
+          <div className="grid md:grid-cols-3 gap-6">
              {[
-                { title: 'Expert Instructors', desc: 'Learn from university professors and veteran farmers.', icon: <Award size={32} /> },
-                { title: 'Flexible Learning', desc: 'Watch lessons anytime, anywhere on any device.', icon: <PlayCircle size={32} /> },
-                { title: 'Practical Skills', desc: 'Curriculum designed for real-world application.', icon: <CheckCircle size={32} /> }
+                { title: 'Verified Experts', desc: 'Content created by university-certified agronomists.', icon: Award, color: 'text-blue-500 bg-blue-50' },
+                { title: 'Interactive Content', desc: 'HD video lessons, downloadable guides, and quizzes.', icon: PlayCircle, color: 'text-emerald-500 bg-emerald-50' },
+                { title: 'Lifetime Access', desc: 'Learn at your own pace with unlimited content access.', icon: CheckCircle, color: 'text-orange-500 bg-orange-50' }
              ].map((feature, i) => (
-                <div key={i} className="bg-orange-50 p-8 rounded-2xl border border-orange-100">
-                   <div className="text-orange-600 mb-4">{feature.icon}</div>
-                   <h3 className="text-xl font-bold text-gray-900 mb-2">{feature.title}</h3>
-                   <p className="text-gray-600">{feature.desc}</p>
-                </div>
+                <Card key={i} className="p-8 border-none shadow-2xl shadow-gray-200/50 rounded-[2.5rem] bg-white">
+                   <div className={`w-14 h-14 rounded-2xl flex items-center justify-center mb-6 ${feature.color}`}>
+                      <feature.icon size={28} />
+                   </div>
+                   <h3 className="text-xl font-black text-gray-900 mb-3">{feature.title}</h3>
+                   <p className="text-gray-500 text-sm leading-relaxed font-medium">{feature.desc}</p>
+                </Card>
              ))}
-          </section>
+          </div>
+       </div>
 
-          {/* Popular Courses */}
-          <section>
-             <div className="flex justify-between items-end mb-8">
-                <h2 className="text-3xl font-bold text-gray-900">Popular Courses</h2>
-                <Button variant="ghost" className="text-orange-600" onClick={onGetStarted}>View All</Button>
+       {/* Catalog Section */}
+       <div id="catalog" className="max-w-7xl mx-auto px-6 py-24 space-y-12">
+          <div className="flex flex-col md:flex-row justify-between items-end gap-6">
+             <div>
+                <h2 className="text-4xl font-black text-gray-900 tracking-tight">Expert Course Catalog</h2>
+                <p className="text-gray-500 font-medium mt-2">Filter through hundreds of specialized agricultural modules.</p>
              </div>
-             
-             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-                {MOCK_COURSES.map(course => (
-                   <Card key={course.id} noPadding onClick={() => setSelectedCourse(course)} className="cursor-pointer hover:shadow-lg transition-shadow">
-                      <div className="aspect-video relative">
-                         <Image fill src={course.image} className="w-full h-full object-cover" alt="" />
-                         <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
-                            <div className="w-12 h-12 rounded-full bg-white/20 backdrop-blur flex items-center justify-center text-white">
-                               <PlayCircle size={32} />
-                            </div>
+             <div className="flex items-center gap-3 bg-gray-100 p-1.5 rounded-2xl border border-gray-200">
+                <button className="px-6 py-2.5 bg-white text-emerald-700 shadow-sm rounded-xl text-[10px] font-black uppercase tracking-widest">All Categories</button>
+                <button className="px-6 py-2.5 text-gray-400 hover:text-gray-600 rounded-xl text-[10px] font-black uppercase tracking-widest">Livestock</button>
+                <button className="px-6 py-2.5 text-gray-400 hover:text-gray-600 rounded-xl text-[10px] font-black uppercase tracking-widest">Crops</button>
+                <div className="w-px h-6 bg-gray-200 mx-1" />
+                <button className="p-2.5 text-gray-400 hover:text-emerald-600">
+                   <Filter size={18} />
+                </button>
+             </div>
+          </div>
+
+          {loading ? (
+             <div className="py-20 flex flex-col items-center justify-center gap-4">
+                <Loader2 className="animate-spin text-emerald-600" size={40} />
+                <p className="text-sm font-bold text-gray-400 uppercase tracking-widest">Loading Academy...</p>
+             </div>
+          ) : courses.length === 0 ? (
+             <div className="py-32 text-center bg-gray-50 rounded-[3rem] border-2 border-dashed border-gray-200">
+                <BookOpen size={64} className="mx-auto text-gray-200 mb-4" />
+                <p className="text-xl font-bold text-gray-400">No courses available in this category yet.</p>
+             </div>
+          ) : (
+             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-10">
+                {courses.map(course => (
+                   <Card 
+                     key={course.id} 
+                     noPadding 
+                     onClick={() => router.push(`/learning/${course.id}`)}
+                     className="group cursor-pointer border-none shadow-sm hover:shadow-2xl transition-all duration-500 rounded-[2.5rem] overflow-hidden bg-white"
+                   >
+                      <div className="aspect-[4/3] relative overflow-hidden">
+                         <Image fill src={course.primaryImage} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" alt={course.title} unoptimized />
+                         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-end p-6">
+                            <span className="text-white text-xs font-black uppercase tracking-widest flex items-center gap-2">
+                               View Curriculum <ArrowRight size={14} />
+                            </span>
+                         </div>
+                         <div className="absolute top-4 right-4 bg-white/90 backdrop-blur px-3 py-1.5 rounded-xl flex items-center gap-1.5 text-yellow-500 font-black text-xs shadow-xl">
+                            <Star size={14} fill="currentColor" /> {course.digitalMetadata?.trustScore || '4.8'}
                          </div>
                       </div>
-                      <div className="p-5">
-                         <h3 className="font-bold text-lg text-gray-900 mb-2 line-clamp-2">{course.title}</h3>
-                         <p className="text-sm text-gray-500 mb-4">by {course.creator}</p>
+                      <div className="p-8">
+                         <div className="flex items-center gap-2 mb-3">
+                             <span className="text-[10px] font-black text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-full uppercase tracking-wider border border-emerald-100">
+                                {course.category?.name || 'Agri-Tech'}
+                             </span>
+                             <span className="text-[10px] font-bold text-gray-400 uppercase">{course.digitalMetadata?.aiAccuracyScore || 90}% AI Accuracy</span>
+                         </div>
+                         <h3 className="font-black text-xl text-gray-900 mb-4 line-clamp-2 leading-tight group-hover:text-emerald-600 transition-colors">{course.title}</h3>
                          
-                         <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-1 text-yellow-500 text-sm font-bold">
-                               <Star size={16} className="fill-current" /> {course.rating}
+                         <div className="flex items-center justify-between pt-6 border-t border-gray-50">
+                            <div className="flex flex-col">
+                               <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-0.5">Enrollment Fee</span>
+                               <span className="font-black text-2xl text-gray-900 tracking-tighter">₦{Number(course.price).toLocaleString()}</span>
                             </div>
-                            <span className="font-bold text-xl text-gray-900">${course.price}</span>
+                            <div className="w-12 h-12 rounded-2xl bg-gray-900 text-white flex items-center justify-center group-hover:bg-emerald-600 transition-colors shadow-lg">
+                               <PlayCircle size={24} />
+                            </div>
                          </div>
                       </div>
                    </Card>
                 ))}
              </div>
-          </section>
-          
+          )}
+       </div>
+
+       {/* Newsletter / CTA */}
+       <div className="max-w-7xl mx-auto px-6 pb-24">
+           <Card className="bg-emerald-600 p-12 md:p-20 rounded-[4rem] text-center text-white relative overflow-hidden border-none">
+              <div className="absolute top-0 right-0 p-40 bg-white/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
+              <div className="absolute bottom-0 left-0 p-32 bg-black/10 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2" />
+              
+              <div className="relative z-10 space-y-8 max-w-2xl mx-auto">
+                 <h2 className="text-4xl md:text-5xl font-black tracking-tight leading-tight">Ready to scale your farm?</h2>
+                 <p className="text-emerald-100 font-medium text-lg">Join our exclusive newsletter to get 15% off your first course and weekly agri-market insights.</p>
+                 <div className="flex flex-col sm:flex-row gap-3">
+                    <input 
+                        type="email" 
+                        placeholder="Enter your email address" 
+                        className="flex-1 h-16 rounded-2xl bg-white/10 border border-white/20 px-6 focus:outline-none focus:bg-white/20 transition-all placeholder:text-emerald-100/50 font-bold"
+                    />
+                    <Button className="h-16 px-10 rounded-2xl bg-white text-emerald-700 hover:bg-emerald-50 font-black uppercase tracking-widest text-sm border-none shadow-xl">
+                        Subscribe
+                    </Button>
+                 </div>
+              </div>
+           </Card>
        </div>
     </div>
   );
