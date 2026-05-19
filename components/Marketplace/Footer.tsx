@@ -2,7 +2,7 @@ import Link from 'next/link'
 import React from 'react'
 
 const Footer = () => {
-  const phone = "2348000000000"; // Replace with real WhatsApp number
+  const phone = "2348133012510"; // Replace with real WhatsApp number
   const waMsg = encodeURIComponent("Hi Bleefy! I need help with the marketplace.");
   const waHref = `https://wa.me/${phone}?text=${waMsg}`;
 

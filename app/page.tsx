@@ -69,11 +69,11 @@ function NewsletterPopup() {
         <div className="bg-gradient-to-br from-emerald-600 via-emerald-500 to-green-400 p-8 text-white relative overflow-hidden">
           <div className="absolute -right-8 -top-8 w-32 h-32 rounded-full bg-white/20 blur-2xl" />
           <div className="absolute -left-8 -bottom-8 w-24 h-24 rounded-full bg-emerald-400/30 blur-xl" />
-          
+
           <button onClick={dismiss} className="absolute top-5 right-5 text-white/60 hover:text-white transition-all hover:rotate-90 duration-300">
             <X size={24} strokeWidth={3} />
           </button>
-          
+
           <div className="relative z-10">
             <div className="w-12 h-12 bg-white/20 rounded-2xl flex items-center justify-center mb-4 backdrop-blur-md border border-white/30">
               <Sprout size={24} className="text-white" />
@@ -136,7 +136,7 @@ function WhatsAppCTA() {
   const [tooltip, setTooltip] = useState(true);
 
   // Replace with your actual WhatsApp number (no +, no spaces)
-  const phone = "2348000000000";
+  const phone = "+2348133012510";
   const message = encodeURIComponent("Hi Bleefy! I'd like to learn more about your agricultural marketplace.");
   const href = `https://wa.me/${phone}?text=${message}`;
 
@@ -435,7 +435,7 @@ export default function Home() {
             ].map(t => (
               <div key={t.name} className="bg-gray-50 rounded-3xl p-8 border border-gray-100">
                 <div className="flex gap-1 mb-4">
-                  {[1,2,3,4,5].map(s => <Star key={s} size={16} className="fill-amber-400 text-amber-400" />)}
+                  {[1, 2, 3, 4, 5].map(s => <Star key={s} size={16} className="fill-amber-400 text-amber-400" />)}
                 </div>
                 <p className="text-gray-700 italic leading-relaxed mb-6">&quot;{t.quote}&quot;</p>
                 <div className="flex items-center gap-3">
