@@ -6,7 +6,7 @@ import { Input } from '@/components/Input';
 import { Modal } from '@/components/Modal';
 import { 
     Plus, Folder, ChevronRight, Trash2, Edit3, 
-    Loader2, AlertCircle 
+    Loader2, AlertCircle, Upload 
 } from 'lucide-react';
 import { useApi } from '@/hooks/useApi';
 import { toast } from 'react-toastify';
@@ -22,6 +22,35 @@ export default function AdminCategoriesPage() {
     
     const [form, setForm] = useState({ name: '', icon: '', parentId: '' });
     const [saving, setSaving] = useState(false);
+    const [uploadingImage, setUploadingImage] = useState(false);
+
+    const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        setUploadingImage(true);
+        try {
+            const formData = new FormData();
+            formData.append('file', file);
+
+            const res = await fetch('/api/upload/upload-single-image', {
+                method: 'POST',
+                body: formData,
+            });
+
+            const data = await res.json();
+            if (data.url) {
+                setForm(prev => ({ ...prev, icon: data.url }));
+                toast.success("Image uploaded successfully!");
+            } else {
+                toast.error("Upload failed: No URL returned");
+            }
+        } catch (err: any) {
+            toast.error(err.message || "Failed to upload image");
+        } finally {
+            setUploadingImage(false);
+        }
+    };
 
     const loadData = useCallback(async () => {
         setLoading(true);
@@ -112,8 +141,12 @@ export default function AdminCategoriesPage() {
                         <Card key={cat.id} className="p-0 overflow-hidden border-gray-100 shadow-sm">
                             <div className="p-6 flex items-center justify-between bg-white group">
                                 <div className="flex items-center gap-4">
-                                    <div className="w-12 h-12 bg-emerald-50 rounded-2xl flex items-center justify-center text-emerald-600 text-xl">
-                                        {cat.icon || <Folder size={20} />}
+                                    <div className="w-12 h-12 bg-emerald-50 rounded-2xl flex items-center justify-center overflow-hidden text-emerald-600 text-xl shrink-0">
+                                        {cat.icon && (cat.icon.startsWith('http') || cat.icon.startsWith('/')) ? (
+                                            <img src={cat.icon} alt={cat.name} className="w-full h-full object-cover" />
+                                        ) : (
+                                            cat.icon || <Folder size={20} />
+                                        )}
                                     </div>
                                     <div>
                                         <h4 className="font-bold text-gray-900">{cat.name}</h4>
@@ -162,12 +195,43 @@ export default function AdminCategoriesPage() {
                         required
                     />
                     
-                    <Input 
-                        label="Icon" 
-                        placeholder="🌽 or URL" 
-                        value={form.icon}
-                        onChange={(e) => setForm({...form, icon: e.target.value})}
-                    />
+                    <div className="space-y-2">
+                        <Input 
+                            label="Icon / Emoji" 
+                            placeholder="🌽 or image URL" 
+                            value={form.icon}
+                            onChange={(e) => setForm({...form, icon: e.target.value})}
+                        />
+                        
+                        <div className="relative border-2 border-dashed border-gray-200 hover:border-emerald-500 rounded-2xl p-6 flex flex-col items-center justify-center cursor-pointer transition-all hover:bg-emerald-50/10">
+                            <input 
+                                type="file" 
+                                accept="image/*" 
+                                className="absolute inset-0 opacity-0 cursor-pointer" 
+                                onChange={handleImageUpload} 
+                                disabled={uploadingImage}
+                            />
+                            {uploadingImage ? (
+                                <Loader2 className="animate-spin text-emerald-600 mb-2" size={24} />
+                            ) : (
+                                <Upload className="text-gray-400 mb-2" size={24} />
+                            )}
+                            <span className="text-xs text-gray-600 font-bold">
+                                {uploadingImage ? "Uploading file..." : "Upload Custom Category Image"}
+                            </span>
+                            <span className="text-[10px] text-gray-400 mt-1">PNG, JPG up to 5MB</span>
+                        </div>
+
+                        {form.icon && (form.icon.startsWith('http') || form.icon.startsWith('/')) && (
+                            <div className="mt-3 p-3 bg-gray-50 rounded-2xl flex items-center gap-3 border border-gray-100">
+                                <img src={form.icon} alt="Preview" className="w-10 h-10 object-cover rounded-xl" />
+                                <div className="flex-1 min-w-0">
+                                    <p className="text-[10px] font-bold text-emerald-600">Active Custom Image</p>
+                                    <p className="text-xs text-gray-500 truncate">{form.icon}</p>
+                                </div>
+                            </div>
+                        )}
+                    </div>
 
                     <div>
                         <label className="text-[10px] font-bold text-gray-400 uppercase ml-1">Parent Category</label>
