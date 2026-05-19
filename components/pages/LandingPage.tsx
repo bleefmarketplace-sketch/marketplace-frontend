@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import Image from 'next/image';
  
 import { ArrowRight, CheckCircle, Sprout, Users, Shield, Menu, X, MousePointer, Search, Star } from 'lucide-react';
 import { PendingAction } from '../types';
@@ -131,7 +132,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onLogin,
       <div className="py-24 bg-white">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
              <div className="text-center mb-16">
-                 <h2 className="text-3xl font-bold text-gray-900 mb-4">How AgriMarket Works</h2>
+                 <h2 className="text-3xl font-bold text-gray-900 mb-4">How Bleefy Works</h2>
                  <p className="text-lg text-gray-600">Start trading in three simple steps.</p>
              </div>
 
@@ -176,8 +177,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onLogin,
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center gap-2 cursor-pointer" onClick={() => handleNavClick('home')}>
-              <div className="w-8 h-8 bg-primary-600 rounded-lg flex items-center justify-center text-white font-bold text-lg">A</div>
-              <span className="text-xl font-bold text-gray-900">AgriMarket</span>
+              <Image src="/logo.png" alt="Bleefy" width={80} height={80} className="object-contain" />
             </div>
             
             {/* Desktop Nav */}
@@ -242,8 +242,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onLogin,
         <div className="max-w-7xl mx-auto px-4 grid md:grid-cols-4 gap-8">
           <div>
             <div className="flex items-center gap-2 mb-4 text-white">
-              <div className="w-8 h-8 bg-primary-600 rounded-lg flex items-center justify-center text-white font-bold text-lg">A</div>
-              <span className="text-xl font-bold">AgriMarket</span>
+              <Image src="/logo.png" alt="Bleefy" width={80} height={80} className="object-contain" />
             </div>
             <p className="text-sm">Empowering farmers worldwide with technology and community.</p>
           </div>
@@ -272,7 +271,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onLogin,
           </div>
         </div>
         <div className="max-w-7xl mx-auto px-4 mt-12 text-center text-sm border-t border-gray-800 pt-8">
-          <p>&copy; 2026 AgriMarket Platform. All rights reserved.</p>
+          <p>&copy; 2026 Bleefy Marketplace. All rights reserved.</p>
           </div>
       </footer>
     </div>

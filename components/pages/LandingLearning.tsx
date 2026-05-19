@@ -49,7 +49,7 @@ export const Learning = () => {
           
           <div className="relative z-10 max-w-7xl mx-auto px-6 py-24 md:py-40 flex flex-col items-center text-center">
              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-[10px] font-black uppercase tracking-[0.2em] mb-8">
-                <Sparkles size={14} className="animate-pulse" /> AgriMarket Academy
+                <Sparkles size={14} className="animate-pulse" /> Bleefy Academy
              </div>
              <h1 className="text-5xl md:text-7xl font-black leading-[1.05] tracking-tight max-w-4xl mb-8">
                 Cultivate Your Knowledge <br /> 

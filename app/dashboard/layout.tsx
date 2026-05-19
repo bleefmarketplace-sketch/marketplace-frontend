@@ -1,5 +1,14 @@
 
+import type { Metadata } from "next";
 import { DashboardLayout } from "@/components/AdminComponents/DashboardLayout";
+
+export const metadata: Metadata = {
+  title: "Dashboard | Bleefy Agri Hub",
+  robots: {
+    index: false,
+    follow: false,
+  },
+};
 
 
  

@@ -2,6 +2,7 @@
 import React, { useState } from 'react'
 import { Button } from './Button'
 import Link from 'next/link';
+import Image from 'next/image';
 import { Menu, X, ShoppingCart, User, LogOut } from 'lucide-react';
 import { useRouter, usePathname } from 'next/navigation';
 import { useCartStore } from '@/store/useCartStore'; // Import your zustand store
@@ -38,8 +39,7 @@ const LandingPagesNav = () => {
             
             {/* LOGO */}
             <Link className="flex items-center gap-2 cursor-pointer" href='/'>
-              <div className="w-8 h-8 bg-emerald-600 rounded-lg flex items-center justify-center text-white font-bold text-lg">A</div>
-              <span className="text-xl font-bold text-gray-900 tracking-tight">Bleefy</span>
+              <Image src="/logo.png" alt="Bleefy" width={80} height={80} className="object-contain animate-in fade-in duration-300" />
             </Link>
             
             {/* Desktop Nav Links */}

@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import React from 'react'
+import Image from 'next/image'
 
 const Footer = () => {
   return (
@@ -7,8 +8,7 @@ const Footer = () => {
         <div className="max-w-7xl mx-auto px-4 grid md:grid-cols-4 gap-8">
           <div>
             <div className="flex items-center gap-2 mb-4 text-white">
-              <div className="w-8 h-8 bg-primary-600 rounded-lg flex items-center justify-center text-white font-bold text-lg">A</div>
-              <span className="text-xl font-bold">Bleefy</span>
+              <Image src="/logo.png" alt="Bleefy" width={80} height={80} className="object-contain" />
             </div>
             <p className="text-sm">Empowering farmers worldwide with technology and community.</p>
           </div>
@@ -37,7 +37,7 @@ const Footer = () => {
           </div>
         </div>
         <div className="max-w-7xl mx-auto px-4 mt-12 text-center text-sm border-t border-gray-800 pt-8">
-          <p>&copy; 2024 AgriMarket Platform. All rights reserved.</p>
+          <p>&copy; 2026 Bleefy Marketplace. All rights reserved.</p>
         </div>
       </footer>
   )

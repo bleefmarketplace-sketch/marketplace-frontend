@@ -7,6 +7,7 @@ import { useAuth, UserRole } from '@/context/AuthContext';
 import { toast } from 'react-toastify';
 import { useRouter } from 'next/navigation';
 import { PhoneNumberInput } from '@/components/PhoneNumberInput';
+import Image from 'next/image';
 
 const OnboardingPage = () => {
     const { user, completeOnboarding, isLoading: authLoading } = useAuth();
@@ -278,8 +279,7 @@ const OnboardingPage = () => {
                 {/* Header Progress */}
                 <div className="bg-white p-6 border-b border-gray-100 flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                        <div className="w-8 h-8 bg-primary-600 rounded-lg flex items-center justify-center text-white font-bold">A</div>
-                        <span className="font-bold text-gray-900">AgriMarket</span>
+                        <Image src="/logo.png" alt="Bleefy" width={80} height={80} className="object-contain" />
                     </div>
                     <div className="flex gap-2">
                         {[1, 2, 3].map(i => (

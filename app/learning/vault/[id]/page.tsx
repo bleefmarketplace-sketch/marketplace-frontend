@@ -58,7 +58,7 @@ export default function CoursePlayerPage() {
                         <ChevronLeft size={20} />
                     </button>
                     <div className="hidden sm:block">
-                        <p className="text-[10px] font-black text-emerald-500 uppercase tracking-widest">AgriMarket Academy</p>
+                        <p className="text-[10px] font-black text-emerald-500 uppercase tracking-widest">Bleefy Academy</p>
                         <h1 className="text-sm font-bold truncate max-w-md">{course.title}</h1>
                     </div>
                 </div>
