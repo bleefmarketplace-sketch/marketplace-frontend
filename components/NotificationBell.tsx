@@ -24,43 +24,17 @@ export const NotificationBell = () => {
   const [unreadCount, setUnreadCount] = useState<number>(0);
   const [isOpen, setIsOpen] = useState<boolean>(false);
 
-  // 🔥 Dummy Preview Notifications (only used if API returns empty)
-  const dummyNotifications: NotificationItem[] = [
-    {
-      id: '1',
-      title: 'New Order Received',
-      message: 'You just received a new order for your product.',
-      type: 'order',
-      isRead: false,
-      createdAt: new Date().toISOString(),
-    },
-    {
-      id: '2',
-      title: 'Payout Processed',
-      message: 'Your withdrawal request has been approved.',
-      type: 'payout',
-      isRead: true,
-      createdAt: new Date().toISOString(),
-    },
-  ];
-
   const loadNotifications = async () => {
     try {
       const res = await fetcher('/api/notifications');
       const data: NotificationItem[] = res.data.data ?? [];
 
-      // 🔥 Use dummy preview if API returns empty
-      const finalData = data.length === 0 ? dummyNotifications : data;
-
-     
-      setNotifications(finalData);
-      setUnreadCount(finalData.filter((n) => !n.isRead).length);
+      setNotifications(data);
+      setUnreadCount(data.filter((n) => !n.isRead).length);
     } catch (error) {
       console.error(error);
-
-      // fallback to dummy on error
-      setNotifications(dummyNotifications);
-      setUnreadCount(dummyNotifications.filter((n) => !n.isRead).length);
+      setNotifications([]);
+      setUnreadCount(0);
     }
   };
 
