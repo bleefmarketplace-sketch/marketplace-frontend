@@ -241,7 +241,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     // Notify other tabs of the fresh login session
     window.localStorage.setItem("login_event", Date.now().toString());
 
-    console.log(userData)
+
 
     if (!userData.isOnboarded) {
       router.push(`/auth/onboarding?u=${userData.id}`);
