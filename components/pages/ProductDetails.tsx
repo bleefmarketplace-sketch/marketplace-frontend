@@ -360,17 +360,16 @@ export default function ProductDetails() {
 
   const { addItem } = useCartStore();
 
-  console.log(slug);
+ 
 
   useEffect(() => {
     const fetchProduct = async () => {
       try {
         const res = await fetch(`/api/marketplace/${slug}`);
-        const data = await res.json();
-
-        setProduct(data);
-        setActiveImage(data.primaryImage);
-        setReviews(data.reviews || []);
+        const data = await res.json(); 
+        setProduct(data.data);
+        setActiveImage(data.data.primaryImage);
+        setReviews(data.data.reviews || []);
       } catch (err) {
         console.error(err);
       } finally {

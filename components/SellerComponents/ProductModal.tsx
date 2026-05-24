@@ -75,6 +75,7 @@ const ProductModal: React.FC<ProductModalProps> = ({
         });
         if (!res.ok) throw new Error("Primary image upload failed");
         const data = await res.json();
+        console.log("Primary Upload Result:", data);
         return data.url;
     };
 
@@ -91,7 +92,7 @@ const ProductModal: React.FC<ProductModalProps> = ({
         });
         if (!res.ok) throw new Error("Gallery upload failed");
         const data = await res.json();
-
+console.log("Other Upload Result:", data);
         return data.map((item: { url: string }) => item.url);
     };
 

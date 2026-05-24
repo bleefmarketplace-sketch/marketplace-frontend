@@ -24,9 +24,14 @@ const nextConfig: NextConfig = {
      {
         protocol: "https",
         hostname: "api.bleefyagri.com",
-        port: "",
+        pathname: "/uploads/**",
+     },
+     {
+        protocol: "http",
+        hostname: "api.bleefyagri.com",
         pathname: "/uploads/**",
      }
+     
       
      
    ],
