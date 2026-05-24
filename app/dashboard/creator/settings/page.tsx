@@ -164,7 +164,7 @@ const Page = () => {
       method: "POST",
       body: fd,
     });
-
+ 
     return res.url;
   };
 

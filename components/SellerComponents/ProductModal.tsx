@@ -3,7 +3,7 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { Button } from "../Button";
 import { Input } from "../Input";
-import { UploadCloud, Loader2, X, Plus } from "lucide-react";
+import { UploadCloud, Loader2, X, Plus, Camera } from "lucide-react";
 import { Modal } from "../Modal";
 import Image from "next/image";
 import { toast } from "react-toastify";
@@ -192,33 +192,64 @@ const ProductModal: React.FC<ProductModalProps> = ({
                     {/* PRIMARY IMAGE SECTION */}
                     <div>
                         <label className="block text-sm font-medium mb-2">Primary Image (Cover)</label>
-                        <label className="block border-2 border-dashed rounded-xl p-2 cursor-pointer hover:bg-gray-50 transition">
-                            <input
-                                type="file"
-                                hidden
-                                accept="image/*"
-                                onChange={(e) => {
-                                    const file = e.target.files?.[0];
-                                    if (file) {
-                                        setPrimaryFile(file);
-                                        setPrimaryPreview(URL.createObjectURL(file));
-                                    }
-                                }}
-                            />
+                        <div className="flex gap-2 h-48">
                             {primaryPreview ? (
-                                <div className="relative h-48 w-full">
-                                    <Image src={primaryPreview} alt="Primary" unoptimized fill className="object-cover rounded-lg" />
-                                    <div className="absolute inset-0 bg-black/20 flex items-center justify-center opacity-0 hover:opacity-100 transition">
+                                <label className="relative flex-1 cursor-pointer group">
+                                    <input
+                                        type="file"
+                                        hidden
+                                        accept="image/*"
+                                        onChange={(e) => {
+                                            const file = e.target.files?.[0];
+                                            if (file) {
+                                                setPrimaryFile(file);
+                                                setPrimaryPreview(URL.createObjectURL(file));
+                                            }
+                                        }}
+                                    />
+                                    <Image src={primaryPreview} alt="Primary" unoptimized fill className="object-cover rounded-lg border-2 border-dashed border-transparent group-hover:border-emerald-500" />
+                                    <div className="absolute inset-0 bg-black/20 flex items-center justify-center opacity-0 group-hover:opacity-100 transition rounded-lg">
                                         <p className="text-white text-sm font-bold">Change Image</p>
                                     </div>
-                                </div>
+                                </label>
                             ) : (
-                                <div className="h-48 flex flex-col items-center justify-center text-gray-400">
-                                    <UploadCloud size={32} />
-                                    <span className="mt-2 text-xs">Upload Main Image</span>
-                                </div>
+                                <>
+                                    <label className="flex-1 border-2 border-dashed rounded-xl cursor-pointer hover:bg-gray-50 flex flex-col items-center justify-center text-gray-400 transition">
+                                        <input
+                                            type="file"
+                                            hidden
+                                            accept="image/*"
+                                            onChange={(e) => {
+                                                const file = e.target.files?.[0];
+                                                if (file) {
+                                                    setPrimaryFile(file);
+                                                    setPrimaryPreview(URL.createObjectURL(file));
+                                                }
+                                            }}
+                                        />
+                                        <UploadCloud size={28} className="mb-2" />
+                                        <span className="text-xs font-medium">Choose File</span>
+                                    </label>
+                                    <label className="flex-1 border-2 border-dashed rounded-xl cursor-pointer hover:bg-emerald-50 flex flex-col items-center justify-center text-emerald-600 border-emerald-100 transition">
+                                        <input
+                                            type="file"
+                                            hidden
+                                            accept="image/*"
+                                            capture="environment"
+                                            onChange={(e) => {
+                                                const file = e.target.files?.[0];
+                                                if (file) {
+                                                    setPrimaryFile(file);
+                                                    setPrimaryPreview(URL.createObjectURL(file));
+                                                }
+                                            }}
+                                        />
+                                        <Camera size={28} className="mb-2" />
+                                        <span className="text-xs font-medium">Take Photo</span>
+                                    </label>
+                                </>
                             )}
-                        </label>
+                        </div>
                     </div>
 
                     {/* OTHER IMAGES SECTION */}
@@ -286,8 +317,17 @@ const ProductModal: React.FC<ProductModalProps> = ({
                                 className="w-full border rounded-lg p-2 text-sm bg-white"
                             >
                                 <option value="">Select Category</option>
-                                {categories.map((c) => (
-                                    <option key={c.id} value={c.id}>{c.name}</option>
+                                {categories.map((c: any) => (
+                                    c.children?.length > 0 ? (
+                                        <optgroup key={c.id} label={c.name}>
+                                            <option value={c.id}>{c.name} (General)</option>
+                                            {c.children.map((child: any) => (
+                                                <option key={child.id} value={child.id}>{child.name}</option>
+                                            ))}
+                                        </optgroup>
+                                    ) : (
+                                        <option key={c.id} value={c.id}>{c.name}</option>
+                                    )
                                 ))}
                             </select>
                         </div>

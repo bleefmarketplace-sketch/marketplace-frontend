@@ -33,7 +33,6 @@ export async function POST(req: Request) {
     const response = await axios.post(backendUrl, uploadForm, {
       headers: {
         Authorization: `Bearer ${token}`,
-        "Content-Type": "multipart/form-data",
       },
     });
 

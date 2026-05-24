@@ -81,6 +81,13 @@ export default function AdminCategoriesPage() {
         setIsModalOpen(true);
     };
 
+    // NEW: TRIGGER SUB-CATEGORY CREATE
+    const onAddSubClick = (parentCat: any) => {
+        setEditingCategory(null);
+        setForm({ name: '', icon: '', parentId: parentCat.id });
+        setIsModalOpen(true);
+    };
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setSaving(true);
@@ -154,6 +161,7 @@ export default function AdminCategoriesPage() {
                                     </div>
                                 </div>
                                 <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                    <button onClick={() => onAddSubClick(cat)} className="p-2 text-gray-400 hover:text-emerald-600" title="Add Subcategory"><Plus size={18}/></button>
                                     <button onClick={() => onEditClick(cat)} className="p-2 text-gray-400 hover:text-emerald-600" title="Edit"><Edit3 size={18}/></button>
                                     <button onClick={() => handleDelete(cat.id)} className="p-2 text-gray-400 hover:text-red-500" title="Delete"><Trash2 size={18}/></button>
                                 </div>
@@ -249,7 +257,7 @@ export default function AdminCategoriesPage() {
                             }
                         </select>
                     </div>
-<>{console.log(categories)}</>
+
                     <Button fullWidth size="md" disabled={saving} className="bg-emerald-600 rounded-2xl">
                         {saving ? <Loader2 className="animate-spin" /> : editingCategory ? "Update Category" : "Create Category"}
                     </Button>

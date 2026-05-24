@@ -151,13 +151,33 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     loadUserFromCookies();
 
-    // Listen for storage changes (cross-tab logout)
-    const syncLogout = (e: StorageEvent) => {
-      if (e.key === "logout_event") logout();
+    // Listen for storage changes (cross-tab logout and session/role alignment)
+    const syncSession = (e: StorageEvent) => {
+      if (e.key === "logout_event") {
+        logout();
+      } else if (e.key === "login_event") {
+        const storedUser = getCookie(COOKIE_USER_KEY);
+        const storedToken = getCookie(COOKIE_TOKEN_KEY);
+
+        if (storedUser && storedToken) {
+          try {
+            const decryptedToken = decrypt(storedToken as string);
+            const parsedUser = JSON.parse(storedUser as string);
+
+            setUser(parsedUser);
+            setToken(decryptedToken);
+
+            toast.info(`Session updated: Switched to ${parsedUser.role} account.`);
+            router.push(`/dashboard/${parsedUser.role.toLowerCase()}`);
+          } catch (err) {
+            logout(true);
+          }
+        }
+      }
     };
-    window.addEventListener("storage", syncLogout);
-    return () => window.removeEventListener("storage", syncLogout);
-  }, [loadUserFromCookies]);
+    window.addEventListener("storage", syncSession);
+    return () => window.removeEventListener("storage", syncSession);
+  }, [loadUserFromCookies, router, logout]);
 
   const signIn = async (email: string, password: string, rememberMe: boolean): Promise<any> => {
    
@@ -217,6 +237,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     setUser(userData);
     setToken(rawToken);
+
+    // Notify other tabs of the fresh login session
+    window.localStorage.setItem("login_event", Date.now().toString());
 
     console.log(userData)
 
@@ -345,6 +368,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
       setUser(userData);
       setToken(rawToken);
+
+      // Notify other tabs of role switch
+      window.localStorage.setItem("login_event", Date.now().toString());
 
       toast.success(`Successfully switched to ${targetRole} view!`);
       router.push(`/dashboard/${targetRole.toLowerCase()}`);
