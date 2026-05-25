@@ -24,7 +24,7 @@ export default function SellerOrdersPage() {
             const res = await fetcher('/api/seller/sales');
 
 
-            setSales(res || []);
+            setSales(res.data || []);
         } catch (err) {
             toast.error("Failed to load incoming orders");
         } finally {

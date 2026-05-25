@@ -1,12 +1,12 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Home, ShoppingBag, Wallet, Users, BookOpen,
   LayoutDashboard, Package, Settings, Bell, LogOut,
   Gavel, Heart, MessageSquare, Library, Star, Store,
   User, CirclePlus, ShieldCheck, BarChart2, CreditCard,
-  TrendingUp, Shield, Layers,
+  TrendingUp, TrendingDown, Shield, Layers, Globe,
   Mail
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
@@ -19,24 +19,40 @@ import { NotificationBell } from "@/components/NotificationBell";
 interface LayoutProps { children: React.ReactNode; }
 type NavItem = { key: string; label: string; icon: LucideIcon; path: string; };
 
+const SEED_TICKERS = [
+  { symbol: "ZW1!", name: "CBOT Wheat Futures", price: 6.42, change: 1.42, volume: "124K" },
+  { symbol: "ZC1!", name: "CBOT Corn Futures", price: 4.85, change: -0.21, volume: "189K" },
+  { symbol: "ZS1!", name: "CBOT Soybean Futures", price: 12.15, change: 0.83, volume: "94K" },
+  { symbol: "CT1!", name: "ICE Cotton Futures", price: 0.81, change: -1.12, volume: "42K" },
+  { symbol: "NPK", name: "Premium NPK Complex (Spot)", price: 390.00, change: -1.27, volume: "18.5K t" },
+  { symbol: "KCO1!", name: "ICE Coffee Futures", price: 2.18, change: 2.51, volume: "71K" },
+  { symbol: "NGA-MAZ", name: "Nigeria Maize Spot (NGN)", price: 820.00, change: 1.85, volume: "15K t" },
+  { symbol: "NGA-COCOA", name: "Nigeria Cocoa Spot (USD)", price: 9200.00, change: 3.42, volume: "8.2K t" }
+];
+
 export const DashboardLayout: React.FC<LayoutProps> = ({ children }) => {
   const { logout, user, switchRole } = useAuth();
   const router = useRouter();
   const pathname = usePathname();
 
-  
   const role = user?.role;
+  const [tickerOffset, setTickerOffset] = useState(0);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setTickerOffset((prev) => (prev + 1) % SEED_TICKERS.length);
+    }, 4000);
+    return () => clearInterval(interval);
+  }, []);
 
   const getNavItems = (role?: UserRole): NavItem[] => {
     if (!role) return [];
     switch (role) {
       case "buyer":
         return [
-          // FIX: was /dashboard/buyer/marketplace → correct path is /dashboard/buyer
           { key: "home", label: "Marketplace", icon: Home, path: "/dashboard/buyer" },
           { key: "orders", label: "Orders", icon: Package, path: "/dashboard/buyer/orders" },
           { key: "wallet", label: "Wallet", icon: Wallet, path: "/dashboard/buyer/wallet" },
-          // FIX: was /dashboard/buyer/wishlist → page exists in library
           { key: "library", label: "My Library", icon: Library, path: "/dashboard/buyer/library" },
           { key: "vendors", label: "Vendors", icon: Store, path: "/dashboard/buyer/vendors" },
         ];
@@ -53,11 +69,8 @@ export const DashboardLayout: React.FC<LayoutProps> = ({ children }) => {
         return [
           { key: "overview", label: "Overview", icon: LayoutDashboard, path: "/dashboard/creator" },
           { key: "content", label: "Content Vault", icon: Library, path: "/dashboard/creator/inventory" },
-          // FIX: was /dashboard/creator/audience → use /dashboard/creator/settings for now
           { key: "settings", label: "Profile & Settings", icon: Settings, path: "/dashboard/creator/settings" },
-          // FIX: was /dashboard/creator/wallet → use seller payouts pattern
           { key: "wallet", label: "Earnings", icon: Wallet, path: "/dashboard/seller/payouts" },
-          // FIX: was /dashboard/creator/reviews → use disputes as combined hub
           { key: "disputes", label: "Disputes", icon: Gavel, path: "/dashboard/disputes" },
         ];
       case "admin":
@@ -82,203 +95,269 @@ export const DashboardLayout: React.FC<LayoutProps> = ({ children }) => {
   const isActive = (path: string) => pathname === path || pathname.startsWith(`${path}/`);
 
   return (
-    <div className="h-screen w-full bg-gray-50 flex overflow-hidden">
-
-      {/* Desktop Sidebar */}
-      <aside className="hidden md:flex flex-col w-64 bg-white border-r border-gray-200 h-full shrink-0 z-30">
-        <div className="border-b border-gray-100 flex items-center justify-center h-16 shrink-0">
-          <Link href="/">
-            <Image src="/logo.png" alt="Bleefy" width={80} height={80} className="object-contain" />
-          </Link>
+    <div className="h-screen w-full bg-zinc-50 text-zinc-900 font-sans flex flex-col overflow-hidden antialiased select-none">
+      
+      {/* Real-time Commodity Ticker Banner */}
+      <div id="ticker-banner" className="bg-zinc-50 border-b border-zinc-200 px-4 py-1.5 flex items-center justify-between text-[10px] tracking-wider font-mono shrink-0 select-none">
+        <div className="flex items-center space-x-2 text-zinc-500 font-bold shrink-0">
+          <span className="inline-block w-1.5 h-1.5 bg-green-600 rounded-none animate-pulse"></span>
+          <span>BLEEFY AGRITERMINAL LIVE FEED</span>
+        </div>
+        
+        {/* Sliding Ticker Items */}
+        <div className="flex overflow-hidden w-2/3 relative h-5 items-center text-zinc-800 shrink-0">
+          <div 
+            className="flex space-x-8 absolute transition-transform duration-1000 ease-in-out whitespace-nowrap"
+            style={{ transform: `translateX(-${tickerOffset * 8}%)` }}
+          >
+            {SEED_TICKERS.map((ticker, idx) => (
+              <div key={idx} className="inline-flex space-x-2 items-center text-[10px]">
+                <span className="text-zinc-400 font-sans tracking-normal">{ticker.symbol}</span>
+                <span className="font-bold text-zinc-950">{ticker.name}</span>
+                <span className="text-zinc-600">${ticker.price.toLocaleString()}</span>
+                <span className={`inline-flex items-center ${ticker.change >= 0 ? "text-green-600 font-bold" : "text-red-600 font-bold"}`}>
+                  {ticker.change >= 0 ? <TrendingUp className="w-3 h-3 mr-0.5" /> : <TrendingDown className="w-3 h-3 mr-0.5" />}
+                  {ticker.change >= 0 ? "+" : ""}{ticker.change.toFixed(2)}%
+                </span>
+                <span className="text-zinc-400 font-sans text-[9px] uppercase">Vol: {ticker.volume}</span>
+              </div>
+            ))}
+          </div>
         </div>
 
-        <nav className="flex-1 px-4 py-4 space-y-1 overflow-y-auto">
-          {navItems.map(({ key, label, icon: Icon, path }) => (
-            <Link key={key} href={path}
-              className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all ${
-                isActive(path)
-                  ? "bg-emerald-50 text-emerald-700 font-bold"
-                  : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
-              }`}
-            >
-              <Icon size={18} />
-              {label}
-            </Link>
-          ))}
-        </nav>
+        <div className="hidden lg:flex items-center space-x-4 text-zinc-400 shrink-0">
+          <span>UTC {new Date().toISOString().substring(11, 19)}</span>
+          <span className="text-green-600 inline-flex items-center font-bold">
+            <span className="inline-block w-1.5 h-1.5 bg-green-500 rounded-none mr-1.5"></span> TERMINAL ACTIVE
+          </span>
+        </div>
+      </div>
 
-        {/* Desktop Profile Banner */}
-        <div className="p-4 border-t border-gray-100 shrink-0">
-          <div className="flex items-center gap-3 px-3 py-2 rounded-xl bg-gray-50">
-            <div className="w-9 h-9 rounded-full relative bg-gray-200 overflow-hidden shrink-0">
-              {user?.userAvatar ? (
-                <Image fill unoptimized src={user.userAvatar} className="object-cover" alt="Avatar" />
-              ) : (
-                <div className="w-full h-full flex items-center justify-center bg-emerald-100 text-emerald-600">
-                  <User size={18} />
-                </div>
-              )}
+      <div className="flex-1 flex flex-row overflow-hidden relative">
+        
+        {/* Desktop Sidebar */}
+        <aside className="hidden md:flex flex-col w-64 bg-white border-r border-zinc-200 h-full shrink-0 font-mono text-xs z-30 p-4 justify-between select-none">
+          <div className="space-y-6">
+            <div className="p-3 bg-zinc-50 border border-zinc-200 text-center shrink-0">
+              <span className="text-[10px] text-zinc-400 block tracking-widest uppercase font-bold">TERMINAL REGISTRY</span>
+              <span className="text-[11px] font-black uppercase text-zinc-950 block mt-1">
+                {role === "seller" ? "Seller Command" : role === "creator" ? "Creator Studio" : role === "admin" ? "Admin Overlay" : "Buyer Index"}
+              </span>
             </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-bold truncate text-gray-900">{user?.fullName}</p>
-              <p className="text-xs text-gray-500 capitalize">{user?.role}</p>
+
+            <nav className="space-y-1.5">
+              {navItems.map(({ key, label, icon: Icon, path }) => {
+                const active = isActive(path);
+                return (
+                  <Link key={key} href={path}
+                    className={`w-full uppercase font-bold tracking-tight py-2.5 px-3 flex items-center space-x-2.5 transition-all duration-155 border rounded-none cursor-pointer ${
+                      active
+                        ? "border-green-600 bg-green-50 text-green-800 font-extrabold"
+                        : "border-transparent text-zinc-600 hover:text-zinc-950 hover:bg-zinc-50"
+                    }`}
+                  >
+                    <Icon className={`w-4 h-4 shrink-0 ${active ? "text-green-700" : "text-zinc-400"}`} />
+                    <span className="truncate">{label}</span>
+                  </Link>
+                );
+              })}
+            </nav>
+          </div>
+
+          {/* Desktop Profile Status Panel */}
+          <div className="border-t border-zinc-100 bg-zinc-50/50 p-3 space-y-2 mt-8 font-sans text-[10px] text-zinc-500 shrink-0">
+            <div className="flex justify-between font-mono text-[9px] font-bold tracking-wider">
+              <span>DECENTRA PORT:</span>
+              <span className="text-green-700 font-bold">● ACTIVE</span>
             </div>
-            <button onClick={() => logout()} className="p-1.5 text-gray-400 hover:text-red-600 transition-colors" title="Logout">
-              <LogOut size={15} />
+            <div className="truncate text-zinc-400 font-mono font-bold text-[9px]">
+              Linked: <span className="text-zinc-800">{user?.email || user?.fullName?.toUpperCase() || "ANONYMOUS"}</span>
+            </div>
+            <button 
+              onClick={() => logout()} 
+              className="w-full text-center py-2 border border-zinc-200 hover:bg-red-50 hover:text-red-600 font-mono text-[9px] uppercase tracking-wide font-black transition-colors rounded-none cursor-pointer"
+            >
+              Terminal Disconnect
             </button>
           </div>
-        </div>
-      </aside>
+        </aside>
 
-      {/* Main Content */}
-      <main className="flex-1 flex flex-col h-full relative min-w-0">
+        {/* Main Content */}
+        <main className="flex-1 flex flex-col h-full relative min-w-0">
 
-        {/* Top Header */}
-        <header className="bg-white border-b border-gray-200 h-16 shrink-0 flex items-center justify-between px-4 md:px-8 z-20">
-          <div className="flex md:hidden items-center">
-            <Link href="/">
-              <Image src="/logo.png" alt="Bleefy" width={60} height={60} className="object-contain" />
-            </Link>
-          </div>
-          <div className="hidden md:block" />
+          {/* Top Header */}
+          <header className="bg-white border-b border-zinc-200 h-16 shrink-0 flex items-center justify-between px-4 md:px-8 z-20 shadow-xs">
+            <div className="flex md:hidden items-center">
+              <Link href="/">
+                <Image src="/logo.png" alt="Bleefy" width={60} height={60} className="object-contain animate-pulse" />
+              </Link>
+            </div>
 
-          <div className="flex items-center gap-3">
-            <NotificationBell />
-
-            <div className="relative group flex items-center gap-3 md:pl-4 md:border-l border-gray-200 cursor-pointer">
-              <div className="hidden md:block text-right">
-                <p className="text-sm font-bold text-gray-900 leading-none">{user?.fullName}</p>
-                <p className="text-[10px] font-bold text-emerald-600 tracking-widest mt-0.5 capitalize">{user?.role}</p>
+            {/* Custom Role Selector Switcher inside Header */}
+            {user?.role !== "admin" && (user?.hasCreatedStore || user?.hasCreatedCreatorProfile) ? (
+              <div className="hidden lg:flex items-center border border-zinc-300 p-1 bg-zinc-50 font-mono text-xs">
+                <span className="text-[10px] text-zinc-500 uppercase tracking-widest px-2 font-bold">PORT MODE:</span>
+                <select
+                  id="role-switcher-header"
+                  value={role}
+                  onChange={(e) => {
+                    const targetRole = e.target.value as any;
+                    switchRole(targetRole);
+                  }}
+                  className="bg-white border border-zinc-200 text-[11px] font-mono font-bold text-zinc-950 px-2.5 py-1 focus:outline-none focus:border-green-600 rounded-none w-40 cursor-pointer"
+                >
+                  <option value="buyer">BUYER INDEX</option>
+                  {user?.hasCreatedStore && <option value="seller">SELLER COMMAND</option>}
+                  {user?.hasCreatedCreatorProfile && <option value="creator">CREATOR STUDIO</option>}
+                </select>
               </div>
+            ) : (
+              <div className="hidden md:block" />
+            )}
 
-              <div
-                className="w-9 h-9 rounded-full relative bg-gray-200 overflow-hidden shrink-0 border-2 border-gray-200"
-                onClick={() => router.push(`/dashboard/${role}/settings`)}
-              >
-                {user?.userAvatar ? (
-                  <Image fill unoptimized src={user.userAvatar} className="object-cover" alt="Avatar" />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center bg-emerald-50 text-emerald-600">
-                    <User size={16} />
-                  </div>
-                )}
-              </div>
+            <div className="flex items-center gap-3">
+              <NotificationBell />
 
-              {/* Dropdown */}
-              <div className="hidden md:block absolute right-0 top-12 mt-1 w-56 bg-white rounded-2xl shadow-xl border border-gray-100 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50">
-                <div className="p-2">
-                  <Link href={`/dashboard/${role}/settings`}
-                    className="block px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 rounded-xl font-medium">
-                    Settings
-                  </Link>
+              <div className="relative group flex items-center gap-3 md:pl-4 md:border-l border-zinc-200 cursor-pointer py-2">
+                <div className="hidden md:block text-right">
+                  <p className="text-xs font-mono font-bold text-zinc-950 leading-none">{user?.fullName}</p>
+                  <p className="text-[9px] font-mono font-black text-green-700 tracking-wider mt-0.5 uppercase">{user?.role}</p>
+                </div>
 
-                  {/* Switcher Divider */}
-                  {user?.role !== "admin" && (
-                    <>
-                      <div className="h-px bg-gray-100 my-1.5" />
-                      <div className="px-4 py-1 text-[10px] font-bold text-gray-400 uppercase tracking-wider">Switch View</div>
-                      
-                      {/* If currently buyer, and has a store, show switch to seller/creator */}
-                      {user?.role === "buyer" && (user?.hasCreatedStore || user?.hasCreatedCreatorProfile) && (
-                        <>
-                          <button
-                            onClick={() => switchRole("seller")}
-                            className="w-full text-left px-4 py-2.5 text-sm text-emerald-600 hover:bg-emerald-50 rounded-xl font-semibold flex items-center gap-2"
-                          >
-                            <Store size={15} /> Seller Dashboard
-                          </button>
-                          <button
-                            onClick={() => switchRole("creator")}
-                            className="w-full text-left px-4 py-2.5 text-sm text-emerald-600 hover:bg-emerald-50 rounded-xl font-semibold flex items-center gap-2"
-                          >
-                            <BookOpen size={15} /> Creator Dashboard
-                          </button>
-                        </>
-                      )}
-
-                      {/* If currently buyer, and does NOT have a store, show become merchant */}
-                      {user?.role === "buyer" && !user?.hasCreatedStore && !user?.hasCreatedCreatorProfile && (
-                        <Link
-                          href="/auth/onboarding"
-                          className="block px-4 py-2.5 text-sm text-emerald-600 hover:bg-emerald-50 rounded-xl font-semibold flex items-center gap-2"
-                        >
-                          <CirclePlus size={15} /> Become a Merchant
-                        </Link>
-                      )}
-
-                      {/* If currently seller, show switch to creator/buyer */}
-                      {user?.role === "seller" && (
-                        <>
-                          <button
-                            onClick={() => switchRole("creator")}
-                            className="w-full text-left px-4 py-2.5 text-sm text-emerald-600 hover:bg-emerald-50 rounded-xl font-semibold flex items-center gap-2"
-                          >
-                            <BookOpen size={15} /> Creator Dashboard
-                          </button>
-                          <button
-                            onClick={() => switchRole("buyer")}
-                            className="w-full text-left px-4 py-2.5 text-sm text-emerald-600 hover:bg-emerald-50 rounded-xl font-semibold flex items-center gap-2"
-                          >
-                            <Home size={15} /> Buyer Marketplace
-                          </button>
-                        </>
-                      )}
-
-                      {/* If currently creator, show switch to seller/buyer */}
-                      {user?.role === "creator" && (
-                        <>
-                          <button
-                            onClick={() => switchRole("seller")}
-                            className="w-full text-left px-4 py-2.5 text-sm text-emerald-600 hover:bg-emerald-50 rounded-xl font-semibold flex items-center gap-2"
-                          >
-                            <Store size={15} /> Seller Dashboard
-                          </button>
-                          <button
-                            onClick={() => switchRole("buyer")}
-                            className="w-full text-left px-4 py-2.5 text-sm text-emerald-600 hover:bg-emerald-50 rounded-xl font-semibold flex items-center gap-2"
-                          >
-                            <Home size={15} /> Buyer Marketplace
-                          </button>
-                        </>
-                      )}
-                    </>
+                <div
+                  className="w-9 h-9 rounded-none relative bg-zinc-100 overflow-hidden shrink-0 border border-zinc-300"
+                  onClick={() => router.push(`/dashboard/${role}/settings`)}
+                >
+                  {user?.userAvatar ? (
+                    <Image fill unoptimized src={user.userAvatar} className="object-cover" alt="Avatar" />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center bg-zinc-50 text-zinc-600">
+                      <User size={16} />
+                    </div>
                   )}
+                </div>
 
-                  <div className="h-px bg-gray-100 my-1.5" />
-                  <button onClick={() => logout()}
-                    className="w-full text-left px-4 py-2.5 text-sm font-semibold text-red-500 hover:bg-red-50 rounded-xl">
-                    Logout
-                  </button>
+                {/* Dropdown Menu - Boxy aesthetic */}
+                <div className="hidden md:block absolute right-0 top-12 mt-1 w-52 bg-white rounded-none shadow-md border border-zinc-200 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50">
+                  <div className="p-1 font-mono text-[10px]">
+                    <Link href={`/dashboard/${role}/settings`}
+                      className="block px-3 py-2 text-zinc-700 hover:bg-zinc-50 rounded-none uppercase font-bold tracking-tight">
+                      Settings Config
+                    </Link>
+
+                    {/* Switcher Divider */}
+                    {user?.role !== "admin" && (
+                      <>
+                        <div className="h-px bg-zinc-100 my-1" />
+                        <div className="px-3 py-1 text-[8px] font-bold text-zinc-400 uppercase tracking-widest">Switch Registry</div>
+                        
+                        {/* If currently buyer, and has a store, show switch to seller/creator */}
+                        {user?.role === "buyer" && (user?.hasCreatedStore || user?.hasCreatedCreatorProfile) && (
+                          <>
+                            {user?.hasCreatedStore && (
+                              <button
+                                onClick={() => switchRole("seller")}
+                                className="w-full text-left px-3 py-2 text-green-700 hover:bg-green-50 rounded-none font-bold uppercase flex items-center gap-2 cursor-pointer"
+                              >
+                                <Store size={12} /> Seller Dashboard
+                              </button>
+                            )}
+                            {user?.hasCreatedCreatorProfile && (
+                              <button
+                                onClick={() => switchRole("creator")}
+                                className="w-full text-left px-3 py-2 text-green-700 hover:bg-green-50 rounded-none font-bold uppercase flex items-center gap-2 cursor-pointer"
+                              >
+                                <BookOpen size={12} /> Creator Dashboard
+                              </button>
+                            )}
+                          </>
+                        )}
+
+                        {/* If currently buyer, and does NOT have a store, show become merchant */}
+                        {user?.role === "buyer" && !user?.hasCreatedStore && !user?.hasCreatedCreatorProfile && (
+                          <Link
+                            href="/auth/onboarding"
+                            className="block px-3 py-2 text-green-700 hover:bg-green-50 rounded-none font-bold uppercase flex items-center gap-2"
+                          >
+                            <CirclePlus size={12} /> Become Merchant
+                          </Link>
+                        )}
+
+                        {/* If currently seller, show switch to creator/buyer */}
+                        {user?.role === "seller" && (
+                          <>
+                            <button
+                              onClick={() => switchRole("creator")}
+                              className="w-full text-left px-3 py-2 text-green-700 hover:bg-green-50 rounded-none font-bold uppercase flex items-center gap-2 cursor-pointer"
+                            >
+                              <BookOpen size={12} /> Creator Studio
+                            </button>
+                            <button
+                              onClick={() => switchRole("buyer")}
+                              className="w-full text-left px-3 py-2 text-green-700 hover:bg-green-50 rounded-none font-bold uppercase flex items-center gap-2 cursor-pointer"
+                            >
+                              <Home size={12} /> Buyer Index
+                            </button>
+                          </>
+                        )}
+
+                        {/* If currently creator, show switch to seller/buyer */}
+                        {user?.role === "creator" && (
+                          <>
+                            <button
+                              onClick={() => switchRole("seller")}
+                              className="w-full text-left px-3 py-2 text-green-700 hover:bg-green-50 rounded-none font-bold uppercase flex items-center gap-2 cursor-pointer"
+                            >
+                              <Store size={12} /> Seller Command
+                            </button>
+                            <button
+                              onClick={() => switchRole("buyer")}
+                              className="w-full text-left px-3 py-2 text-green-700 hover:bg-green-50 rounded-none font-bold uppercase flex items-center gap-2 cursor-pointer"
+                            >
+                              <Home size={12} /> Buyer Index
+                            </button>
+                          </>
+                        )}
+                      </>
+                    )}
+
+                    <div className="h-px bg-zinc-100 my-1" />
+                    <button onClick={() => logout()}
+                      className="w-full text-left px-3 py-2 font-bold text-red-600 hover:bg-red-50 rounded-none uppercase cursor-pointer">
+                      Disconnect
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-        </header>
+          </header>
 
-        {/* Scrollable Content */}
-        <div className="flex-1 overflow-y-auto bg-gray-50">
-          <div className="max-w-7xl mx-auto p-4 md:p-8 pb-24 md:pb-8">
-            {children}
+          {/* Scrollable Content */}
+          <div className="flex-1 overflow-y-auto bg-zinc-50">
+            <div className="max-w-7xl mx-auto p-4 md:p-6 pb-24 md:pb-6">
+              {children}
+            </div>
           </div>
-        </div>
-      </main>
+        </main>
 
-      {/* Mobile Bottom Navigation */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-2 py-2 z-40 flex justify-around items-center">
-        {navItems.slice(0, 5).map(({ key, label, icon: Icon, path }) => {
-          const active = isActive(path);
-          return (
-            <Link key={key} href={path}
-              className={`flex flex-col items-center gap-0.5 p-2 min-w-[60px] transition-colors ${
-                active ? "text-emerald-600" : "text-gray-400"
-              }`}
-            >
-              <Icon size={20} strokeWidth={active ? 2.5 : 2} />
-              <span className="text-[9px] font-bold truncate w-full text-center">{label}</span>
-            </Link>
-          );
-        })}
-      </nav>
+        {/* Mobile Bottom Navigation */}
+        <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-zinc-200 px-2 py-2 z-40 flex justify-around items-center font-mono text-[9px] uppercase font-bold">
+          {navItems.slice(0, 5).map(({ key, label, icon: Icon, path }) => {
+            const active = isActive(path);
+            return (
+              <Link key={key} href={path}
+                className={`flex flex-col items-center gap-0.5 p-1 min-w-[60px] transition-colors ${
+                  active ? "text-green-700" : "text-zinc-400"
+                }`}
+              >
+                <Icon size={18} strokeWidth={active ? 2.5 : 2} />
+                <span className="truncate w-full text-center">{label}</span>
+              </Link>
+            );
+          })}
+        </nav>
+      </div>
     </div>
   );
 };
+

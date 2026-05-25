@@ -7,12 +7,13 @@ import {
   ArrowRight, CheckCircle, Shield, Sprout, Users, Star,
   TrendingUp, Package, BookOpen, MapPin, Truck, X,
   MessageCircle, Mail, ChevronRight, Play, Award, Leaf,
-  BarChart2, ShieldCheck
+  BarChart2, ShieldCheck, HelpCircle
 } from "lucide-react";
 import Footer from "@/components/Marketplace/Footer";
 
 /* ─────────────────────────────────────────────
    Newsletter / CTA Popup
+   Overhauled to Sharp flat B2B aesthetic
 ───────────────────────────────────────────── */
 function NewsletterPopup() {
   const [open, setOpen] = useState(false);
@@ -50,7 +51,7 @@ function NewsletterPopup() {
 
       if (data.success || data.data?.success) {
         setSubmitted(true);
-        setTimeout(dismiss, 5000); // Give user time to read success message
+        setTimeout(dismiss, 5000);
       } else {
         setError(data.message || "This email might already be subscribed.");
       }
@@ -64,63 +65,65 @@ function NewsletterPopup() {
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-[999] flex items-end sm:items-center justify-center p-4 bg-black/40 backdrop-blur-md animate-in fade-in duration-500">
-      <div className="relative bg-white/90 backdrop-blur-xl rounded-[2.5rem] shadow-[0_32px_64px_-16px_rgba(0,0,0,0.3)] max-w-md w-full overflow-hidden animate-in slide-in-from-bottom-8 sm:zoom-in-95 duration-500 border border-white/20">
-        <div className="bg-gradient-to-br from-emerald-600 via-emerald-500 to-green-400 p-8 text-white relative overflow-hidden">
-          <div className="absolute -right-8 -top-8 w-32 h-32 rounded-full bg-white/20 blur-2xl" />
-          <div className="absolute -left-8 -bottom-8 w-24 h-24 rounded-full bg-emerald-400/30 blur-xl" />
-
-          <button onClick={dismiss} className="absolute top-5 right-5 text-white/60 hover:text-white transition-all hover:rotate-90 duration-300">
-            <X size={24} strokeWidth={3} />
+    <div className="fixed inset-0 z-[999] flex items-end sm:items-center justify-center p-4 bg-zinc-950/60 backdrop-blur-xs animate-in fade-in duration-300">
+      <div className="relative bg-white rounded-none shadow-md border border-zinc-300 max-w-md w-full overflow-hidden animate-in slide-in-from-bottom-6 sm:zoom-in-98 duration-300">
+        
+        {/* Header Block - Dark Terminal */}
+        <div className="bg-zinc-950 p-6 text-white relative overflow-hidden border-b border-zinc-800">
+          <button onClick={dismiss} className="absolute top-4 right-4 text-zinc-400 hover:text-white transition-all hover:rotate-90 duration-300">
+            <X size={20} strokeWidth={2.5} />
           </button>
 
-          <div className="relative z-10">
-            <div className="w-12 h-12 bg-white/20 rounded-2xl flex items-center justify-center mb-4 backdrop-blur-md border border-white/30">
-              <Sprout size={24} className="text-white" />
+          <div className="relative z-10 space-y-3 font-mono">
+            <div className="w-10 h-10 bg-green-900 border border-green-700 flex items-center justify-center rounded-none">
+              <Sprout size={20} className="text-green-400 animate-pulse" />
             </div>
-            <h2 className="text-3xl font-black leading-[1.1] tracking-tight">
-              Fresh Deals,<br />
-              <span className="text-emerald-100">Direct From Farms.</span>
-            </h2>
+            <div>
+              <span className="text-[9px] uppercase tracking-widest text-green-500 font-bold block">Secure Direct Trade</span>
+              <h2 className="text-xl font-bold tracking-tight uppercase leading-tight mt-0.5">
+                Weekly Commodity Indices
+              </h2>
+            </div>
           </div>
         </div>
-        <div className="p-8 pt-6">
+
+        <div className="p-6 space-y-4 font-mono text-xs">
           {!submitted ? (
             <>
-              <p className="text-gray-600 text-sm leading-relaxed mb-6 font-medium">
-                Join <strong className="text-emerald-600 font-bold">4,000+ farmers & buyers</strong> receiving weekly price updates and exclusive agri-tips.
+              <p className="text-zinc-600 font-sans leading-relaxed">
+                Join <strong className="text-green-800 font-bold">4,000+ agribusiness leaders</strong> receiving weekly terminal price indexes, market intelligence, and verified logistics reports.
               </p>
-              <form onSubmit={handleSubmit} className="space-y-4">
-                <div className="relative group">
-                  <input
-                    type="email"
-                    required
-                    placeholder="name@example.com"
-                    value={email}
-                    onChange={e => setEmail(e.target.value)}
-                    className="w-full bg-gray-50 border-2 border-gray-100 rounded-2xl px-5 py-4 text-sm font-semibold focus:outline-none focus:border-emerald-500 focus:bg-white transition-all placeholder:text-gray-400 group-hover:border-gray-200"
-                  />
-                </div>
-                {error && <p className="text-rose-500 text-xs font-bold px-1 animate-pulse">{error}</p>}
+              <form onSubmit={handleSubmit} className="space-y-3">
+                <input
+                  type="email"
+                  required
+                  placeholder="ENTER ENTERPRISE EMAIL"
+                  value={email}
+                  onChange={e => setEmail(e.target.value)}
+                  className="w-full bg-zinc-50 border border-zinc-300 rounded-none px-4 py-3 text-xs placeholder:text-zinc-400 focus:outline-none focus:border-green-600 focus:bg-white focus:ring-1 focus:ring-green-600/30 transition-all font-mono"
+                />
+                {error && <p className="text-red-600 font-bold text-[10px]">{error}</p>}
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full bg-emerald-600 hover:bg-emerald-500 active:scale-[0.98] disabled:opacity-60 text-white font-black py-4 rounded-2xl transition-all flex items-center justify-center gap-3 shadow-xl shadow-emerald-600/20 text-base"
+                  className="w-full bg-green-700 hover:bg-green-800 text-white font-black py-3 rounded-none transition-colors flex items-center justify-center gap-2 uppercase tracking-wide cursor-pointer"
                 >
-                  {loading ? "Processing..." : <>Claim Your 5% Discount <ArrowRight size={18} strokeWidth={3} /></>}
+                  {loading ? "PROCESSING..." : "REGISTER FOR REPORT"}
                 </button>
               </form>
-              <button onClick={dismiss} className="w-full text-center text-xs font-bold text-gray-400 mt-6 hover:text-emerald-600 transition-colors tracking-wide uppercase">
-                I prefer paying full price
+              <button onClick={dismiss} className="w-full text-center text-[9px] font-bold text-zinc-400 hover:text-green-700 transition-colors tracking-widest uppercase">
+                Skip Registry Feed
               </button>
             </>
           ) : (
-            <div className="text-center py-6 animate-in zoom-in-95 duration-500">
-              <div className="w-20 h-20 bg-emerald-50 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-inner border border-emerald-100">
-                <CheckCircle size={40} className="text-emerald-600" />
+            <div className="text-center py-6 space-y-4 font-mono animate-in zoom-in-98">
+              <div className="w-16 h-16 bg-green-50 border border-green-200 flex items-center justify-center mx-auto rounded-none">
+                <CheckCircle size={32} className="text-green-700" />
               </div>
-              <h3 className="font-black text-2xl text-gray-900 tracking-tight">You&apos;re All Set! 🎉</h3>
-              <p className="text-gray-500 text-sm mt-2 font-medium">Check your inbox for your exclusive code.</p>
+              <div>
+                <h3 className="font-bold text-sm text-zinc-950 uppercase">REGISTRY COMPLETED</h3>
+                <p className="text-zinc-500 text-[10px] mt-1 font-sans">Verification code transmitted to your corporate mailbox.</p>
+              </div>
             </div>
           )}
         </div>
@@ -134,8 +137,6 @@ function NewsletterPopup() {
 ───────────────────────────────────────────── */
 function WhatsAppCTA() {
   const [tooltip, setTooltip] = useState(true);
-
-  // Replace with your actual WhatsApp number (no +, no spaces)
   const phone = "+2348133012510";
   const message = encodeURIComponent("Hi Bleefy! I'd like to learn more about your agricultural marketplace.");
   const href = `https://wa.me/${phone}?text=${message}`;
@@ -145,21 +146,20 @@ function WhatsAppCTA() {
       href={href}
       target="_blank"
       rel="noopener noreferrer"
-      className="fixed bottom-6 right-6 z-50 flex items-center gap-3 group"
+      className="fixed bottom-6 right-6 z-50 flex items-center gap-3 group select-none"
       aria-label="Chat on WhatsApp"
     >
       {tooltip && (
-        <div className="bg-white shadow-xl rounded-2xl px-4 py-2.5 text-sm font-bold text-gray-800 animate-in slide-in-from-right-4 duration-300 border border-gray-100 flex items-center gap-2">
-          <span>💬 Chat with us</span>
+        <div className="bg-white shadow-md rounded-none px-3.5 py-2 text-[10px] font-mono font-bold text-zinc-800 border border-zinc-200 flex items-center gap-2 animate-in slide-in-from-right-4 duration-300">
+          <span>💬 TERMINAL CONTACT</span>
           <button onClick={e => { e.preventDefault(); setTooltip(false); }}
-            className="text-gray-400 hover:text-gray-600 ml-1">
-            <X size={14} />
+            className="text-zinc-400 hover:text-zinc-600 ml-1">
+            <X size={12} />
           </button>
         </div>
       )}
-      <div className="w-14 h-14 rounded-full bg-[#25D366] flex items-center justify-center shadow-2xl shadow-green-400/40 hover:scale-110 transition-transform">
-        {/* WhatsApp icon SVG */}
-        <svg viewBox="0 0 24 24" fill="white" className="w-7 h-7">
+      <div className="w-12 h-12 rounded-none bg-[#25D366] border border-green-600 flex items-center justify-center shadow-md hover:scale-105 transition-transform">
+        <svg viewBox="0 0 24 24" fill="white" className="w-6 h-6">
           <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
         </svg>
       </div>
@@ -168,41 +168,41 @@ function WhatsAppCTA() {
 }
 
 /* ─────────────────────────────────────────────
-   Stats Strip
+   Stats Strip - Line separated Monospace
 ───────────────────────────────────────────── */
 const STATS = [
-  { label: "Active Farmers", value: "12,000+", icon: Users },
-  { label: "Products Listed", value: "45,000+", icon: Package },
-  { label: "States Covered", value: "36", icon: MapPin },
-  { label: "Verified Sellers", value: "2,400+", icon: ShieldCheck },
+  { label: "Active Farmers Registered", value: "12,000+", icon: Users },
+  { label: "Commodities Cataloged", value: "45,000+", icon: Package },
+  { label: "Geopolitical States Covered", value: "36 States", icon: MapPin },
+  { label: "Verified Enterprise Sellers", value: "2,400+", icon: ShieldCheck },
 ];
 
 /* ─────────────────────────────────────────────
-   Category Pills
+   Category Pills - Flat Upper-case B2B pills
 ───────────────────────────────────────────── */
 const CATEGORIES = [
   { label: "Grains & Cereals", emoji: "🌾", href: "/marketplace?category=grains" },
-  { label: "Livestock", emoji: "🐄", href: "/marketplace?category=livestock" },
-  { label: "Vegetables", emoji: "🥦", href: "/marketplace?category=vegetables" },
+  { label: "Livestock Input", emoji: "🐄", href: "/marketplace?category=livestock" },
+  { label: "Vegetable Crops", emoji: "🥦", href: "/marketplace?category=vegetables" },
   { label: "Seeds & Inputs", emoji: "🌱", href: "/marketplace?category=seeds" },
-  { label: "Equipment", emoji: "🚜", href: "/marketplace?category=equipment" },
+  { label: "Heavy Equipment", emoji: "🚜", href: "/marketplace?category=equipment" },
   { label: "Fish & Seafood", emoji: "🐟", href: "/marketplace?category=fish" },
-  { label: "Digital Courses", emoji: "📚", href: "/marketplace?category=digital" },
-  { label: "Fertilizers", emoji: "🧪", href: "/marketplace?category=fertilizers" },
+  { label: "Agronomy Courses", emoji: "📚", href: "/marketplace?category=digital" },
+  { label: "Fertilizer Complex", emoji: "🧪", href: "/marketplace?category=fertilizers" },
 ];
 
 /* ─────────────────────────────────────────────
-   Main Page
+   Main Home Component
 ───────────────────────────────────────────── */
 export default function Home() {
   return (
-    <div className="min-h-screen bg-white font-sans text-gray-900 flex flex-col">
+    <div className="min-h-screen bg-zinc-50 font-sans text-zinc-900 flex flex-col selection:bg-green-700 selection:text-white">
       <NewsletterPopup />
       <WhatsAppCTA />
       <LandingPagesNav />
 
       {/* ── HERO ── */}
-      <section className="relative overflow-hidden min-h-[92vh] flex items-center">
+      <section className="relative overflow-hidden min-h-[85vh] flex items-center border-b border-zinc-300">
         <div className="absolute inset-0 z-0">
           <Image
             fill
@@ -211,82 +211,75 @@ export default function Home() {
             className="object-cover"
             priority
           />
-          <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/50 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-r from-zinc-950 via-zinc-900/60 to-transparent" />
         </div>
 
-        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 w-full">
-          <div className="max-w-2xl text-white">
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-500/20 backdrop-blur-sm border border-emerald-400/30 text-sm font-bold mb-6 text-emerald-300">
-              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-              Nigeria&apos;s #1 Agricultural Marketplace
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 w-full">
+          <div className="max-w-2xl text-white space-y-6">
+            <div className="inline-flex items-center gap-2 px-3 py-1 bg-zinc-950/75 backdrop-blur-xs border border-zinc-800 text-[10px] font-mono font-bold tracking-widest text-green-400 uppercase rounded-none select-none">
+              <span className="w-1.5 h-1.5 bg-green-500 rounded-none animate-pulse" />
+              NIGERIA&apos;S SOVEREIGN AGRI-COMMODITIES INDEX
             </div>
-            <h1 className="text-5xl md:text-7xl font-black tracking-tight mb-6 leading-[1.05]">
-              From Farm<br />
-              <span className="text-emerald-400">To Your Table.</span>
+            <h1 className="text-4xl md:text-6xl font-mono font-black tracking-tight leading-[1.1] uppercase">
+              Direct Broadacre<br />
+              <span className="text-green-400">Trade Escrow.</span>
             </h1>
-            <p className="text-xl text-gray-200 mb-8 leading-relaxed max-w-lg">
-              Buy directly from verified Nigerian farmers. Sell your harvest nationwide.
-              Learn from expert agri-educators — all secured by escrow.
+            <p className="text-sm font-sans text-zinc-300 leading-relaxed max-w-lg">
+              Procure crop lots directly from verified Nigerian agricultural cooperatives. Secure physical custody lines using neutral, locked escrow structures. Link enterprise buyers with agronomic intelligence.
             </p>
-            <div className="flex flex-col sm:flex-row gap-4">
+            <div className="flex flex-col sm:flex-row gap-3 pt-2">
               <Link href="/marketplace"
-                className="px-8 py-4 bg-emerald-600 text-white rounded-2xl font-bold text-lg hover:bg-emerald-500 transition-all flex items-center justify-center gap-2 shadow-xl shadow-emerald-900/30">
-                Shop the Marketplace <ArrowRight size={20} />
+                className="px-6 py-3 bg-green-700 border border-green-700 text-white font-mono text-xs uppercase tracking-wider font-black hover:bg-green-800 hover:border-green-850 transition-colors flex items-center justify-center gap-2 rounded-none shadow-xs">
+                SHOP COMMODITY INDEX <ArrowRight size={14} />
               </Link>
               <Link href="/auth/signup"
-                className="px-8 py-4 bg-white/10 backdrop-blur-sm border border-white/30 text-white rounded-2xl font-bold text-lg hover:bg-white/20 transition-all text-center">
-                Start Selling Free
+                className="px-6 py-3 bg-zinc-950/50 backdrop-blur-xs border border-zinc-700 text-white font-mono text-xs uppercase tracking-wider font-bold hover:bg-zinc-900/50 transition-colors text-center rounded-none">
+                REGISTER AS MERCHANT
               </Link>
             </div>
 
-            <div className="mt-12 flex flex-wrap gap-6 text-sm font-medium text-gray-300">
-              {["Escrow-Protected Payments", "Verified Farmers", "Nationwide Delivery"].map(t => (
-                <div key={t} className="flex items-center gap-2">
-                  <CheckCircle size={16} className="text-emerald-400" /> {t}
+            <div className="mt-8 flex flex-wrap gap-6 text-[10px] font-mono font-bold text-zinc-400 uppercase tracking-wide">
+              {["Escrow-Protected Payments", "Cooperatives Verified", "Carrier Shipment Logs"].map(t => (
+                <div key={t} className="flex items-center gap-1.5">
+                  <CheckCircle size={12} className="text-green-400" /> {t}
                 </div>
               ))}
             </div>
           </div>
         </div>
-
-        {/* Scroll indicator */}
-        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10 flex flex-col items-center gap-1 text-white/40 animate-bounce">
-          <span className="text-xs">Scroll</span>
-          <div className="w-px h-8 bg-white/20" />
-        </div>
       </section>
 
       {/* ── STATS STRIP ── */}
-      <section className="bg-emerald-900 text-white py-10">
+      <section className="bg-zinc-950 text-white border-b border-zinc-800 py-8 select-none font-mono text-xs uppercase tracking-tight">
         <div className="max-w-7xl mx-auto px-4 grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
           {STATS.map(({ label, value, icon: Icon }) => (
-            <div key={label} className="flex flex-col items-center gap-2">
-              <Icon size={24} className="text-emerald-400" />
-              <p className="text-3xl font-black">{value}</p>
-              <p className="text-emerald-300 text-sm font-medium">{label}</p>
+            <div key={label} className="flex flex-col items-center gap-1.5 border-r last:border-r-0 border-zinc-800">
+              <Icon size={18} className="text-green-500 shrink-0" />
+              <p className="text-2xl font-black tracking-tight text-white">{value}</p>
+              <p className="text-zinc-500 text-[9px] font-bold tracking-widest">{label}</p>
             </div>
           ))}
         </div>
       </section>
 
       {/* ── CATEGORIES ── */}
-      <section className="py-20 bg-gray-50">
+      <section className="py-16 bg-zinc-50">
         <div className="max-w-7xl mx-auto px-4">
-          <div className="flex items-end justify-between mb-10">
-            <div>
-              <h2 className="text-3xl font-black text-gray-900">Browse by Category</h2>
-              <p className="text-gray-500 mt-1">Fresh produce and agri-goods from across Nigeria</p>
+          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-8">
+            <div className="space-y-1">
+              <h2 className="text-xl font-mono font-black tracking-tight text-zinc-950 uppercase">Browse Commodity registry</h2>
+              <p className="text-zinc-500 text-xs font-sans">Physical produce and industrial inputs cataloged statefully across Nigeria</p>
             </div>
-            <Link href="/marketplace" className="text-emerald-600 font-bold text-sm flex items-center gap-1 hover:underline">
-              All Categories <ChevronRight size={16} />
+            <Link href="/marketplace" className="text-green-700 font-mono text-xs uppercase font-bold tracking-wider flex items-center gap-1 hover:underline shrink-0">
+              All Registries <ChevronRight size={14} />
             </Link>
           </div>
-          <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-4">
+          <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-3">
             {CATEGORIES.map(cat => (
               <Link key={cat.label} href={cat.href}
-                className="flex flex-col items-center gap-3 p-4 bg-white rounded-2xl border border-gray-100 hover:border-emerald-300 hover:shadow-md transition-all group text-center">
-                <span className="text-3xl group-hover:scale-110 transition-transform">{cat.emoji}</span>
-                <span className="text-xs font-bold text-gray-700 leading-tight">{cat.label}</span>
+                className="flex flex-col items-center gap-2.5 p-4 bg-white border border-zinc-200 hover:border-green-600 hover:shadow-xs transition-all group text-center rounded-none">
+                <span className="text-2xl group-hover:scale-105 transition-transform select-none">{cat.emoji}</span>
+                <span className="text-[10px] font-mono font-bold text-zinc-700 group-hover:text-zinc-950 leading-tight block uppercase tracking-tight">{cat.label}</span>
               </Link>
             ))}
           </div>
@@ -294,68 +287,68 @@ export default function Home() {
       </section>
 
       {/* ── WHY BLEEFY vs COMPETITORS ── */}
-      <section className="py-20 bg-white">
+      <section className="py-16 bg-white border-t border-b border-zinc-200">
         <div className="max-w-7xl mx-auto px-4">
-          <div className="text-center max-w-2xl mx-auto mb-16">
-            <span className="text-emerald-600 font-bold text-sm uppercase tracking-widest">Why Choose Bleefy</span>
-            <h2 className="text-3xl md:text-4xl font-black text-gray-900 mt-2">More than just a marketplace</h2>
-            <p className="text-gray-500 mt-3">We combine secure escrow payments, AI content verification, and a vibrant farming community — features competitors simply don&apos;t offer.</p>
+          <div className="text-center max-w-2xl mx-auto mb-12 space-y-2">
+            <span className="text-green-700 font-mono font-bold text-[10px] uppercase tracking-widest">COVENANT B2B CAPABILITIES</span>
+            <h2 className="text-2xl font-mono font-black text-zinc-950 uppercase">More than just a standard catalog</h2>
+            <p className="text-zinc-500 text-xs font-sans mt-1">We unite sovereign escrow payments, automated AI content verification, and a professional broadacre farmer network—features consumer lists cannot support.</p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-6">
+          <div className="grid md:grid-cols-3 gap-4">
             {[
               {
                 icon: ShieldCheck,
-                color: "bg-emerald-50 text-emerald-600",
+                color: "bg-green-50 text-green-800 border-green-200",
                 title: "Escrow-Protected Payments",
-                desc: "Your money is held securely until you confirm delivery. No risk, no fraud — your funds never leave escrow until you're satisfied.",
-                badge: "Unique to Bleefy"
+                desc: "Enterprise transaction funds remain held in neutral vault layers until physical arrival validation. Restricts default risks completely.",
+                badge: "Unique Escrow Lock"
               },
               {
                 icon: BookOpen,
-                color: "bg-blue-50 text-blue-600",
+                color: "bg-zinc-100 text-zinc-800 border-zinc-300",
                 title: "Agri Learning Platform",
-                desc: "Expert-verified digital courses and guides from Nigerian agricultural specialists. Learn crop science, livestock management and more.",
-                badge: "20+ Courses"
+                desc: "Expert-certified digital tutorials and soil guides published by academic specialists. Focuses on broadacre optimization.",
+                badge: "Educational Vault"
               },
               {
                 icon: BarChart2,
-                color: "bg-purple-50 text-purple-600",
-                title: "AI Content Audit",
-                desc: "Every digital product is automatically scored by our AI for accuracy and safety before it reaches buyers. Quality guaranteed.",
-                badge: "AI-Powered"
+                color: "bg-zinc-100 text-zinc-800 border-zinc-300",
+                title: "AI Technical Spec Audit",
+                desc: "All dynamic listings and crop tutorials are checked automatically by neural compliance bots for dry-weight indices.",
+                badge: "AI Compliance Check"
               },
               {
                 icon: Truck,
-                color: "bg-orange-50 text-orange-600",
-                title: "Real-Time Order Tracking",
-                desc: "Track your farm produce from seller to doorstep. Sellers get notified instantly, buyers confirm delivery with one tap.",
-                badge: "End-to-End"
+                color: "bg-zinc-100 text-zinc-800 border-zinc-300",
+                title: "Carrier Logistics Tracking",
+                desc: "Monitor freight carrier routes, train cargo schedules, and terminal drop-offs. Releases escrow upon confirmation.",
+                badge: "Real-time Carriage"
               },
               {
                 icon: Award,
-                color: "bg-amber-50 text-amber-600",
-                title: "Verified Seller Badges",
-                desc: "Every seller goes through our admin verification process. Only approved, legitimate farms and suppliers can list products.",
-                badge: "Trust System"
+                color: "bg-zinc-100 text-zinc-800 border-zinc-300",
+                title: "Verified Registry Badging",
+                desc: "Cooperative sellers undergo systematic academic and legal verification. Only validated lots enter the trade index.",
+                badge: "Sovereign Registry"
               },
               {
                 icon: TrendingUp,
-                color: "bg-rose-50 text-rose-600",
-                title: "Seller Analytics Dashboard",
-                desc: "Know your top products, revenue trends, and customer engagement — all in a clean dashboard built for farm businesses.",
-                badge: "Business Intelligence"
+                color: "bg-zinc-100 text-zinc-800 border-zinc-300",
+                title: "Merchant Analytics Overlay",
+                desc: "Review crop batch yield potentials, seasonal pricing curves, and monthly procurement indexes within clean dashboards.",
+                badge: "Trading Intelligence"
               },
             ].map(f => (
-              <div key={f.title} className="bg-white rounded-3xl border border-gray-100 p-8 hover:shadow-lg transition-shadow">
-                <div className={`w-12 h-12 rounded-2xl flex items-center justify-center mb-5 ${f.color}`}>
-                  <f.icon size={22} />
+              <div key={f.title} className="bg-white border border-zinc-200 p-6 rounded-none hover:border-zinc-400 shadow-xs space-y-4 text-left">
+                <div className={`w-10 h-10 border rounded-none flex items-center justify-center ${f.color}`}>
+                  <f.icon size={18} />
                 </div>
-                <div className="flex items-center gap-2 mb-3">
-                  <h3 className="font-bold text-gray-900 text-lg">{f.title}</h3>
+                <div className="space-y-1">
+                  <h3 className="font-mono font-bold text-zinc-950 text-sm uppercase">{f.title}</h3>
+                  <p className="text-zinc-500 text-xs font-sans leading-relaxed">{f.desc}</p>
                 </div>
-                <p className="text-gray-500 text-sm leading-relaxed mb-4">{f.desc}</p>
-                <span className="text-xs font-bold text-emerald-600 bg-emerald-50 px-3 py-1 rounded-full">{f.badge}</span>
+                <span className="inline-block text-[9px] font-mono font-bold text-green-800 bg-green-50 px-2 py-0.5 border border-green-200 uppercase tracking-tight">{f.badge}</span>
               </div>
             ))}
           </div>
@@ -363,30 +356,34 @@ export default function Home() {
       </section>
 
       {/* ── HOW IT WORKS ── */}
-      <section className="py-20 bg-gray-50">
+      <section className="py-16 bg-zinc-50 border-b border-zinc-200">
         <div className="max-w-7xl mx-auto px-4">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl font-black text-gray-900 mb-3">How Bleefy Works</h2>
-            <p className="text-gray-500">Start buying or selling Nigerian farm products in minutes</p>
+          <div className="text-center mb-12 space-y-1">
+            <h2 className="text-xl font-mono font-black text-zinc-950 uppercase">Covenant Sowing & Trade Process</h2>
+            <p className="text-zinc-500 text-xs font-sans">Initialize broadacre crop trade contracts in minutes</p>
           </div>
-          <div className="grid md:grid-cols-4 gap-6 relative">
+          <div className="grid md:grid-cols-4 gap-4 relative">
             {[
-              { step: "01", title: "Create Free Account", desc: "Sign up in 60 seconds. Choose your role — buyer, seller or creator.", icon: Users },
-              { step: "02", title: "Browse or List", desc: "Explore thousands of farm products or list your own harvest for sale.", icon: Sprout },
-              { step: "03", title: "Pay Securely", desc: "Checkout via Paystack or Flutterwave. Funds held in escrow until delivery.", icon: Shield },
-              { step: "04", title: "Confirm & Grow", desc: "Confirm delivery to release payment. Leave a review and keep growing.", icon: TrendingUp },
+              { step: "01", title: "Corporate Registry", desc: "Select role scope (Buyer Portal vs Merchant Command vs Educator Studio) and verify details.", icon: Users },
+              { step: "02", title: "Index Batches", desc: "Browse USDA/NGA grade specifications or register physical crop inventory lot records.", icon: Sprout },
+              { step: "03", title: "Lock Escrow Line", desc: "Settle payments through paystack integration. Capital remains locked in neutral escrow structures.", icon: Shield },
+              { step: "04", title: "Release & Freight", desc: "Verify physical carrier discharge parameters to release secure liquidity directly to farmers.", icon: TrendingUp },
             ].map((s, i) => (
-              <div key={s.step} className="relative">
+              <div key={s.step} className="relative text-left">
                 {i < 3 && (
-                  <div className="hidden md:block absolute top-8 left-full w-full h-px border-t-2 border-dashed border-gray-200 z-0 translate-x-[-50%]" />
+                  <div className="hidden md:block absolute top-6 left-full w-full h-px border-t border-dashed border-zinc-300 z-0 translate-x-[-50%]" />
                 )}
-                <div className="bg-white rounded-3xl p-6 text-center border border-gray-100 hover:shadow-md transition-shadow relative z-10">
-                  <div className="w-16 h-16 bg-emerald-600 rounded-2xl flex items-center justify-center mx-auto mb-4 text-white">
-                    <s.icon size={26} />
+                <div className="bg-white border border-zinc-200 p-5 rounded-none hover:shadow-xs transition-all relative z-10 space-y-3 font-mono">
+                  <div className="flex justify-between items-start">
+                    <div className="w-10 h-10 bg-green-700 text-white flex items-center justify-center rounded-none">
+                      <s.icon size={18} />
+                    </div>
+                    <span className="text-2xl font-black text-zinc-200 leading-none">{s.step}</span>
                   </div>
-                  <span className="text-4xl font-black text-gray-100">{s.step}</span>
-                  <h3 className="font-black text-gray-900 mt-1 mb-2">{s.title}</h3>
-                  <p className="text-gray-500 text-sm leading-relaxed">{s.desc}</p>
+                  <div className="space-y-1">
+                    <h3 className="font-bold text-zinc-950 text-xs uppercase">{s.title}</h3>
+                    <p className="text-zinc-500 text-[11px] font-sans leading-relaxed">{s.desc}</p>
+                  </div>
                 </div>
               </div>
             ))}
@@ -395,54 +392,56 @@ export default function Home() {
       </section>
 
       {/* ── DIGITAL LEARNING CTA ── */}
-      <section className="py-20 bg-emerald-900 text-white overflow-hidden relative">
+      <section className="py-16 bg-zinc-950 text-white overflow-hidden relative border-b border-zinc-800">
         <div className="absolute inset-0 opacity-10">
           <Image fill src="https://images.unsplash.com/photo-1574943320219-553eb213f72d?auto=format&fit=crop&w=2000&q=60" alt="" className="object-cover" />
         </div>
-        <div className="relative z-10 max-w-7xl mx-auto px-4 flex flex-col md:flex-row items-center justify-between gap-8">
-          <div className="max-w-xl">
-            <span className="text-emerald-400 font-bold text-sm uppercase tracking-widest">Creator Platform</span>
-            <h2 className="text-4xl font-black mt-2 mb-4 leading-snug">
-              Teach What You Know. <br />Earn What You Deserve.
+        <div className="relative z-10 max-w-7xl mx-auto px-4 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-8">
+          <div className="max-w-xl space-y-3 font-mono">
+            <span className="text-green-400 font-bold text-[10px] uppercase tracking-widest block">Educator Studio Access</span>
+            <h2 className="text-3xl font-black uppercase leading-tight text-white">
+              Sponsor Research. <br />Monetize Agronomy.
             </h2>
-            <p className="text-emerald-200 leading-relaxed">
-              Are you an agronomist, livestock expert or farming consultant?
-              Upload courses, guides or eBooks and earn passive income — while our AI validates your content for credibility.
+            <p className="text-zinc-400 font-sans text-xs leading-relaxed">
+              Are you a licensed agronomist, plant genetic specialist, or heavy machinery distributor? Publish digital crop tutorial modules and verified laboratory findings. Earn passive B2B royalties safely under complete AI verification checks.
             </p>
           </div>
-          <div className="flex flex-col gap-3 shrink-0 w-full md:w-auto">
+          <div className="flex flex-col sm:flex-row gap-3 shrink-0 w-full lg:w-auto font-mono">
             <Link href="/auth/signup"
-              className="px-8 py-4 bg-white text-emerald-800 rounded-2xl font-black text-lg hover:bg-emerald-50 transition-all text-center shadow-xl">
-              Become a Creator
+              className="px-6 py-3 bg-white text-zinc-950 border border-white font-black text-xs uppercase tracking-wider hover:bg-zinc-100 transition-colors text-center rounded-none">
+              Become Educator
             </Link>
             <Link href="/learning"
-              className="px-8 py-4 border border-emerald-600 text-emerald-300 rounded-2xl font-bold hover:bg-emerald-800/50 transition-all text-center flex items-center justify-center gap-2">
-              <Play size={18} /> Browse Courses
+              className="px-6 py-3 border border-zinc-700 text-zinc-400 hover:text-white hover:bg-zinc-900/50 text-xs font-bold uppercase tracking-wider text-center flex items-center justify-center gap-2 rounded-none">
+              <Play size={12} /> Browse tutorials
             </Link>
           </div>
         </div>
       </section>
 
       {/* ── SOCIAL PROOF ── */}
-      <section className="py-20 bg-white">
+      <section className="py-16 bg-white">
         <div className="max-w-7xl mx-auto px-4">
-          <h2 className="text-3xl font-black text-center mb-12">Trusted by Nigerian Farmers</h2>
-          <div className="grid md:grid-cols-3 gap-6">
+          <div className="text-center mb-12 space-y-1">
+            <h2 className="text-xl font-mono font-black text-zinc-950 uppercase">Verified Cooperative Testimonials</h2>
+            <p className="text-zinc-500 text-xs font-sans">Active feedback loops from registered Nigerian agribusiness operations</p>
+          </div>
+          <div className="grid md:grid-cols-3 gap-4">
             {[
-              { name: "Bola Adeyemi", role: "Maize Farmer, Oyo", quote: "I sold my first harvest within 3 days of listing. The escrow gave my buyers confidence to pay without hesitation.", avatar: "BA" },
-              { name: "Chiamaka Obi", role: "Catfish Seller, Anambra", quote: "Bleefy's verification badge made customers trust me instantly. My revenue doubled in 2 months compared to WhatsApp sales.", avatar: "CO" },
-              { name: "Dr. Tunde Fashola", role: "Agri Educator, Lagos", quote: "I uploaded 3 courses and earn ₦80,000 monthly passively. The AI audit system is brilliant — it keeps quality high.", avatar: "TF" },
+              { name: "BOLA ADEYEMI", role: "Maize Cooperative Lead, Oyo", quote: "We loaded our physical maize batch-lot into logistics carriers within 3 days. Escrow protection eliminated merchant payment defaults.", avatar: "BA" },
+              { name: "CHIAMAKA OBI", role: "Fisheries Supplier, Anambra", quote: "Agri-cooperative verification badges built immediate buyer trust. Transactions flow smoothly with zero WhatsApp coordinate drops.", avatar: "CO" },
+              { name: "DR. TUNDE FASHOLA", role: "Soil Scientist, Lagos Division", quote: "Uploaded three split-nitrogen research tutorials. Cooperative royalties provide substantial passive income, completely verified.", avatar: "TF" },
             ].map(t => (
-              <div key={t.name} className="bg-gray-50 rounded-3xl p-8 border border-gray-100">
-                <div className="flex gap-1 mb-4">
-                  {[1, 2, 3, 4, 5].map(s => <Star key={s} size={16} className="fill-amber-400 text-amber-400" />)}
+              <div key={t.name} className="bg-zinc-50 border border-zinc-200 p-6 rounded-none space-y-4 text-left">
+                <div className="flex gap-0.5">
+                  {[1, 2, 3, 4, 5].map(s => <Star key={s} size={14} className="fill-amber-400 text-amber-400" />)}
                 </div>
-                <p className="text-gray-700 italic leading-relaxed mb-6">&quot;{t.quote}&quot;</p>
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-emerald-600 flex items-center justify-center text-white font-bold text-sm">{t.avatar}</div>
+                <p className="text-zinc-600 italic font-sans text-xs leading-relaxed">&quot;{t.quote}&quot;</p>
+                <div className="flex items-center gap-3 border-t border-zinc-200 pt-3 font-mono">
+                  <div className="w-8 h-8 rounded-none border border-zinc-300 bg-zinc-150 flex items-center justify-center text-zinc-800 font-bold text-xs shrink-0">{t.avatar}</div>
                   <div>
-                    <p className="font-bold text-gray-900 text-sm">{t.name}</p>
-                    <p className="text-xs text-gray-500">{t.role}</p>
+                    <p className="font-bold text-zinc-950 text-xs uppercase">{t.name}</p>
+                    <p className="text-zinc-400 text-[9px] uppercase font-bold tracking-tight">{t.role}</p>
                   </div>
                 </div>
               </div>
@@ -452,22 +451,22 @@ export default function Home() {
       </section>
 
       {/* ── FINAL CTA ── */}
-      <section className="py-20 bg-gradient-to-br from-emerald-50 to-green-100">
-        <div className="max-w-3xl mx-auto px-4 text-center">
-          <h2 className="text-4xl md:text-5xl font-black text-gray-900 mb-4">
-            Ready to grow your farm business?
+      <section className="py-16 bg-zinc-100 border-t border-b border-zinc-200">
+        <div className="max-w-3xl mx-auto px-4 text-center space-y-6">
+          <h2 className="text-3xl font-mono font-black text-zinc-950 uppercase leading-tight">
+            Ready to secure your crop supply line?
           </h2>
-          <p className="text-gray-600 text-lg mb-8">
-            Join thousands of Nigerian farmers buying and selling on the most trusted agri-marketplace.
+          <p className="text-zinc-600 text-xs font-sans max-w-lg mx-auto">
+            Join thousands of modern agribusiness cooperatives and enterprise buyers settling crop trade allocations on Nigeria&apos;s most secure agronomic exchange.
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          <div className="flex flex-col sm:flex-row gap-3 justify-center pt-2 font-mono">
             <Link href="/auth/signup"
-              className="px-10 py-4 bg-emerald-600 text-white rounded-2xl font-black text-lg hover:bg-emerald-700 transition-all shadow-xl shadow-emerald-200 flex items-center justify-center gap-2">
-              Join for Free <ArrowRight size={20} />
+              className="px-8 py-3 bg-green-700 border border-green-700 text-white font-black text-xs uppercase tracking-wider hover:bg-green-800 hover:border-green-850 transition-colors flex items-center justify-center gap-2 rounded-none">
+              Register Free <ArrowRight size={14} />
             </Link>
             <Link href="/marketplace"
-              className="px-10 py-4 border-2 border-gray-300 text-gray-700 rounded-2xl font-bold text-lg hover:border-emerald-500 transition-all text-center">
-              Browse Marketplace
+              className="px-8 py-3 border border-zinc-300 text-zinc-700 bg-white hover:bg-zinc-50 hover:border-zinc-400 font-bold text-xs uppercase tracking-wider text-center rounded-none">
+              Browse Trade Index
             </Link>
           </div>
         </div>
