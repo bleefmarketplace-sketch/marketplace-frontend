@@ -32,7 +32,7 @@ const LandingPagesNav = () => {
 
   return (
     <>
-    <nav className="sticky top-0 z-50 bg-white border-b border-zinc-200 font-mono text-xs shadow-xs">
+    <nav className="sticky top-0 z-50 bg-white/30 backdrop-blur-md border-b border-gray-100">
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
@@ -43,14 +43,14 @@ const LandingPagesNav = () => {
             </Link>
             
             {/* Desktop Nav Links */}
-            <div className="hidden md:flex gap-8 text-[11px] font-bold text-zinc-600 uppercase tracking-wider">
+            <div className="hidden md:flex gap-8 text-sm font-medium text-gray-600">
               {navLinks.map(link => {
                 const isActive = pathname.startsWith(`/${link.id}`);
                 return (
                   <Link 
                     key={link.id}
                     href={`/${link.id}`} // Fixed: Absolute path starts with /
-                    className={`hover:text-green-700 transition-colors ${isActive ? 'text-green-700 font-black' : ''}`}
+                    className={`hover:text-emerald-600 transition-colors ${isActive ? 'text-emerald-600 font-bold' : ''}`}
                   >
                     {link.label}
                   </Link>
@@ -64,17 +64,17 @@ const LandingPagesNav = () => {
               {/* Shopping Cart Icon (Visible for everyone) */}
               <button 
                 onClick={() => setIsCartOpen(true)}
-                className="relative p-2 text-zinc-600 hover:bg-zinc-50 rounded-none transition-all"
+                className="relative p-2 text-gray-600 hover:bg-gray-100 rounded-full transition-all"
               >
-                <ShoppingCart size={20} />
+                <ShoppingCart size={22} />
                 {getItemCount > 0 && (
-                  <span className="absolute top-0 right-0 bg-green-700 text-white text-[9px] font-mono font-bold px-1.5 py-0.5 rounded-none flex items-center justify-center animate-in zoom-in">
+                  <span className="absolute top-0 right-0 bg-orange-500 text-white text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center animate-in zoom-in">
                     {getItemCount > 9 ? '9+' : getItemCount}
                   </span>
                 )}
               </button>
 
-              <div className="h-6 w-px bg-zinc-200 mx-1 hidden md:block" />
+              <div className="h-6 w-px bg-gray-200 mx-1 hidden md:block" />
 
               {/* Conditional Auth Buttons */}
               <div className="hidden md:flex items-center gap-3">
@@ -87,14 +87,14 @@ const LandingPagesNav = () => {
                   <div className="flex items-center gap-4">
                     <Link 
                       href={user.role === 'buyer' ? '/account' : '/dashboard'} 
-                      className="w-9 h-9 rounded-none bg-zinc-50 border border-zinc-300 text-zinc-600 flex items-center justify-center hover:bg-zinc-100 transition-colors"
+                      className="w-9 h-9 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center hover:bg-emerald-100 transition-colors"
                       title="Account"
                     >
                       <User size={18} />
                     </Link>
                     <button 
                         onClick={() => logout()} 
-                        className="p-2 text-zinc-400 hover:text-red-500 hover:bg-red-50 rounded-none transition-all"
+                        className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-full transition-all"
                         title="Logout"
                     >
                       <LogOut size={18} />
@@ -105,7 +105,7 @@ const LandingPagesNav = () => {
 
               {/* Mobile Menu Toggle */}
               <div className="md:hidden">
-                <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)} className="p-2 text-zinc-600">
+                <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)} className="p-2 text-gray-600">
                   {mobileMenuOpen ? <X /> : <Menu />}
                 </button>
               </div>

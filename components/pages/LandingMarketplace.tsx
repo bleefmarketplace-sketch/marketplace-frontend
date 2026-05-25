@@ -73,13 +73,11 @@ export const Marketplace = () => {
         fetchProducts();
     }, [fetchProducts]);
 
-    console.log(products)
-
 
     const handleOpenProduct = (product: Product) => {
 
 
-         trackEvent('click', product.id, { category: product.categoryId });
+        trackEvent('click', product.id, { category: product.categoryId });
         window.open(`/marketplace/${product.slug}`, '_blank');
     };
 
