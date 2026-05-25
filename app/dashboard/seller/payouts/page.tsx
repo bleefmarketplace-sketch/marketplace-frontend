@@ -28,7 +28,6 @@ interface SavedBank {
     isPrimary: boolean;
 }
 
-// Fixed to match Backend Wallet Entity
 interface WalletData {
     availableBalance: number;
     pendingBalance: number;
@@ -41,12 +40,6 @@ interface Transaction {
     status: string;
     reference: string;
     createdAt: string;
-}
-
-interface ApiResponse<T> {
-    success: boolean;
-    data?: T;
-    message?: string;
 }
 
 const WalletPage = () => {
@@ -65,7 +58,7 @@ const WalletPage = () => {
     const [newBank, setNewBank] = useState({ bankCode: '', accountNumber: '', accountName: '' });
     const [withdrawAmount, setWithdrawAmount] = useState('');
 
-    const fetcher = useApi()
+    const fetcher = useApi();
 
     // --- API HELPER ---
     const safeFetch = async <T,>(url: string, options?: RequestInit): Promise<T> => {
@@ -82,7 +75,6 @@ const WalletPage = () => {
                 safeFetch<WalletData>('/api/wallet/balance'),
                 safeFetch<Transaction[]>('/api/wallet/transactions')
             ]);
-
 
             setBanksList(banks);
             setSavedBanks(userBanks);
@@ -153,7 +145,7 @@ const WalletPage = () => {
             });
             toast.success("Withdrawal request submitted");
             setIsWithdrawOpen(false);
-            loadInitialData(); // Refresh balances
+            loadInitialData();
         } catch (err: any) { toast.error(err.message); }
         finally { setSaving(false); }
     };
@@ -182,236 +174,207 @@ const WalletPage = () => {
         }
     };
 
-
     const primaryBank = savedBanks.find(b => b.isPrimary);
     const otherBanks = savedBanks.filter(b => !b.isPrimary);
 
     if (loadingData) return (
-        <div className="flex flex-col items-center justify-center h-96 gap-4">
-            <Loader2 className="animate-spin text-emerald-600" size={40} />
-
+        <div className="flex items-center justify-center h-96 border border-zinc-200 bg-white font-mono text-xs">
+            <Loader2 className="animate-spin text-green-700 mr-2" size={24} />
+            <span className="text-[10px] text-zinc-400 font-bold uppercase tracking-wider">Syncing Ledger...</span>
         </div>
     );
 
     return (
-        <div className="space-y-8 animate-in fade-in duration-500 max-w-6xl mx-auto pb-10">
+        <div className="w-full space-y-6 font-mono text-xs text-zinc-900 antialiased animate-in fade-in duration-300">
+
+            {/* Header Block */}
+            <div className="border border-zinc-200 bg-white p-5">
+                <span className="px-2 py-0.5 text-[9px] font-mono bg-green-50 text-green-800 border border-green-200 font-bold uppercase tracking-widest">
+                  ESCROW LEDGER COMMAND
+                </span>
+                <h1 className="text-xl font-bold uppercase tracking-wider text-zinc-950 mt-2">Payouts & Wallet</h1>
+                <p className="text-zinc-500 text-[10px] mt-0.5">Withdraw available liquidity funds, manage verified bank registries, and monitor transaction histories.</p>
+            </div>
 
             {/* --- TOP SECTION: BALANCES --- */}
-            <div className="grid sm:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 
                 {/* WALLET CARD */}
-                <Card className="bg-gradient-to-br from-emerald-800 to-emerald-950 text-white border-none p-4 sm:p-6 flex flex-col justify-between shadow-lg">
-
-                    <div className="flex flex-col sm:flex-row sm:justify-between gap-4">
-
-                        <div>
-                            <p className="text-emerald-200 text-[10px] font-semibold uppercase tracking-widest">
-                                Available Balance
-                            </p>
-                            <h2 className="text-xl sm:text-2xl font-black tracking-tight">
-                                ₦{wallet?.availableBalance?.toLocaleString() || '0.00'}
+                <Card className="bg-zinc-950 text-zinc-50 p-5 border border-zinc-900 rounded-none shadow-none flex flex-col justify-between relative overflow-hidden">
+                    <div className="flex flex-col sm:flex-row sm:justify-between gap-4 z-10">
+                        <div className="space-y-1">
+                            <p className="text-green-500 text-[9px] font-bold uppercase tracking-widest leading-none">Available Balance</p>
+                            <h2 className="text-2xl font-black text-white font-mono pt-1">
+                                ₦{wallet?.availableBalance?.toLocaleString(undefined, { minimumFractionDigits: 2 }) || '0.00'}
                             </h2>
                         </div>
-
-                        <div>
-                            <p className="text-emerald-200 text-[10px] font-semibold uppercase tracking-widest">
-                                Escrow Balance
-                            </p>
-                            <h2 className="text-xl sm:text-2xl font-black tracking-tight">
-                                ₦{wallet?.pendingBalance?.toLocaleString() || '0.00'}
+                        <div className="space-y-1">
+                            <p className="text-zinc-500 text-[9px] font-bold uppercase tracking-widest leading-none">Escrow Locked</p>
+                            <h2 className="text-2xl font-black text-zinc-450 font-mono pt-1">
+                                ₦{wallet?.pendingBalance?.toLocaleString(undefined, { minimumFractionDigits: 2 }) || '0.00'}
                             </h2>
                         </div>
-
                     </div>
-
-                    <div className="mt-4 flex sm:justify-end">
-                        <Button onClick={() => setIsWithdrawOpen(true)} size="sm">
-                            <ArrowUpRight size={16} className="mr-2" />
-                            Withdraw
+                    <div className="mt-5 flex justify-end z-10">
+                        <Button 
+                          onClick={() => setIsWithdrawOpen(true)} 
+                          className="rounded-none h-8 text-[10px] uppercase font-bold tracking-wider"
+                        >
+                            <ArrowUpRight size={14} className="mr-1.5" /> Withdraw Funds
                         </Button>
                     </div>
-
+                    <WalletIcon className="absolute -right-6 -bottom-6 text-zinc-900/60 select-none pointer-events-none" size={100} />
                 </Card>
 
-
                 {/* PRIMARY BANK CARD */}
-                <Card className="p-4 sm:p-6 flex flex-col justify-between border-gray-100 shadow-sm">
-
+                <Card className="p-5 bg-white border border-zinc-200 shadow-none rounded-none flex flex-col justify-between">
                     <div>
-                        <h3 className="font-bold text-gray-900 mb-4 flex items-center gap-2 text-xs uppercase tracking-wider">
-                            <Landmark size={16} className="text-emerald-600" />
-                            Primary Payout
+                        <h3 className="font-bold text-xs text-zinc-950 uppercase tracking-wider mb-4 flex items-center gap-2">
+                            <Landmark size={14} className="text-green-700 animate-pulse" /> Primary Payout Registry
                         </h3>
 
                         {primaryBank ? (
-                            <div className="space-y-3">
-
-                                <div className="p-4 bg-emerald-50 rounded-xl border border-emerald-100 relative">
-
+                            <div className="space-y-3 font-mono">
+                                <div className="p-4 bg-zinc-50 border border-zinc-200 rounded-none relative">
                                     <div className="absolute top-2 right-2">
-                                        <CheckCircle2 size={16} className="text-emerald-500" />
+                                        <CheckCircle2 size={15} className="text-green-700" />
                                     </div>
-
-                                    <p className="text-[9px] font-bold text-emerald-600 uppercase">
+                                    <p className="text-[9px] font-bold text-green-800 uppercase tracking-wider">
                                         {primaryBank.bankName}
                                     </p>
-
-                                    <p className="text-lg font-black text-gray-900 tracking-tight">
+                                    <p className="text-lg font-black text-zinc-950 tracking-tight font-mono mt-1 select-all">
                                         {primaryBank.accountNumber}
                                     </p>
-
-                                    <p className="text-[11px] text-gray-500 truncate">
+                                    <p className="text-[10px] text-zinc-500 uppercase tracking-wide truncate mt-1">
                                         {primaryBank.accountName}
                                     </p>
-
                                 </div>
-
                                 <Button
                                     fullWidth
-                                    size="sm"
                                     variant="outline"
-                                    className="rounded-lg border-gray-200"
+                                    className="rounded-none h-8 text-[10px] uppercase font-bold tracking-wider border-zinc-250 hover:bg-zinc-50"
                                     onClick={() => setIsAddBankOpen(true)}
                                 >
-                                    <Plus size={14} className="mr-2" />
-                                    Link New Account
+                                    <Plus size={13} className="mr-1.5" /> Link New Account
                                 </Button>
-
                             </div>
                         ) : (
-                            <div className="text-center py-4 space-y-3">
-
-                                <div className="w-10 h-10 bg-gray-50 rounded-full flex items-center justify-center mx-auto text-gray-300">
-                                    <Landmark size={20} />
+                            <div className="text-center py-4 space-y-3 font-mono">
+                                <div className="w-10 h-10 border border-zinc-200 rounded-none bg-zinc-50 flex items-center justify-center mx-auto text-zinc-400">
+                                    <Landmark size={16} />
                                 </div>
-
-                                <p className="text-[11px] text-gray-400 px-4 italic">
-                                    No active bank account linked
+                                <p className="text-[10px] text-zinc-450 uppercase font-bold tracking-wider italic">
+                                    No primary bank coordinates link
                                 </p>
-
                                 <Button
-                                    size="sm"
-                                    className="rounded-full bg-emerald-600"
+                                    className="rounded-none h-8 text-[10px] uppercase font-bold tracking-wider"
                                     onClick={() => setIsAddBankOpen(true)}
                                 >
-                                    <Plus size={14} className="mr-1" />
-                                    Link Bank
+                                    <Plus size={13} className="mr-1" /> Link Bank Profile
                                 </Button>
-
                             </div>
                         )}
                     </div>
-
                 </Card>
-
 
                 {/* SAVED ACCOUNTS */}
                 {otherBanks.length > 0 && (
-                    <div className="sm:col-span-2">
-
-                        <h3 className="font-bold text-xs text-gray-400 uppercase tracking-widest mb-3">
-                            Other Saved Accounts
+                    <div className="md:col-span-2 space-y-3">
+                        <h3 className="font-bold text-[10px] text-zinc-400 uppercase tracking-widest border-b border-zinc-150 pb-2">
+                            Other Saved Bank Accounts
                         </h3>
-
-                        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
-
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                             {otherBanks.map(bank => (
                                 <Card
                                     key={bank.id}
-                                    className="p-3 border-gray-100 shadow-sm hover:border-emerald-200 transition group"
+                                    className="p-3.5 bg-white border border-zinc-200 shadow-none rounded-none hover:bg-zinc-50 transition-colors group flex flex-col justify-between"
                                 >
-
-                                    <div className="flex justify-between items-start mb-2">
-
-                                        <div className="p-2 bg-gray-50 rounded-md text-gray-400">
-                                            <Landmark size={14} />
+                                    <div>
+                                        <div className="flex justify-between items-start mb-2 leading-none">
+                                            <div className="p-1.5 border border-zinc-200 rounded-none bg-zinc-50 text-zinc-500">
+                                                <Landmark size={13} />
+                                            </div>
+                                            <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition duration-150 select-none">
+                                                <button
+                                                    onClick={() => handleSetPrimary(bank.id)}
+                                                    className="p-1 border border-zinc-200 bg-white hover:bg-zinc-50 text-green-700 cursor-pointer"
+                                                    title="Set as Primary"
+                                                >
+                                                    <Star size={12} className="fill-green-50" />
+                                                </button>
+                                                <button
+                                                    onClick={() => handleDeleteBank(bank.id)}
+                                                    className="p-1 border border-zinc-200 bg-white hover:bg-red-55 text-red-650 cursor-pointer"
+                                                    title="Delete"
+                                                >
+                                                    <Trash2 size={12} />
+                                                </button>
+                                            </div>
                                         </div>
-
-                                        <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition">
-
-                                            <button
-                                                onClick={() => handleSetPrimary(bank.id)}
-                                                className="p-1.5 hover:bg-emerald-50 rounded-full text-emerald-600"
-                                                title="Set as Primary"
-                                            >
-                                                <Star size={13} />
-                                            </button>
-
-                                            <button
-                                                onClick={() => handleDeleteBank(bank.id)}
-                                                className="p-1.5 hover:bg-red-50 rounded-full text-red-500"
-                                                title="Delete"
-                                            >
-                                                <Trash2 size={13} />
-                                            </button>
-
-                                        </div>
-
+                                        <p className="text-[9px] font-bold text-zinc-400 uppercase tracking-wider">
+                                            {bank.bankName}
+                                        </p>
+                                        <p className="text-sm font-bold text-zinc-950 font-mono mt-0.5 select-all">
+                                            {bank.accountNumber}
+                                        </p>
+                                        <p className="text-[9px] text-zinc-500 uppercase tracking-wide truncate mt-0.5">
+                                            {bank.accountName}
+                                        </p>
                                     </div>
-
-                                    <p className="text-[9px] font-bold text-gray-400 uppercase">
-                                        {bank.bankName}
-                                    </p>
-
-                                    <p className="text-sm font-bold text-gray-900">
-                                        {bank.accountNumber}
-                                    </p>
-
-                                    <p className="text-[10px] text-gray-500 truncate">
-                                        {bank.accountName}
-                                    </p>
-
                                 </Card>
                             ))}
-
                         </div>
                     </div>
                 )}
-
             </div>
 
             {/* --- ACTIVITY --- */}
-            <div>
-                <h3 className="font-black text-2xl text-gray-900 flex items-center gap-2 mb-6">
-                    <History size={24} className="text-emerald-600" /> Activity History
+            <div className="space-y-4">
+                <h3 className="font-bold text-xs uppercase tracking-wider text-zinc-950 flex items-center gap-2 mb-2">
+                    <History size={15} className="text-green-700" /> Transaction Activity History
                 </h3>
 
-                <Card noPadding className="border-none shadow-sm ring-1 ring-gray-100 rounded-[2rem] overflow-hidden bg-white">
-                    <div className="overflow-x-auto">
-                        <table className="w-full text-sm text-left">
-                            <thead className="text-[10px] text-gray-400 uppercase bg-gray-50 font-black tracking-widest">
+                <Card noPadding className="border border-zinc-200 bg-white rounded-none shadow-none overflow-hidden">
+                    <div className="overflow-x-auto w-full">
+                        <table className="w-full text-left border-collapse">
+                            <thead className="text-[10px] text-zinc-400 uppercase bg-zinc-50 font-bold tracking-widest border-b border-zinc-200">
                                 <tr>
-                                    <th className="px-8 py-5">Date</th>
-                                    <th className="px-8 py-5">Type</th>
-                                    <th className="px-8 py-5">Amount</th>
-                                    <th className="px-8 py-5 text-right">Status</th>
+                                    <th className="px-5 py-3.5">Execution Date</th>
+                                    <th className="px-5 py-3.5">Operation Type</th>
+                                    <th className="px-5 py-3.5">Amount Value</th>
+                                    <th className="px-5 py-3.5 text-right">Ledger Status</th>
                                 </tr>
                             </thead>
-                            <tbody className="divide-y divide-gray-50">
+                            <tbody className="divide-y divide-zinc-200 font-mono">
                                 {transactions.length > 0 ? transactions.map((tx) => (
-                                    <tr key={tx.id} className="hover:bg-gray-50/50 transition-colors">
-                                        <td className="px-8 py-5 text-gray-600 font-medium">
+                                    <tr key={tx.id} className="hover:bg-zinc-50/45 transition-colors">
+                                        <td className="px-5 py-4 text-zinc-650 font-bold">
                                             {new Date(tx.createdAt).toLocaleDateString()}
                                         </td>
-                                        <td className="px-8 py-5">
-                                            <div className="flex items-center gap-2">
-                                                {tx.amount < 0 ? <ArrowUpRight size={14} className="text-red-500" /> : <ArrowDownLeft size={14} className="text-emerald-500" />}
-                                                <span className="font-bold text-gray-900 text-xs capitalize">{tx.type.replace('_', ' ')}</span>
+                                        <td className="px-5 py-4">
+                                            <div className="flex items-center gap-1.5">
+                                                {tx.amount < 0 ? <ArrowUpRight size={13} className="text-red-650 shrink-0" /> : <ArrowDownLeft size={13} className="text-green-700 shrink-0" />}
+                                                <span className="font-bold text-zinc-950 text-xs uppercase tracking-wider capitalize">{tx.type.replace('_', ' ')}</span>
                                             </div>
                                         </td>
-                                        <td className={`px-8 py-5 font-black ${tx.amount < 0 ? 'text-red-500' : 'text-emerald-600'}`}>
-                                            {tx.amount < 0 ? '-' : '+'}₦{Math.abs(tx.amount).toLocaleString()}
+                                        <td className={`px-5 py-4 font-black ${tx.amount < 0 ? 'text-red-650 font-bold' : 'text-green-755 font-bold'}`}>
+                                            {tx.amount < 0 ? '-' : '+'}₦{Math.abs(tx.amount).toLocaleString(undefined, { minimumFractionDigits: 2 })}
                                         </td>
-                                        <td className="px-8 py-5 text-right">
-                                            <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${tx.status === 'completed' ? 'bg-emerald-50 text-emerald-600' : 'bg-amber-50 text-amber-600'
-                                                }`}>
+                                        <td className="px-5 py-4 text-right">
+                                            <span className={`inline-block px-1.5 py-0.5 text-[8px] font-bold uppercase border ${
+                                                tx.status === 'completed' 
+                                                  ? 'border-green-200 bg-green-50 text-green-800' 
+                                                  : 'border-amber-200 bg-amber-50 text-amber-800'
+                                            }`}>
                                                 {tx.status}
                                             </span>
                                         </td>
                                     </tr>
                                 )) : (
                                     <tr>
-                                        <td colSpan={4} className="px-8 py-20 text-center text-gray-400 italic">No transactions found.</td>
+                                        <td colSpan={4} className="px-5 py-16 text-center text-zinc-400 font-bold uppercase tracking-wider text-[10px]">
+                                            No verified transaction records found inside active ledger.
+                                        </td>
                                     </tr>
                                 )}
                             </tbody>
@@ -421,102 +384,104 @@ const WalletPage = () => {
             </div>
 
             {/* --- WITHDRAW MODAL --- */}
-            <Modal isOpen={isWithdrawOpen} onClose={() => setIsWithdrawOpen(false)} title="Withdraw Funds">
-                <div className="space-y-6">
-                    <div className="p-6 bg-emerald-900 rounded-3xl text-white shadow-xl shadow-emerald-100">
-                        <p className="text-[10px] uppercase font-bold text-emerald-400 mb-1 tracking-widest">Available to withdraw</p>
-                        <p className="text-4xl font-black">₦{wallet?.availableBalance?.toLocaleString()}</p>
+            <Modal isOpen={isWithdrawOpen} onClose={() => setIsWithdrawOpen(false)} title="Withdraw Ledger Funds">
+                <div className="space-y-5 font-mono text-xs text-zinc-900">
+                    <div className="p-5 bg-zinc-950 text-zinc-50 border border-zinc-900 rounded-none shadow-none">
+                        <p className="text-[9px] uppercase font-bold text-green-500 mb-1.5 tracking-widest">Available to withdraw</p>
+                        <p className="text-3xl font-black font-mono">₦{wallet?.availableBalance?.toLocaleString(undefined, { minimumFractionDigits: 2 })}</p>
                     </div>
 
                     <div className="space-y-4">
                         <Input
-                            label="Amount to Withdraw"
+                            label="Amount to Withdraw (₦)"
                             type="number"
                             placeholder="0.00"
                             value={withdrawAmount}
                             onChange={(e) => setWithdrawAmount(e.target.value)}
                         />
-                        <div className="p-4 border rounded-2xl flex justify-between items-center bg-gray-50 border-gray-100">
+                        <div className="p-3.5 border border-zinc-200 rounded-none flex justify-between items-center bg-zinc-50">
                             <div>
-                                <p className="text-[10px] font-bold text-gray-400 uppercase">Payout Destination</p>
-                                <p className="text-sm font-bold text-gray-900">{primaryBank?.bankName}</p>
-                                <p className="text-xs text-gray-500">{primaryBank?.accountNumber}</p>
+                                <p className="text-[8px] font-bold text-zinc-400 uppercase tracking-widest mb-1 leading-none">Payout Destination</p>
+                                <p className="text-xs font-bold text-zinc-950 uppercase tracking-wide">{primaryBank?.bankName}</p>
+                                <p className="text-[10px] text-zinc-500 font-mono mt-0.5">{primaryBank?.accountNumber}</p>
                             </div>
-                            <Landmark size={24} className="text-emerald-600" />
+                            <Landmark size={20} className="text-green-700" />
                         </div>
                     </div>
 
-                    <Button
-                        fullWidth
-                        size="lg"
-                        disabled={saving || !withdrawAmount}
-                        onClick={handleWithdrawal}
-                        className="rounded-2xl h-14 bg-emerald-600 font-bold"
-                    >
-                        {saving ? <Loader2 className="animate-spin" /> : "Confirm & Send"}
-                    </Button>
+                    <div className="pt-2">
+                        <Button
+                            fullWidth
+                            size="lg"
+                            disabled={saving || !withdrawAmount}
+                            onClick={handleWithdrawal}
+                            className="rounded-none h-10 bg-green-700 hover:bg-green-800 border-green-700 text-white uppercase font-bold tracking-wider text-[10px] flex items-center justify-center"
+                        >
+                            {saving ? <Loader2 className="animate-spin text-white" size={14} /> : "Confirm & Execute Withdrawal"}
+                        </Button>
+                    </div>
                 </div>
             </Modal>
 
-            {/* --- ADD BANK MODAL (Previous implementation logic) --- */}
-            <Modal isOpen={isAddBankOpen} onClose={() => setIsAddBankOpen(false)} title="Link Payout Account">
-                <div className="space-y-6">
-                    <div className="bg-emerald-50 border border-emerald-100 p-4 rounded-2xl flex gap-3">
-                        <Info size={20} className="text-emerald-600 shrink-0" />
-                        <p className="text-xs text-emerald-800 leading-relaxed font-medium">
-                            Ensure the account name matches your registered business name exactly to prevent payout delays.
+            {/* --- ADD BANK MODAL --- */}
+            <Modal isOpen={isAddBankOpen} onClose={() => setIsAddBankOpen(false)} title="Link Payout Bank Account">
+                <div className="space-y-5 font-mono text-xs text-zinc-900">
+                    <div className="bg-zinc-50 border border-zinc-205 p-3.5 rounded-none flex gap-3 font-mono text-[10px] text-zinc-650">
+                        <Info size={16} className="text-green-700 shrink-0 mt-0.5" />
+                        <p className="leading-relaxed">
+                            Ensure the resolved account name matches your registered agribusiness merchant name exactly to prevent security arbitration holds.
                         </p>
                     </div>
 
                     <div className="space-y-4">
-                        <div>
-                            <label className="text-[10px] font-bold text-gray-400 uppercase ml-1">Select Bank</label>
+                        <div className="space-y-1">
+                            <label className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest block mb-0.5">Select Financial Institution</label>
                             <select
-                                className="w-full mt-1 py-2 px-3 bg-gray-100 rounded-lg border-none outline-none focus:ring-2 focus:ring-emerald-500 transition-all text-sm font-medium"
+                                className="w-full border border-zinc-250 p-2 text-xs bg-white rounded-none font-mono focus:border-green-600 focus:outline-none"
                                 value={newBank.bankCode}
                                 onChange={(e) => setNewBank(prev => ({ ...prev, bankCode: e.target.value, accountName: '' }))}
                             >
-                                <option value="">Choose Bank...</option>
-                                {banksList.map((b, i) => <option key={i} value={b.code}>{b.name}</option>)}
+                                <option value="">CHOOSE REGISTERED BANK...</option>
+                                {banksList.map((b, i) => <option key={i} value={b.code}>{b.name.toUpperCase()}</option>)}
                             </select>
                         </div>
 
                         <Input
                             label="Account Number"
-                            placeholder="10-digit account number"
+                            placeholder="10-digit NUBAN account number"
                             maxLength={10}
                             value={newBank.accountNumber}
                             onChange={(e) => setNewBank(prev => ({ ...prev, accountNumber: e.target.value, accountName: '' }))}
                         />
 
                         {verifying && (
-                            <div className="flex items-center gap-2 text-xs text-gray-400 px-2 italic">
-                                <Loader2 className="animate-spin" size={14} /> Resolving account details...
+                            <div className="flex items-center gap-1.5 text-[10px] text-zinc-400 px-1 italic">
+                                <Loader2 className="animate-spin text-green-700" size={12} /> Resolving account details on Paystack mesh...
                             </div>
                         )}
 
                         {newBank.accountName && (
-                            <div className="p-5 bg-emerald-900 rounded-2xl border-2 border-emerald-500 animate-in zoom-in duration-300">
-                                <div className="flex justify-between items-center">
-                                    <div>
-                                        <p className="text-[8px] text-emerald-400 font-bold uppercase tracking-widest mb-1">Verified Account Name</p>
-                                        <p className="text-white font-black text-lg">{newBank.accountName}</p>
-                                    </div>
-                                    <CheckCircle2 className="text-emerald-400" size={24} />
+                            <div className="p-4 bg-green-50 border border-green-200 rounded-none flex items-center justify-between text-green-800 animate-in zoom-in duration-150">
+                                <div>
+                                    <p className="text-[8px] text-green-650 font-bold uppercase tracking-widest mb-1.5">Verified Account Name</p>
+                                    <p className="font-black text-sm uppercase tracking-wide">{newBank.accountName}</p>
                                 </div>
+                                <CheckCircle2 className="text-green-700 shrink-0" size={20} />
                             </div>
                         )}
                     </div>
 
-                    <Button
-                        fullWidth
-                        size="lg"
-                        disabled={!newBank.accountName || saving}
-                        onClick={handleAddBank}
-                        className="rounded-2xl h-14 bg-emerald-600 shadow-xl shadow-emerald-100 font-bold"
-                    >
-                        {saving ? <Loader2 className="animate-spin" /> : "Link This Account"}
-                    </Button>
+                    <div className="pt-2">
+                        <Button
+                            fullWidth
+                            size="lg"
+                            disabled={!newBank.accountName || saving}
+                            onClick={handleAddBank}
+                            className="rounded-none h-10 bg-green-700 hover:bg-green-800 border-green-700 text-white uppercase font-bold tracking-wider text-[10px] flex items-center justify-center"
+                        >
+                            {saving ? <Loader2 className="animate-spin text-white" size={14} /> : "Link Verified Account"}
+                        </Button>
+                    </div>
                 </div>
             </Modal>
         </div>

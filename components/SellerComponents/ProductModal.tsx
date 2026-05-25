@@ -28,13 +28,12 @@ const ProductModal: React.FC<ProductModalProps> = ({
     onSave,
     initialData,
 }) => {
-    const fetcher = useApi()
+    const fetcher = useApi();
     const [categories, setCategories] = useState<Category[]>([]);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [slug, setSlug] = useState(initialData?.slug || "");
     const [title, setTitle] = useState(initialData?.title || "");
     const [slugEdited, setSlugEdited] = useState(false);
-
 
     // --- Primary Image State ---
     const [primaryFile, setPrimaryFile] = useState<File | null>(null);
@@ -48,21 +47,18 @@ const ProductModal: React.FC<ProductModalProps> = ({
         initialData?.otherImages || []
     );
 
-
     const fetchCategories = useCallback(async () => {
-        const res = await fetcher("/api/categories");
         try {
+            const res = await fetcher("/api/categories");
             const data = res?.data;
-            setCategories(data)
+            setCategories(data);
+        } catch (e) {
+            toast.error("Failed to load categories");
         }
-        catch (e) {
-            toast.error("Failed to load categories")
-        }
-
-    }, [fetcher])
+    }, [fetcher]);
 
     useEffect(() => {
-        fetchCategories()
+        fetchCategories();
     }, [fetchCategories]);
 
     /* ---------------- API: UPLOAD SINGLE (PRIMARY) ---------------- */
@@ -75,7 +71,6 @@ const ProductModal: React.FC<ProductModalProps> = ({
         });
         if (!res.ok) throw new Error("Primary image upload failed");
         const data = await res.json();
-        console.log("Primary Upload Result:", data);
         return data.url;
     };
 
@@ -84,7 +79,7 @@ const ProductModal: React.FC<ProductModalProps> = ({
         if (files.length === 0) return [];
 
         const fd = new FormData();
-        files.forEach((file) => fd.append("files", file)); // Note: 'files' plural
+        files.forEach((file) => fd.append("files", file));
 
         const res = await fetch("/api/upload/upload-multiple-images", {
             method: "POST",
@@ -92,7 +87,6 @@ const ProductModal: React.FC<ProductModalProps> = ({
         });
         if (!res.ok) throw new Error("Gallery upload failed");
         const data = await res.json();
-console.log("Other Upload Result:", data);
         return data.map((item: { url: string }) => item.url);
     };
 
@@ -106,8 +100,6 @@ console.log("Other Upload Result:", data);
 
     const removeOtherImage = (index: number) => {
         setOtherPreviews((prev) => prev.filter((_, i) => i !== index));
-        // If it's a new file, remove from files array too
-        // This logic assumes index matches between previews and files for simplicity
         setOtherFiles((prev) => prev.filter((_, i) => i !== index));
     };
 
@@ -118,12 +110,10 @@ console.log("Other Upload Result:", data);
         try {
             const formData = new FormData(e.currentTarget);
 
-            // 1. Validation
             if (String(formData.get("description")).length < 10) {
                 return toast.error("Description must be at least 10 characters");
             }
 
-            // 2. Handle Primary Image Upload
             let primaryImageUrl = initialData?.primaryImage;
             if (primaryFile) {
                 primaryImageUrl = await uploadPrimaryImage(primaryFile);
@@ -133,8 +123,6 @@ console.log("Other Upload Result:", data);
                 return toast.error("Primary product image is required");
             }
 
-            // 3. Handle Other Images Upload
-            // Filter out already existing URLs from the previews to only upload new files
             const newUploadedUrls = await uploadOtherImages(otherFiles);
             const existingUrls = otherPreviews.filter((p) => p.startsWith("http"));
 
@@ -143,18 +131,16 @@ console.log("Other Upload Result:", data);
                 ...newUploadedUrls,
             ];
 
-
-            // 4. Construct Payload (Matches your new DTO)
             const payload = {
                 title,
                 slug,
                 description: formData.get("description"),
                 price: Number(formData.get("price")),
                 stock: Number(formData.get("stock")),
-                categoryId: formData.get("category"), // Category UUID
+                categoryId: formData.get("category"),
                 location: formData.get("location"),
-                primaryImage: primaryImageUrl, // Now a string, not array
-                otherImages: finalOtherImages, // Array of strings
+                primaryImage: primaryImageUrl,
+                otherImages: finalOtherImages,
                 isOrganic: formData.get("isOrganic") === "on",
                 attributes: {
                     weight: formData.get("weight"),
@@ -172,30 +158,29 @@ console.log("Other Upload Result:", data);
         }
     };
 
-
     useEffect(() => {
         if (!initialData) {
             setSlug(slugify(title));
         }
     }, [title, initialData]);
 
-
     useEffect(() => {
         if (!slugEdited) {
             setSlug(slugify(title));
         }
     }, [title, slugEdited]);
+
     return (
         <Modal isOpen={isOpen} onClose={onClose} title={initialData ? "Edit Product" : "Add Product"}>
-            <form onSubmit={handleSubmit} className="space-y-6 max-h-[80vh]  px-1">
+            <form onSubmit={handleSubmit} className="space-y-5 max-h-[80vh] px-1 font-mono text-xs text-zinc-900">
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {/* PRIMARY IMAGE SECTION */}
                     <div>
-                        <label className="block text-sm font-medium mb-2">Primary Image (Cover)</label>
-                        <div className="flex gap-2 h-48">
+                        <label className="block text-[10px] font-bold uppercase tracking-widest mb-1.5 text-zinc-500">Primary Image (Cover)</label>
+                        <div className="flex gap-2 h-36">
                             {primaryPreview ? (
-                                <label className="relative flex-1 cursor-pointer group">
+                                <label className="relative flex-1 cursor-pointer group rounded-none border border-zinc-200 overflow-hidden">
                                     <input
                                         type="file"
                                         hidden
@@ -208,14 +193,14 @@ console.log("Other Upload Result:", data);
                                             }
                                         }}
                                     />
-                                    <Image src={primaryPreview} alt="Primary" unoptimized fill className="object-cover rounded-lg border-2 border-dashed border-transparent group-hover:border-emerald-500" />
-                                    <div className="absolute inset-0 bg-black/20 flex items-center justify-center opacity-0 group-hover:opacity-100 transition rounded-lg">
-                                        <p className="text-white text-sm font-bold">Change Image</p>
+                                    <Image src={primaryPreview} alt="Primary" unoptimized fill className="object-cover" />
+                                    <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition duration-150">
+                                        <p className="text-white text-[10px] font-bold uppercase tracking-wider">Change Cover</p>
                                     </div>
                                 </label>
                             ) : (
                                 <>
-                                    <label className="flex-1 border-2 border-dashed rounded-xl cursor-pointer hover:bg-gray-50 flex flex-col items-center justify-center text-gray-400 transition">
+                                    <label className="flex-1 border border-dashed border-zinc-300 rounded-none cursor-pointer bg-zinc-50 hover:bg-zinc-100/60 flex flex-col items-center justify-center text-zinc-400 transition">
                                         <input
                                             type="file"
                                             hidden
@@ -228,10 +213,10 @@ console.log("Other Upload Result:", data);
                                                 }
                                             }}
                                         />
-                                        <UploadCloud size={28} className="mb-2" />
-                                        <span className="text-xs font-medium">Choose File</span>
+                                        <UploadCloud size={20} className="mb-1 text-zinc-450" />
+                                        <span className="text-[9px] uppercase font-bold tracking-wider">Choose File</span>
                                     </label>
-                                    <label className="flex-1 border-2 border-dashed rounded-xl cursor-pointer hover:bg-emerald-50 flex flex-col items-center justify-center text-emerald-600 border-emerald-100 transition">
+                                    <label className="flex-1 border border-dashed border-green-200 rounded-none bg-green-50/50 cursor-pointer hover:bg-green-50 flex flex-col items-center justify-center text-green-700 transition">
                                         <input
                                             type="file"
                                             hidden
@@ -245,8 +230,8 @@ console.log("Other Upload Result:", data);
                                                 }
                                             }}
                                         />
-                                        <Camera size={28} className="mb-2" />
-                                        <span className="text-xs font-medium">Take Photo</span>
+                                        <Camera size={20} className="mb-1" />
+                                        <span className="text-[9px] uppercase font-bold tracking-wider">Take Photo</span>
                                     </label>
                                 </>
                             )}
@@ -255,23 +240,23 @@ console.log("Other Upload Result:", data);
 
                     {/* OTHER IMAGES SECTION */}
                     <div>
-                        <label className="block text-sm font-medium mb-2">Product Gallery</label>
+                        <label className="block text-[10px] font-bold uppercase tracking-widest mb-1.5 text-zinc-500">Product Gallery</label>
                         <div className="grid grid-cols-3 gap-2">
                             {otherPreviews.map((url, idx) => (
-                                <div key={idx} className="relative h-20 bg-gray-100 rounded-lg">
-                                    <Image src={url} unoptimized alt="Gallery" fill className="object-cover rounded-lg" />
+                                <div key={idx} className="relative h-16 bg-zinc-50 border border-zinc-200 rounded-none overflow-hidden">
+                                    <Image src={url} unoptimized alt="Gallery" fill className="object-cover" />
                                     <button
                                         type="button"
                                         onClick={() => removeOtherImage(idx)}
-                                        className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full p-0.5"
+                                        className="absolute top-0 right-0 bg-red-600 text-white rounded-none p-1 border border-zinc-200 border-t-0 border-r-0 cursor-pointer"
                                     >
-                                        <X size={12} />
+                                        <X size={10} />
                                     </button>
                                 </div>
                             ))}
-                            <label className="flex items-center justify-center h-20 border-2 border-dashed rounded-lg cursor-pointer hover:bg-gray-50">
+                            <label className="flex items-center justify-center h-16 border border-dashed border-zinc-300 rounded-none cursor-pointer bg-zinc-50 hover:bg-zinc-100/60">
                                 <input type="file" hidden multiple accept="image/*" onChange={handleOtherImagesChange} />
-                                <Plus className="text-gray-400" />
+                                <Plus className="text-zinc-400" size={16} />
                             </label>
                         </div>
                     </div>
@@ -283,23 +268,21 @@ console.log("Other Upload Result:", data);
                         onChange={(e) => setTitle(e.target.value)}
                         required />
 
-                    <div className="space-y-1">
-                        <label className="text-sm font-medium">Product URL</label>
-
-                        <div className="flex items-center border rounded-lg px-3 py-2 bg-gray-50 text-sm">
-                            <span className="text-gray-400 mr-1">{process.env.NEXT_PUBLIC_FRONTEND_URL}/marketplace/</span>
+                    <div className="space-y-1 font-mono">
+                        <label className="text-[10px] font-bold uppercase tracking-widest text-zinc-400 block">Product URL path</label>
+                        <div className="flex items-center border border-zinc-250 px-3 py-1.5 bg-zinc-50 rounded-none text-xs">
+                            <span className="text-zinc-400 mr-0.5 select-none">{process.env.NEXT_PUBLIC_FRONTEND_URL}/marketplace/</span>
                             <input
                                 value={slug}
                                 onChange={(e) => {
                                     setSlug(slugify(e.target.value));
-                                    setSlugEdited(true); // stop auto updates
+                                    setSlugEdited(true);
                                 }}
-                                className="bg-transparent outline-none flex-1 text-gray-700"
+                                className="bg-transparent outline-none flex-1 text-zinc-800 font-mono text-xs focus:ring-0"
                             />
                         </div>
-
-                        <p className="text-xs text-gray-400">
-                            This is how your product link will appear to customers
+                        <p className="text-[9px] text-zinc-400 uppercase font-bold tracking-wider pt-0.5">
+                            Customer visible resource locator address
                         </p>
                     </div>
 
@@ -308,64 +291,64 @@ console.log("Other Upload Result:", data);
                         <Input name="stock" label="Stock Quantity" type="number" defaultValue={initialData?.stock} required />
                     </div>
 
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-2 gap-4 font-mono">
                         <div className="space-y-1">
-                            <label className="text-sm font-medium">Category</label>
+                            <label className="text-[10px] font-bold uppercase tracking-widest text-zinc-400 block mb-0.5">Category</label>
                             <select
                                 name="category"
                                 defaultValue={initialData?.categoryId || ""}
                                 required
-                                className="w-full border rounded-lg p-2 text-sm bg-white"
+                                className="w-full border border-zinc-250 p-2 text-xs bg-white rounded-none font-mono focus:border-green-600 focus:outline-none"
                             >
                                 <option value="">Select Category</option>
                                 {categories.map((c: any) => (
                                     c.children?.length > 0 ? (
-                                        <optgroup key={c.id} label={c.name}>
-                                            <option value={c.id}>{c.name} (General)</option>
+                                        <optgroup key={c.id} label={c.name.toUpperCase()}>
+                                            <option value={c.id}>{c.name.toUpperCase()} (GENERAL)</option>
                                             {c.children.map((child: any) => (
-                                                <option key={child.id} value={child.id}>{child.name}</option>
+                                                <option key={child.id} value={child.id}>{child.name.toUpperCase()}</option>
                                             ))}
                                         </optgroup>
                                     ) : (
-                                        <option key={c.id} value={c.id}>{c.name}</option>
+                                        <option key={c.id} value={c.id}>{c.name.toUpperCase()}</option>
                                     )
                                 ))}
                             </select>
                         </div>
-                        <Input name="location" label=" Location" defaultValue={initialData?.location} required />
+                        <Input name="location" label="Location" defaultValue={initialData?.location} required />
                     </div>
 
                     <div className="space-y-1">
-                        <label className="text-sm font-medium">Description</label>
+                        <label className="text-[10px] font-bold uppercase tracking-widest text-zinc-400 block mb-0.5">Description Specs</label>
                         <textarea
                             name="description"
                             rows={3}
                             defaultValue={initialData?.description}
-                            placeholder="Tell buyers about your product..."
-                            className="w-full border rounded-lg p-2 text-sm"
+                            placeholder="Provide laboratory specifications, humidity indexes, moisture percentages, loading constraints..."
+                            className="w-full border border-zinc-250 p-2 text-xs bg-white rounded-none font-mono focus:border-green-600 focus:outline-none"
                             required
                         />
                     </div>
                 </div>
 
                 {/* ATTRIBUTES */}
-                <div className="bg-gray-50 p-4 rounded-xl space-y-3">
-                    <p className="text-sm font-bold text-gray-700">Additional Details</p>
+                <div className="bg-zinc-50 p-4 border border-zinc-200 rounded-none shadow-none space-y-3 font-mono">
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-zinc-700 leading-none pb-1.5 border-b border-zinc-200">Additional Specifications</p>
                     <div className="grid grid-cols-2 gap-4">
-                        <Input name="weight" label="Weight (e.g. 5kg)" defaultValue={initialData?.attributes?.weight} />
-                        <Input name="origin" label="Origin (e.g. Kenya)" defaultValue={initialData?.attributes?.origin} />
+                        <Input name="weight" label="Weight (e.g. 1000kg bulk)" defaultValue={initialData?.attributes?.weight} />
+                        <Input name="origin" label="Origin (e.g. Kano, Nigeria)" defaultValue={initialData?.attributes?.origin} />
                     </div>
-                    <label className="flex gap-2 items-center cursor-pointer select-none">
-                        <input type="checkbox" name="isOrganic" defaultChecked={initialData?.isOrganic} className="w-4 h-4 rounded" />
-                        <span className="text-sm">This is a certified organic product</span>
+                    <label className="flex gap-2 items-center cursor-pointer select-none mt-2">
+                        <input type="checkbox" name="isOrganic" defaultChecked={initialData?.isOrganic} className="w-3.5 h-3.5 rounded-none border border-zinc-300 accent-green-600 cursor-pointer" />
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-650">Certified Organic Produce Batch</span>
                     </label>
                 </div>
 
                 {/* ACTIONS */}
-                <div className="flex justify-end gap-3 pt-4 ">
-                    <Button type="button" variant="ghost" onClick={onClose}>Cancel</Button>
-                    <Button type="submit" disabled={isSubmitting} className="min-w-30">
-                        {isSubmitting ? <Loader2 className="animate-spin" /> : "Save Product"}
+                <div className="flex justify-end gap-3 pt-3 border-t border-zinc-150">
+                    <Button type="button" variant="ghost" className="rounded-none text-[10px]" onClick={onClose}>Cancel</Button>
+                    <Button type="submit" disabled={isSubmitting} className="min-w-32 rounded-none text-[10px] uppercase font-bold tracking-wider">
+                        {isSubmitting ? <Loader2 className="animate-spin text-green-700" size={14} /> : "Save Batch"}
                     </Button>
                 </div>
             </form>

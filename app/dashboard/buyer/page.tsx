@@ -80,33 +80,33 @@ const Page = () => {
   /* Render                                                              */
   /* ------------------------------------------------------------------ */
   return (
-    <div className="space-y-8 animate-in fade-in duration-500">
+    <div className="space-y-6 font-mono text-xs text-zinc-900 antialiased animate-in fade-in duration-300">
 
       {/* Search & Filters */}
-      <div className="space-y-4">
+      <div className="space-y-3">
         <div className="flex gap-2">
           <div className="flex-1">
             <Input
-              placeholder="Search for tractors, seeds, livestock..."
-              icon={<Search size={18} />}
-              className="shadow-sm"
+              placeholder="Search for tractors, seeds, livestock, precision tools..."
+              icon={<Search size={16} />}
+              className="rounded-none border-zinc-200"
               value={searchQuery}
               onChange={e => setSearchQuery(e.target.value)}
             />
           </div>
           <Button
             variant={showFilters ? 'primary' : 'secondary'}
-            className="px-3"
+            className="px-3 rounded-none"
             onClick={() => setShowFilters(v => !v)}
           >
-            <SlidersHorizontal size={18} />
+            <SlidersHorizontal size={16} />
           </Button>
         </div>
 
         {showFilters && (
-          <div className="bg-white p-4 rounded-xl border border-gray-100 shadow-sm animate-in slide-in-from-top-2">
+          <div className="bg-white p-4 rounded-none border border-zinc-200 shadow-none animate-in slide-in-from-top-2">
             <div className="flex justify-between items-center mb-3">
-              <h3 className="font-bold text-sm">Filters</h3>
+              <h3 className="font-bold text-xs uppercase tracking-wider">Operational Filters</h3>
               <button
                 onClick={() => {
                   setPriceRange({ min: '', max: '' });
@@ -114,26 +114,26 @@ const Page = () => {
                   setSearchQuery('');
                   setShowFilters(false);
                 }}
-                className="text-xs text-red-500 hover:underline"
+                className="text-[10px] text-red-650 hover:underline uppercase font-bold"
               >
                 Reset All
               </button>
             </div>
-            <div>
-              <label className="text-xs text-gray-500 mb-1 block">Price Range (₦)</label>
+            <div className="max-w-xs">
+              <label className="text-[10px] text-zinc-400 font-bold uppercase tracking-wider mb-1 block">Price Range (₦)</label>
               <div className="flex gap-2 items-center">
                 <input
                   type="number"
                   placeholder="Min"
-                  className="w-full border rounded px-2 py-1 text-sm"
+                  className="w-full border border-zinc-250 bg-white font-mono py-1 px-2 text-xs focus:border-green-600 focus:outline-none rounded-none"
                   value={priceRange.min}
                   onChange={e => setPriceRange({ ...priceRange, min: e.target.value })}
                 />
-                <span className="text-gray-400">–</span>
+                <span className="text-zinc-400">–</span>
                 <input
                   type="number"
                   placeholder="Max"
-                  className="w-full border rounded px-2 py-1 text-sm"
+                  className="w-full border border-zinc-250 bg-white font-mono py-1 px-2 text-xs focus:border-green-600 focus:outline-none rounded-none"
                   value={priceRange.max}
                   onChange={e => setPriceRange({ ...priceRange, max: e.target.value })}
                 />
@@ -144,71 +144,76 @@ const Page = () => {
       </div>
 
       {/* Categories */}
-      <section>
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-bold">Browse by Category</h2>
+      <section className="border border-zinc-200 bg-white p-4">
+        <div className="flex justify-between items-center mb-3">
+          <h2 className="text-xs font-bold uppercase tracking-wider">Browse by Category</h2>
           {selectedCategory !== 'All' && (
             <button
               onClick={() => setSelectedCategory('All')}
-              className="text-primary-600 text-sm font-medium flex items-center gap-1 hover:underline"
+              className="text-green-700 text-xs font-bold flex items-center gap-1 hover:underline uppercase tracking-wide"
             >
-              Clear Filter <X size={16} />
+              Clear Filter <X size={14} />
             </button>
           )}
         </div>
-        <div className="flex gap-4 overflow-x-auto no-scrollbar pb-4">
-          {[{ name: 'All', icon: '🌿' }, ...CATEGORIES].map((cat, idx) => (
-            <div
-              key={idx}
-              className="group flex flex-col items-center gap-2 min-w-[80px] cursor-pointer"
-              onClick={() => setSelectedCategory(cat.name)}
-            >
-              <div className={`w-20 h-20 rounded-2xl flex items-center justify-center text-2xl border transition-all ${
-                selectedCategory === cat.name
-                  ? 'bg-primary-600 border-primary-600 shadow-md'
-                  : 'bg-white border-gray-100 hover:border-primary-500'
-              }`}>
-                {cat.icon}
+        <div className="flex gap-4 overflow-x-auto no-scrollbar pb-1">
+          {[{ name: 'All', icon: '🌿' }, ...CATEGORIES].map((cat, idx) => {
+            const isSelected = selectedCategory === cat.name;
+            return (
+              <div
+                key={idx}
+                className="group flex flex-col items-center gap-2 min-w-[70px] cursor-pointer"
+                onClick={() => setSelectedCategory(cat.name)}
+              >
+                <div className={`w-14 h-14 rounded-none flex items-center justify-center text-xl border transition-colors ${
+                  isSelected
+                    ? 'bg-green-50 border-green-700 text-green-800 font-bold'
+                    : 'bg-white border-zinc-200 hover:border-zinc-350'
+                }`}>
+                  {cat.icon}
+                </div>
+                <span className={`text-[10px] font-bold text-center uppercase tracking-wide ${isSelected ? 'text-green-800' : 'text-zinc-500'}`}>
+                  {cat.name}
+                </span>
               </div>
-              <span className="text-xs font-bold text-center">{cat.name}</span>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </section>
 
-      {/* Products */}
+      {/* Products Grid */}
       <section>
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-xl font-bold">
+        <div className="flex items-center justify-between mb-3.5">
+          <h2 className="text-xs font-bold uppercase tracking-wider">
             {searchQuery
               ? `Results for "${searchQuery}" (${total})`
               : selectedCategory !== 'All'
               ? `${selectedCategory} Products`
-              : 'Featured Products'}
+              : 'Featured Marketplace Lots'}
           </h2>
         </div>
 
         {loading ? (
-          <div className="flex justify-center py-20">
-            <Loader2 className="animate-spin text-emerald-600" size={32} />
+          <div className="flex justify-center py-20 border border-zinc-200 bg-white">
+            <Loader2 className="animate-spin text-green-700" size={24} />
           </div>
         ) : products.length === 0 ? (
-          <div className="text-center py-12 bg-white rounded-xl border">
-            <Search className="mx-auto h-12 w-12 text-gray-300 mb-3" />
-            <h3 className="font-bold text-gray-500">No products found</h3>
-            <p className="text-sm text-gray-400 mt-1">Try a different category or search term</p>
+          <div className="text-center py-12 bg-white rounded-none border border-zinc-200 font-mono">
+            <Search className="mx-auto h-8 w-8 text-zinc-300 mb-3" />
+            <h3 className="font-bold text-zinc-500 uppercase tracking-wider text-xs">No batches found</h3>
+            <p className="text-[10px] text-zinc-400 mt-1">Refine your category filters or adjust search string terms.</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {products.map(product => {
               const isLiked = wishlist.some(w => w.id === product.id);
               return (
                 <div
                   key={product.id}
-                  className="bg-white rounded-xl border overflow-hidden hover:shadow-lg cursor-pointer transition-shadow group"
+                  className="bg-white rounded-none border border-zinc-200 overflow-hidden hover:bg-zinc-50/40 cursor-pointer transition-colors group flex flex-col justify-between"
                   onClick={() => handleProductClick(product)}
                 >
-                  <div className="relative aspect-4/3">
+                  <div className="relative aspect-4/3 border-b border-zinc-150 bg-zinc-50">
                     <Image
                       fill
                       src={product.primaryImage || '/placeholder.png'}
@@ -217,42 +222,46 @@ const Page = () => {
                       unoptimized
                     />
                     <button
-                      className="absolute top-2 right-2 p-1.5 bg-white/80 backdrop-blur rounded-full"
+                      className="absolute top-2 right-2 p-1 bg-white border border-zinc-200 rounded-none shadow-none z-10"
                       onClick={e => { e.stopPropagation(); toggleWishlist(product); }}
                     >
                       <Heart
-                        size={16}
-                        className={isLiked ? 'text-red-500 fill-red-500' : 'text-gray-400'}
+                        size={14}
+                        className={isLiked ? 'text-red-650 fill-red-650' : 'text-zinc-400'}
                       />
                     </button>
-                    <Button
-                      size="sm"
-                      className="absolute bottom-2 left-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity"
-                      onClick={e => handleAddToCart(e, product)}
-                    >
-                      Add to Cart
-                    </Button>
+                    <div className="absolute bottom-2 left-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity z-10">
+                      <Button
+                        size="sm"
+                        className="w-full rounded-none"
+                        onClick={e => handleAddToCart(e, product)}
+                      >
+                        Add to Cart
+                      </Button>
+                    </div>
                   </div>
-                  <div className="p-4">
-                    <h3 className="font-bold text-sm text-gray-900 truncate">{product.title}</h3>
-                    <div className="text-xs text-gray-500 flex items-center gap-1 mt-1">
-                      <MapPin size={12} /> {product.location}
+                  <div className="p-3.5 space-y-1">
+                    <h3 className="font-bold text-xs text-zinc-900 truncate uppercase tracking-wider">{product.title}</h3>
+                    <div className="text-[10px] text-zinc-400 flex items-center gap-1 font-sans">
+                      <MapPin size={11} className="text-zinc-400" /> {product.location}
                     </div>
                     {product.averageRating > 0 && (
-                      <div className="flex items-center gap-1 mt-1">
-                        <Star size={12} className="fill-amber-400 text-amber-400" />
-                        <span className="text-xs font-bold text-amber-600">{product.averageRating.toFixed(1)}</span>
-                        <span className="text-xs text-gray-400">({product.reviewCount})</span>
+                      <div className="flex items-center gap-1 mt-0.5">
+                        <Star size={11} className="fill-amber-400 text-amber-400" />
+                        <span className="text-[10px] font-bold text-amber-800">{product.averageRating.toFixed(1)}</span>
+                        <span className="text-[9px] text-zinc-400 font-bold">({product.reviewCount})</span>
                       </div>
                     )}
-                    <div className="font-bold text-emerald-600 mt-2 text-sm">
-                      ₦{Number(product.price).toLocaleString()}
+                    <div className="flex items-center justify-between pt-1 mt-1 border-t border-zinc-100">
+                      <div className="font-bold text-green-700 font-mono text-xs">
+                        ₦{Number(product.price).toLocaleString()}
+                      </div>
+                      {product.isOrganic && (
+                        <span className="text-[8px] bg-green-50 text-green-800 px-1.5 py-0.5 rounded-none border border-green-200 font-bold font-mono uppercase tracking-widest">
+                          Organic
+                        </span>
+                      )}
                     </div>
-                    {product.isOrganic && (
-                      <span className="text-[10px] bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-bold mt-1 inline-block">
-                        🌿 Organic
-                      </span>
-                    )}
                   </div>
                 </div>
               );
@@ -261,25 +270,25 @@ const Page = () => {
         )}
       </section>
 
-      {/* Verified Vendors Banner */}
-      <section className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-2xl p-6 border">
-        <div className="flex justify-between mb-6">
-          <h2 className="text-xl font-bold">Verified Vendors</h2>
-          <Button variant="outline" size="sm" onClick={() => router.push('/dashboard/buyer/vendors')}>
-            View All
+      {/* Verified Vendors Section */}
+      <section className="bg-zinc-50 rounded-none p-5 border border-zinc-200">
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-xs font-bold uppercase tracking-wider">Secured & Verified Agri-Vendors</h2>
+          <Button variant="outline" className="rounded-none text-[10px] py-1 px-3" onClick={() => router.push('/dashboard/buyer/vendors')}>
+            View Registered Directory
           </Button>
         </div>
         <div className="grid md:grid-cols-3 gap-4">
           {['GreenEarth Co.', 'Happy Farms', 'SeedGen'].map(vendor => (
-            <div key={vendor} className="bg-white p-4 rounded-xl flex gap-4">
-              <div className="w-12 h-12 rounded-full bg-emerald-100 flex items-center justify-center font-bold text-emerald-700">
+            <div key={vendor} className="bg-white p-3 border border-zinc-200 rounded-none flex gap-3.5 items-center">
+              <div className="w-10 h-10 rounded-none border border-green-200 bg-green-50 flex items-center justify-center font-bold text-green-700 text-sm">
                 {vendor[0]}
               </div>
-              <div>
-                <h4 className="font-bold flex items-center gap-1 text-sm">
-                  {vendor} <ShieldCheck size={14} className="text-emerald-500" />
+              <div className="flex-1 min-w-0">
+                <h4 className="font-bold flex items-center gap-1 text-xs truncate uppercase tracking-wider text-zinc-900">
+                  {vendor} <ShieldCheck size={13} className="text-green-700 shrink-0" />
                 </h4>
-                <div className="flex gap-0.5 mt-1">
+                <div className="flex gap-0.5 mt-0.5">
                   {[1, 2, 3, 4, 5].map(s => (
                     <Star key={s} size={10} className="fill-yellow-400 text-yellow-400" />
                   ))}

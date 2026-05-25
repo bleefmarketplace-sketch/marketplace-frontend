@@ -9,13 +9,7 @@ import { useCartStore } from '@/store/useCartStore';
 import { CartDrawer } from './Marketplace/CartDrawer';
 import { useAuth } from '@/context/AuthContext';
 
-const SEED_TICKERS = [
-  { id: "1", symbol: "ZW1!", name: "CBOT Wheat Futures", price: 6.42, change: 1.42, volume: "124K" },
-  { id: "2", symbol: "ZC1!", name: "CBOT Corn Futures", price: 4.85, change: -0.21, volume: "189K" },
-  { id: "3", symbol: "ZS1!", name: "CBOT Soybean Futures", price: 12.15, change: 0.83, volume: "94K" },
-  { id: "4", symbol: "NPK", name: "Premium NPK Complex (Spot)", price: 390.00, change: -1.27, volume: "18.5K t" },
-  { id: "5", symbol: "KCO1!", name: "ICE Coffee Futures", price: 2.18, change: 2.51, volume: "71K" }
-];
+
 
 const LandingPagesNav = () => {
   const router = useRouter();
@@ -24,14 +18,7 @@ const LandingPagesNav = () => {
   const [isCartOpen, setIsCartOpen] = useState(false);
   const { logout, user } = useAuth();
 
-  // Rotating live commodity ticker bar
-  const [tickerOffset, setTickerOffset] = useState(0);
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setTickerOffset((prev) => (prev + 1) % SEED_TICKERS.length);
-    }, 4000);
-    return () => clearInterval(interval);
-  }, []);
+
 
   const items = useCartStore((state) => state.items);
   const [mounted, setMounted] = useState(false);
@@ -54,41 +41,6 @@ const LandingPagesNav = () => {
   return (
     <>
       <div id="navigation-root" className="w-full bg-white text-zinc-900 border-b border-zinc-200 sticky top-0 z-50 shadow-none">
-
-        {/* Real-time Commodity Ticker Banner */}
-        <div id="ticker-banner" className="bg-zinc-50 border-b border-zinc-150 px-4 py-1.5 flex items-center justify-between text-[10px] tracking-wider select-none">
-          <div className="flex items-center space-x-2 text-zinc-500 font-mono">
-            <span className="inline-block w-1.5 h-1.5 bg-green-600 rounded-none animate-pulse"></span>
-            <span>BLEEFY AGRITERMINAL LIVE FEED</span>
-          </div>
-
-          {/* Sliding Ticker Items */}
-          <div className="flex overflow-hidden w-2/3 relative h-5 items-center font-mono text-zinc-800">
-            <div
-              className="flex space-x-8 absolute transition-transform duration-1000 ease-in-out whitespace-nowrap"
-              style={{ transform: `translateX(-${tickerOffset * 15}%)` }}
-            >
-              {SEED_TICKERS.map((ticker) => (
-                <div key={ticker.id} className="inline-flex space-x-2 items-center text-[10px]">
-                  <span className="text-zinc-400">{ticker.symbol}</span>
-                  <span className="font-bold text-zinc-950 uppercase">{ticker.name}</span>
-                  <span className="text-zinc-650">${ticker.price.toFixed(2)}</span>
-                  <span className={`inline-flex items-center font-bold ${ticker.change >= 0 ? "text-green-650" : "text-red-650"}`}>
-                    {ticker.change >= 0 ? "+" : ""}{ticker.change.toFixed(2)}%
-                  </span>
-                  <span className="text-zinc-400">Vol: {ticker.volume}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div className="hidden sm:flex items-center space-x-4 font-mono text-zinc-450">
-            <span>UTC {new Date().toISOString().substring(11, 19)}</span>
-            <span className="text-green-700 font-bold inline-flex items-center">
-              <Globe className="w-3 h-3 mr-1" /> ACTIVE
-            </span>
-          </div>
-        </div>
 
         {/* Main Navigation Bar */}
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -118,8 +70,8 @@ const LandingPagesNav = () => {
                     key={link.id}
                     href={`/${link.id}`}
                     className={`hover:text-green-700 transition-colors border px-3 py-1.5 rounded-none ${isActive
-                        ? 'border-green-700 bg-green-50 text-green-800'
-                        : 'border-transparent text-zinc-600 hover:bg-zinc-50'
+                      ? 'border-green-700 bg-green-50 text-green-800'
+                      : 'border-transparent text-zinc-600 hover:bg-zinc-50'
                       }`}
                   >
                     {link.label}
@@ -156,7 +108,7 @@ const LandingPagesNav = () => {
                 ) : (
                   <div className="flex items-center gap-3">
                     <Link
-                      href={user.role === 'buyer' ? '/account' : '/dashboard'}
+                      href={user.role === 'buyer' ? '/account' : `/dashboard/${user.role}`}
                       className="w-8 h-8 rounded-none border border-green-700 bg-green-50 text-green-800 flex items-center justify-center hover:bg-green-100 transition-colors font-bold uppercase"
                       title="Account Dashboard"
                     >
@@ -196,8 +148,8 @@ const LandingPagesNav = () => {
                   href={`/${link.id}`}
                   onClick={() => setMobileMenuOpen(false)}
                   className={`py-2 px-3 border border-transparent rounded-none ${pathname.startsWith(`/${link.id}`)
-                      ? 'border-green-700 bg-green-50 text-green-850'
-                      : 'text-zinc-600 hover:bg-zinc-50'
+                    ? 'border-green-700 bg-green-50 text-green-850'
+                    : 'text-zinc-600 hover:bg-zinc-50'
                     }`}
                 >
                   {link.label}

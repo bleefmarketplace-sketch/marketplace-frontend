@@ -14,7 +14,7 @@ import Image from 'next/image';
 import { useApi } from '@/hooks/useApi';
 
 export default function SellerOrdersPage() {
-    const fetcher = useApi()
+    const fetcher = useApi();
     const [sales, setSales] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
     const [updatingId, setUpdatingId] = useState<string | null>(null);
@@ -22,8 +22,6 @@ export default function SellerOrdersPage() {
     const fetchSales = async () => {
         try {
             const res = await fetcher('/api/seller/sales');
-
-
             setSales(res.data || []);
         } catch (err) {
             toast.error("Failed to load incoming orders");
@@ -37,13 +35,11 @@ export default function SellerOrdersPage() {
     const handleMarkShipped = async (orderItemId: string) => {
         setUpdatingId(orderItemId);
         try {
-            const res = await fetcher(`/api/seller/sales/${orderItemId}/ship`, {
+            await fetcher(`/api/seller/sales/${orderItemId}/ship`, {
                 method: 'PATCH',
             });
-
             toast.success("Package marked as shipped!");
-            fetchSales(); // Refresh the list
-
+            fetchSales();
         } catch (e) {
             toast.error("Failed to update status");
         } finally {
@@ -52,163 +48,165 @@ export default function SellerOrdersPage() {
     };
 
     if (loading) return (
-        <div className="flex flex-col items-center justify-center py-32 gap-4">
-            <Loader2 className="animate-spin text-emerald-600" size={40} />
+        <div className="flex items-center justify-center h-96 border border-zinc-200 bg-white font-mono text-xs">
+            <Loader2 className="animate-spin text-green-700 mr-2" size={24} />
+            <span className="text-[10px] text-zinc-400 font-bold uppercase tracking-wider">Syncing Ledger...</span>
         </div>
     );
 
     return (
-        <div className="max-w-6xl mx-auto py-10 px-4 space-y-8 pb-20">
+        <div className="w-full space-y-6 font-mono text-xs text-zinc-900 antialiased animate-in fade-in duration-300">
+            
             {/* Page Header */}
-            <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
+            <div className="border border-zinc-200 bg-white p-5 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <div>
-                    <h1 className="text-3xl font-black text-gray-900 tracking-tight">Incoming Orders</h1>
-                    <p className="text-gray-500 text-sm font-medium mt-1">
-                        Track and fulfill your produce sales. Payments are released upon buyer confirmation.
-                    </p>
+                  <span className="px-2 py-0.5 text-[9px] font-mono bg-green-50 text-green-800 border border-green-200 font-bold uppercase tracking-widest">
+                    SALES REGISTER
+                  </span>
+                  <h1 className="text-xl font-bold uppercase tracking-wider text-zinc-950 mt-2">Incoming Escrow Orders</h1>
+                  <p className="text-zinc-500 text-[10px] mt-0.5">Track cargo routes, buyer identities, and fullfilment cycles. Payments are unlocked upon buyer confirmation.</p>
                 </div>
-                <div className="flex gap-2">
-                    <div className="bg-white border px-4 py-2 rounded-2xl flex items-center gap-2 shadow-sm">
-                        <Package className="text-emerald-500" size={18} />
-                        <span className="text-sm font-bold">{sales.length} Total Sales</span>
+                <div className="flex gap-2 w-full md:w-auto shrink-0 pt-1 md:pt-0">
+                    <div className="bg-white border border-zinc-200 px-3 py-1.5 rounded-none flex items-center gap-2 shadow-none font-bold uppercase tracking-wider text-[10px] w-full md:w-auto justify-center">
+                        <Package className="text-green-700" size={14} />
+                        <span>{sales.length} Bound Sales</span>
                     </div>
                 </div>
             </div>
 
             {sales.length === 0 ? (
-                <div className="bg-white rounded-[2.5rem] p-20 text-center border-2 border-dashed border-gray-100">
-                    <div className="w-20 h-20 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-6">
-                        <Package className="text-gray-200" size={40} />
+                <div className="bg-white rounded-none p-12 md:p-20 text-center border border-dashed border-zinc-250 font-mono">
+                    <div className="w-12 h-12 bg-zinc-50 border border-zinc-200 rounded-none flex items-center justify-center mx-auto mb-4">
+                        <Package className="text-zinc-300" size={22} />
                     </div>
-                    <h3 className="text-xl font-bold text-gray-900 mb-2">No orders yet</h3>
-                    <p className="text-gray-400 max-w-xs mx-auto text-sm">Once customers purchase your produce, they will appear here for fulfillment.</p>
+                    <h3 className="font-bold text-xs uppercase tracking-wider text-zinc-900">No Orders Registered</h3>
+                    <p className="text-zinc-400 max-w-xs mx-auto text-[10px] mt-1 leading-relaxed">Once buyers commit collateral funds to your produce catalog, the escrow telemetry logs will bind records here.</p>
                 </div>
             ) : (
-                <div className="grid gap-6">
+                <div className="grid gap-4">
                     {sales.map((sale) => {
                         const earnings = Number(sale.priceAtPurchase) * sale.quantity;
                         const isShipped = sale.fulfillmentStatus === 'shipped';
                         const isPaid = sale.order.paymentStatus === 'released' || sale.order.paymentStatus === 'escrow_held';
 
                         return (
+                            <Card key={sale.id} className="p-0 overflow-hidden border border-zinc-200 rounded-none shadow-none bg-white">
+                                {sale.product ? (
+                                    <div className="grid grid-cols-1 lg:grid-cols-12">
 
-                            <Card key={sale.id} className="p-0 overflow-hidden border-gray-100 shadow-sm hover:shadow-md transition-shadow">
-                                {
-                                    sale.product ? (
-                                        <div className="grid grid-cols-1 lg:grid-cols-12">
+                                        {/* Column 1: Product & Status */}
+                                        <div className="lg:col-span-3 p-5 border-b lg:border-b-0 lg:border-r border-zinc-150">
+                                            <div className="flex items-center gap-2 mb-4 leading-none select-none">
+                                                <span className={`inline-block px-1.5 py-0.5 text-[8px] font-bold uppercase border ${
+                                                    isShipped 
+                                                      ? 'border-green-200 bg-green-50 text-green-800' 
+                                                      : 'border-amber-200 bg-amber-50 text-amber-800'
+                                                }`}>
+                                                    {sale.fulfillmentStatus}
+                                                </span>
+                                                <span className="text-[9px] text-zinc-400 font-bold tracking-widest">ID: #{sale.id.slice(0, 8).toUpperCase()}</span>
+                                            </div>
 
-                                            {/* Column 1: Product & Status */}
-                                            <div className="lg:col-span-3 p-6 border-r border-gray-50">
-                                                <div className="flex items-center gap-2 mb-4">
-                                                    <span className={`text-[10px] font-black uppercase tracking-widest px-2 py-1 rounded-md ${isShipped ? 'bg-emerald-50 text-emerald-600' : 'bg-amber-50 text-amber-600'
-                                                        }`}>
-                                                        {sale.fulfillmentStatus}
+                                            <div className="flex gap-3.5 lg:flex-col">
+                                                <div className="relative w-16 h-16 lg:w-full lg:h-28 rounded-none overflow-hidden bg-zinc-50 border border-zinc-200 shrink-0">
+                                                    <Image unoptimized fill src={sale.productSnapshotImage}
+                                                        alt={sale.productSnapshotTitle} className="object-cover" />
+                                                </div>
+                                                <div className="min-w-0">
+                                                    <h4 className="font-bold text-zinc-950 text-xs uppercase tracking-wide truncate lg:whitespace-normal lg:line-clamp-2 leading-tight">{sale.productSnapshotTitle}</h4>
+                                                    <p className="text-[10px] text-green-700 font-bold mt-1.5 tracking-wider font-mono">Lot size: {sale.quantity} Units</p>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        {/* Column 2: Logistics & Buyer */}
+                                        <div className="lg:col-span-5 p-5 bg-zinc-50/45 flex flex-col justify-between border-b lg:border-b-0 lg:border-r border-zinc-150">
+                                            <div className="space-y-4">
+                                                <div>
+                                                    <p className="text-[8px] font-bold text-zinc-400 uppercase tracking-widest mb-2 leading-none">Discharge Silo / Destination</p>
+                                                    <div className="flex items-start gap-2.5">
+                                                        <div className="w-7 h-7 border border-zinc-200 rounded-none bg-white flex items-center justify-center shrink-0">
+                                                            <MapPin size={13} className="text-green-755" />
+                                                        </div>
+                                                        <p className="text-[10px] text-zinc-700 font-bold leading-normal pt-0.5">
+                                                            {sale.order.shippingAddress}
+                                                        </p>
+                                                    </div>
+                                                </div>
+
+                                                <div className="grid grid-cols-2 gap-4 pt-1">
+                                                    <div>
+                                                        <p className="text-[8px] font-bold text-zinc-400 uppercase tracking-widest mb-1.5 leading-none">Customer ID</p>
+                                                        <div className="flex items-center gap-2">
+                                                            <div className="w-5 h-5 border border-green-200 rounded-none bg-green-50 flex items-center justify-center text-[9px] font-bold text-green-700 shrink-0">
+                                                                {sale.order.buyer.fullName.charAt(0).toUpperCase()}
+                                                            </div>
+                                                            <span className="text-[10px] font-bold text-zinc-800 truncate uppercase tracking-wider">{sale.order.buyer.fullName}</span>
+                                                        </div>
+                                                    </div>
+                                                    <div>
+                                                        <p className="text-[8px] font-bold text-zinc-400 uppercase tracking-widest mb-1.5 leading-none">Registry Date</p>
+                                                        <div className="flex items-center gap-1.5 text-[10px] font-bold text-zinc-800">
+                                                            <Calendar size={12} className="text-zinc-400" />
+                                                            <span>{new Date(sale.order.createdAt).toLocaleDateString()}</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        {/* Column 3: Payout Info */}
+                                        <div className="lg:col-span-2 p-5 border-b lg:border-b-0 lg:border-r border-zinc-150 flex flex-col justify-center text-center lg:text-left">
+                                            <p className="text-[8px] font-bold text-zinc-400 uppercase tracking-widest mb-1 leading-none">Collateral Payout</p>
+                                            <p className="text-xl font-black text-zinc-950 font-mono tracking-tight pt-1">₦{earnings.toLocaleString()}</p>
+
+                                            <div className="mt-3 leading-none select-none">
+                                                {sale.order.paymentStatus === 'escrow_held' ? (
+                                                    <span className="inline-block px-1.5 py-0.5 text-[8px] font-bold uppercase border border-blue-200 bg-blue-50 text-blue-800 tracking-wider">
+                                                        IN ESCROW HOLD
                                                     </span>
-                                                    <span className="text-[10px] text-gray-300 font-mono">#{sale.id.slice(0, 8)}</span>
-                                                </div>
-
-                                                <div className="flex gap-4 lg:flex-col">
-                                                    <div className="relative w-20 h-20 lg:w-full lg:h-32 rounded-xl overflow-hidden bg-gray-50 border border-gray-100 shrink-0">
-                                                        <Image unoptimized fill src={sale.productSnapshotImage}
-                                                            alt={sale.productSnapshotTitle} className="object-cover" />
-                                                    </div>
-                                                    <div>
-                                                        <h4 className="font-bold text-gray-900 text-sm line-clamp-2 leading-snug">{sale.productSnapshotTitle}</h4>
-                                                        <p className="text-xs text-emerald-600 font-black mt-1">{sale.quantity} </p>
-                                                    </div>
-                                                </div>
-                                            </div>
-
-                                            {/* Column 2: Logistics & Buyer */}
-                                            <div className="lg:col-span-5 p-6 bg-gray-50/30 flex flex-col justify-between">
-                                                <div className="space-y-6">
-                                                    <div>
-                                                        <p className="text-[9px] font-black text-gray-400 uppercase tracking-[0.2em] mb-3">Delivery Address</p>
-                                                        <div className="flex items-start gap-3">
-                                                            <div className="w-8 h-8 rounded-lg bg-white border border-gray-100 flex items-center justify-center shrink-0">
-                                                                <MapPin size={16} className="text-emerald-500" />
-                                                            </div>
-                                                            <p className="text-xs text-gray-600 font-semibold leading-relaxed">
-                                                                {sale.order.shippingAddress}
-                                                            </p>
-                                                        </div>
-                                                    </div>
-
-                                                    <div className="grid grid-cols-2 gap-4">
-                                                        <div>
-                                                            <p className="text-[9px] font-black text-gray-400 uppercase tracking-[0.2em] mb-2">Customer</p>
-                                                            <div className="flex items-center gap-2">
-                                                                <div className="w-6 h-6 rounded-full bg-emerald-100 flex items-center justify-center text-[10px] font-bold text-emerald-700">
-                                                                    {sale.order.buyer.fullName.charAt(0)}
-                                                                </div>
-                                                                <span className="text-xs font-bold text-gray-800 truncate">{sale.order.buyer.fullName}</span>
-                                                            </div>
-                                                        </div>
-                                                        <div>
-                                                            <p className="text-[9px] font-black text-gray-400 uppercase tracking-[0.2em] mb-2">Date Ordered</p>
-                                                            <div className="flex items-center gap-2 text-xs font-bold text-gray-800">
-                                                                <Calendar size={14} className="text-gray-400" />
-                                                                {new Date(sale.order.createdAt).toLocaleDateString()}
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-
-                                            {/* Column 3: Payout Info */}
-                                            <div className="lg:col-span-2 p-6 border-l border-gray-50 flex flex-col justify-center text-center lg:text-left">
-                                                <p className="text-[9px] font-black text-gray-400 uppercase tracking-[0.2em] mb-1">Your Payout</p>
-                                                <p className="text-3xl font-black text-gray-900 tracking-tighter">₦{earnings.toLocaleString()}</p>
-
-                                                <div className="mt-4 space-y-2">
-                                                    {sale.order.paymentStatus === 'escrow_held' ? (
-                                                        <div className="flex items-center gap-1 text-[10px] text-blue-600 font-bold justify-center lg:justify-start">
-                                                            <ShieldCheck size={12} /> IN ESCROW
-                                                        </div>
-                                                    ) : sale.order.paymentStatus === 'released' ? (
-                                                        <div className="flex items-center gap-1 text-[10px] text-emerald-600 font-bold justify-center lg:justify-start">
-                                                            <CheckCircle size={12} /> PAID TO WALLET
-                                                        </div>
-                                                    ) : (
-                                                        <div className="flex items-center gap-1 text-[10px] text-gray-400 font-bold justify-center lg:justify-start">
-                                                            <Clock size={12} /> {sale.order.paymentStatus.toUpperCase()}
-                                                        </div>
-                                                    )}
-                                                </div>
-                                            </div>
-
-                                            {/* Column 4: Actions */}
-                                            <div className="lg:col-span-2 p-6 flex items-center justify-center border-l border-gray-50 bg-white">
-                                                {!isShipped ? (
-                                                    <Button
-                                                        onClick={() => handleMarkShipped(sale.id)}
-                                                        disabled={updatingId === sale.id || !isPaid}
-                                                        className="w-full h-14 rounded-2xl bg-emerald-600 hover:bg-emerald-700 shadow-lg shadow-emerald-100 font-bold gap-2 text-sm"
-                                                    >
-                                                        {updatingId === sale.id ? <Loader2 className="animate-spin" size={18} /> : <Truck size={18} />}
-                                                        Mark Shipped
-                                                    </Button>
+                                                ) : sale.order.paymentStatus === 'released' ? (
+                                                    <span className="inline-block px-1.5 py-0.5 text-[8px] font-bold uppercase border border-green-200 bg-green-50 text-green-800 tracking-wider">
+                                                        RELEASED TO WALLET
+                                                    </span>
                                                 ) : (
-                                                    <div className="text-center p-4 bg-emerald-50 rounded-2xl w-full border border-emerald-100">
-                                                        <CheckCircle className="text-emerald-500 mx-auto mb-1" size={20} />
-                                                        <p className="text-[10px] font-black text-emerald-700 uppercase leading-tight">Shipped & Pending Confirmation</p>
-                                                    </div>
+                                                    <span className="inline-block px-1.5 py-0.5 text-[8px] font-bold uppercase border border-zinc-200 bg-zinc-50 text-zinc-500 tracking-wider">
+                                                        {sale.order.paymentStatus.toUpperCase()}
+                                                    </span>
                                                 )}
                                             </div>
                                         </div>
-                                    ) : (
-                                        <div className="flex gap-4 opacity-60">
-                                            <div className="w-16 h-16 bg-gray-200 rounded-xl flex items-center justify-center">
-                                                <Package size={20} className="text-gray-400" />
-                                            </div>
-                                            <div>
-                                                <h4 className="text-sm font-bold text-gray-500 italic">Product Removed from Store</h4>
-                                                <p className="text-[10px] text-gray-400">Archived Record</p>
-                                            </div>
-                                        </div>
-                                    )
-                                }
 
+                                        {/* Column 4: Actions */}
+                                        <div className="lg:col-span-2 p-5 flex items-center justify-center bg-white">
+                                            {!isShipped ? (
+                                                <Button
+                                                    onClick={() => handleMarkShipped(sale.id)}
+                                                    disabled={updatingId === sale.id || !isPaid}
+                                                    className="w-full h-10 rounded-none bg-green-700 hover:bg-green-800 border-green-700 text-white font-bold uppercase tracking-wider text-[10px] flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-40"
+                                                >
+                                                    {updatingId === sale.id ? <Loader2 className="animate-spin text-white" size={12} /> : <Truck size={12} />}
+                                                    <span>Mark Shipped</span>
+                                                </Button>
+                                            ) : (
+                                                <div className="text-center p-3 bg-green-50 border border-green-200 rounded-none w-full select-none">
+                                                    <CheckCircle className="text-green-755 mx-auto mb-1 animate-pulse" size={15} />
+                                                    <p className="text-[8px] font-bold text-green-800 uppercase leading-snug tracking-wider">Shipped & Locked Until Delivery</p>
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <div className="flex gap-4 p-5 opacity-60 font-mono">
+                                        <div className="w-12 h-12 bg-zinc-50 border border-zinc-200 rounded-none flex items-center justify-center shrink-0">
+                                            <Package size={18} className="text-zinc-400" />
+                                        </div>
+                                        <div className="min-w-0">
+                                            <h4 className="text-xs font-bold text-zinc-500 italic uppercase tracking-wider">Produce Removed from active lists</h4>
+                                            <p className="text-[9px] text-zinc-400 font-bold uppercase tracking-widest mt-1">Archived Escrow Record</p>
+                                        </div>
+                                    </div>
+                                )}
                             </Card>
                         );
                     })}
