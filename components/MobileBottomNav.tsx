@@ -32,24 +32,24 @@ export const MobileBottomNav = () => {
     ];
 
     return (
-        <div className="md:hidden fixed bottom-0 left-0 right-0 bg-white/80 backdrop-blur-xl border-t border-gray-100 px-4 py-2 z-[100] flex justify-between items-center pb-safe">
+        <div className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-zinc-200 px-4 py-2 z-[100] flex justify-between items-center pb-safe font-mono">
             {navItems.map((item, idx) => (
                 <button
                     key={idx}
                     onClick={() => router.push(item.path)}
-                    className={`flex flex-col items-center gap-1 p-2 min-w-[64px] transition-all ${
-                        item.active ? 'text-emerald-600' : 'text-gray-400'
+                    className={`flex flex-col items-center gap-1 p-2 min-w-[64px] transition-all cursor-pointer ${
+                        item.active ? 'text-green-700' : 'text-zinc-400'
                     }`}
                 >
                     <div className="relative">
-                        <item.icon size={22} strokeWidth={item.active ? 2.5 : 2} />
+                        <item.icon size={20} strokeWidth={item.active ? 2.5 : 2} />
                         {item.label === 'Orders' && getItemCount > 0 && (
-                            <span className="absolute -top-1 -right-1 bg-orange-500 text-white text-[8px] font-black w-4 h-4 rounded-full flex items-center justify-center">
+                            <span className="absolute -top-1.5 -right-1.5 bg-red-600 text-white text-[8px] font-mono font-black w-3.5 h-3.5 rounded-none flex items-center justify-center">
                                 {getItemCount}
                             </span>
                         )}
                     </div>
-                    <span className={`text-[10px] font-black uppercase tracking-tighter ${item.active ? 'opacity-100' : 'opacity-60'}`}>
+                    <span className={`text-[9px] font-bold uppercase tracking-tight ${item.active ? 'opacity-100' : 'opacity-65'}`}>
                         {item.label}
                     </span>
                 </button>

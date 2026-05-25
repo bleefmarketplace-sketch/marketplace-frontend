@@ -58,38 +58,41 @@ export const CommunityHub = () => {
         }
     };
 
-    if (loading) return <div className="flex-1 flex items-center justify-center"><Loader2 className="animate-spin text-blue-600" size={40} /></div>;
+    if (loading) return <div className="flex-1 flex items-center justify-center bg-zinc-50"><Loader2 className="animate-spin text-green-700" size={32} /></div>;
 
     return (
-        <div className="flex-1 bg-gray-50/50">
+        <div className="flex-1 bg-zinc-50">
             <div className="max-w-7xl mx-auto px-4 md:px-6 py-8">
                 <div className="grid lg:grid-cols-12 gap-8">
                     
                     {/* Left Sidebar: Circles */}
                     <aside className="hidden lg:block lg:col-span-3 space-y-6">
-                        <div className="sticky top-24">
-                            <h3 className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-4 px-4">Your Circles</h3>
-                            <div className="space-y-1">
+                        <div className="sticky top-24 font-mono text-xs">
+                            <h3 className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-4 px-2">Your Circles</h3>
+                            <div className="space-y-2">
                                 {circles.map((circle) => (
-                                    <button key={circle.id} className="w-full flex items-center gap-3 p-3 rounded-2xl hover:bg-white hover:shadow-sm transition-all text-left group">
-                                        <div className="w-10 h-10 rounded-xl bg-blue-100 flex items-center justify-center text-blue-600 font-bold group-hover:bg-blue-600 group-hover:text-white transition-colors">
+                                    <button 
+                                        key={circle.id} 
+                                        className="w-full flex items-center gap-3 p-3 border border-zinc-200 bg-white hover:bg-zinc-50 transition-colors text-left group rounded-none"
+                                    >
+                                        <div className="w-9 h-9 border border-zinc-200 bg-zinc-50 text-zinc-700 flex items-center justify-center font-bold font-mono group-hover:border-green-700 group-hover:bg-green-50 group-hover:text-green-700 transition-colors rounded-none">
                                             {circle.name[0]}
                                         </div>
                                         <div>
-                                            <p className="text-sm font-bold text-gray-900">#{circle.slug}</p>
-                                            <p className="text-[10px] text-gray-400 font-medium">{circle.members?.length || 0} members</p>
+                                            <p className="text-xs font-bold text-zinc-950 uppercase tracking-wide">#{circle.slug}</p>
+                                            <p className="text-[9px] text-zinc-500 font-bold uppercase tracking-wider mt-0.5">{circle.members?.length || 0} members</p>
                                         </div>
                                     </button>
                                 ))}
-                                <Button variant="ghost" fullWidth className="mt-4 text-blue-600 text-xs font-bold rounded-xl justify-start px-4">
-                                    <Plus size={16} className="mr-2" /> Explore more circles
+                                <Button variant="ghost" fullWidth className="mt-4 text-green-700 font-mono text-xs uppercase font-bold tracking-wider hover:bg-green-50 justify-start px-4 w-full rounded-none">
+                                    <Plus size={14} className="mr-2 text-green-700" /> Explore more circles
                                 </Button>
                             </div>
 
-                            <Card className="mt-8 p-6 bg-blue-600 text-white border-none rounded-[2rem] shadow-xl shadow-blue-200">
-                                <h4 className="font-black text-lg leading-tight mb-2">Be an Expert</h4>
-                                <p className="text-xs text-blue-100 mb-4 opacity-80">Share your knowledge and build your own agricultural circle.</p>
-                                <Button className="bg-white text-blue-600 hover:bg-blue-50 border-none rounded-xl text-xs h-10 px-4">Get Started</Button>
+                            <Card className="mt-8 p-6 bg-zinc-950 text-zinc-300 border border-zinc-800 rounded-none shadow-none">
+                                <h4 className="font-bold text-white uppercase tracking-wider text-xs mb-2">Be an Expert</h4>
+                                <p className="text-[11px] text-zinc-400 leading-relaxed font-sans mb-4">Share your knowledge and build your own agricultural circle.</p>
+                                <Button className="bg-green-700 text-white hover:bg-green-800 border-none rounded-none text-xs font-bold tracking-wider uppercase w-full">Get Started</Button>
                             </Card>
                         </div>
                     </aside>
@@ -97,12 +100,12 @@ export const CommunityHub = () => {
                     {/* Middle: Feed */}
                     <main className="lg:col-span-6 space-y-6">
                         {/* Create Post */}
-                        <Card className="p-6 border-none shadow-sm rounded-[2.5rem] bg-white">
+                        <Card className="p-6 border border-zinc-200 rounded-none shadow-none bg-white">
                             <div className="flex gap-4">
-                                <div className="w-12 h-12 rounded-full bg-gray-100 shrink-0" />
+                                <div className="w-10 h-10 border border-zinc-200 bg-zinc-50 shrink-0 rounded-none" />
                                 <div className="flex-1 space-y-4">
                                     <textarea 
-                                        className="w-full bg-gray-50 border-none rounded-3xl p-4 text-sm focus:ring-2 focus:ring-blue-500 transition-all outline-none resize-none"
+                                        className="w-full bg-zinc-50 border border-zinc-200 rounded-none p-4 text-xs font-mono focus:border-green-700 focus:ring-0 transition-colors outline-none resize-none text-zinc-900"
                                         placeholder="What's happening on the farm today?"
                                         rows={3}
                                         value={newPost}
@@ -110,16 +113,16 @@ export const CommunityHub = () => {
                                     />
                                     <div className="flex items-center justify-between">
                                         <div className="flex items-center gap-1">
-                                            <button className="p-2 hover:bg-blue-50 text-blue-600 rounded-lg transition-colors"><ImageIcon size={20} /></button>
-                                            <button className="p-2 hover:bg-blue-50 text-blue-600 rounded-lg transition-colors"><Hash size={20} /></button>
+                                            <button className="p-2 hover:bg-green-50 text-green-700 border border-transparent hover:border-green-700/20 rounded-none transition-colors"><ImageIcon size={18} /></button>
+                                            <button className="p-2 hover:bg-green-50 text-green-700 border border-transparent hover:border-green-700/20 rounded-none transition-colors"><Hash size={18} /></button>
                                         </div>
                                         <Button 
                                             size="sm" 
-                                            className="rounded-xl px-6 bg-blue-600 hover:bg-blue-700 font-bold"
+                                            className="rounded-none px-6 bg-green-700 hover:bg-green-800 font-mono text-xs uppercase font-bold tracking-wider text-white"
                                             disabled={submitting || !newPost.trim()}
                                             onClick={handleCreatePost}
                                         >
-                                            {submitting ? <Loader2 className="animate-spin" size={16} /> : <><Send size={16} className="mr-2" /> Post</>}
+                                            {submitting ? <Loader2 className="animate-spin" size={14} /> : <><Send size={14} className="mr-2" /> Post</>}
                                         </Button>
                                     </div>
                                 </div>
@@ -129,7 +132,14 @@ export const CommunityHub = () => {
                         {/* Feed Filter */}
                         <div className="flex gap-2 px-2 overflow-x-auto pb-2 no-scrollbar">
                             {['For You', 'Trending', 'Experts', 'My Circles'].map((tab, i) => (
-                                <button key={i} className={`px-4 py-2 rounded-full text-xs font-black whitespace-nowrap transition-all ${i === 0 ? 'bg-blue-600 text-white shadow-lg shadow-blue-200' : 'bg-white text-gray-400 hover:text-gray-600 shadow-sm'}`}>
+                                <button 
+                                    key={i} 
+                                    className={`px-4 py-2 rounded-none text-xs font-mono font-bold uppercase tracking-wider border whitespace-nowrap transition-colors ${
+                                        i === 0 
+                                            ? 'bg-green-700 text-white border-green-700' 
+                                            : 'bg-white text-zinc-500 border-zinc-200 hover:border-zinc-300 hover:bg-zinc-50'
+                                    }`}
+                                >
                                     {tab}
                                 </button>
                             ))}
@@ -138,55 +148,55 @@ export const CommunityHub = () => {
                         {/* Posts List */}
                         <div className="space-y-6">
                             {posts.length > 0 ? posts.map((post) => (
-                                <Card key={post.id} className="p-6 border-none shadow-sm rounded-[2.5rem] bg-white group">
+                                <Card key={post.id} className="p-6 border border-zinc-200 rounded-none shadow-none bg-white group">
                                     <div className="flex justify-between items-start mb-6">
                                         <div className="flex gap-3">
-                                            <div className="relative w-12 h-12">
-                                                <Image unoptimized fill src={post.author.userAvatar || 'https://images.unsplash.com/photo-1595841696677-6489ff3f8cd1'} className="rounded-2xl object-cover" alt="" />
-                                                <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-blue-600 border-2 border-white rounded-full flex items-center justify-center text-[10px] text-white">
+                                            <div className="relative w-12 h-12 shrink-0 border border-zinc-200 rounded-none overflow-hidden bg-zinc-50">
+                                                <Image unoptimized fill src={post.author.userAvatar || 'https://images.unsplash.com/photo-1595841696677-6489ff3f8cd1'} className="object-cover" alt="" />
+                                                <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-green-700 border border-white rounded-none flex items-center justify-center text-[8px] text-white">
                                                     <ShieldCheck size={10} />
                                                 </div>
                                             </div>
                                             <div>
-                                                <h4 className="font-black text-gray-900 text-sm">{post.author.fullName}</h4>
-                                                <div className="flex items-center gap-2 text-[10px] font-bold text-gray-400">
-                                                    <span className="uppercase">{post.author.role}</span>
-                                                    <span className="w-1 h-1 bg-gray-300 rounded-full" />
+                                                <h4 className="font-bold text-zinc-950 font-mono text-xs uppercase tracking-wider leading-tight">{post.author.fullName}</h4>
+                                                <div className="flex items-center gap-1.5 text-[9px] font-mono font-bold text-zinc-500 uppercase tracking-widest mt-1">
+                                                    <span>{post.author.role}</span>
+                                                    <span className="text-zinc-300 font-normal">|</span>
                                                     <span>{new Date(post.createdAt).toLocaleDateString()}</span>
                                                 </div>
                                             </div>
                                         </div>
-                                        <button className="p-2 text-gray-300 hover:text-gray-900 rounded-lg transition-colors"><MoreHorizontal size={20} /></button>
+                                        <button className="p-2 text-zinc-400 hover:text-zinc-950 rounded-none transition-colors"><MoreHorizontal size={18} /></button>
                                     </div>
 
                                     <div className="space-y-4">
-                                        <p className="text-gray-700 leading-relaxed text-sm">{post.content}</p>
+                                        <p className="text-zinc-650 font-sans text-xs leading-relaxed">{post.content}</p>
                                         {post.mediaUrl && (
-                                            <div className="aspect-video relative rounded-3xl overflow-hidden bg-gray-100">
+                                            <div className="aspect-video relative rounded-none border border-zinc-200 overflow-hidden bg-zinc-100">
                                                 <Image unoptimized fill src={post.mediaUrl} className="object-cover" alt="" />
                                             </div>
                                         )}
                                     </div>
 
-                                    <div className="mt-8 pt-6 border-t border-gray-50 flex items-center justify-between">
+                                    <div className="mt-8 pt-6 border-t border-zinc-150 flex items-center justify-between font-mono text-[10px] font-bold uppercase tracking-wider">
                                         <div className="flex gap-4">
-                                            <button className="flex items-center gap-2 text-gray-400 hover:text-pink-500 transition-colors text-xs font-bold">
-                                                <Heart size={18} /> {post.likesCount}
+                                            <button className="flex items-center gap-1.5 text-zinc-400 hover:text-red-650 transition-colors">
+                                                <Heart size={16} /> {post.likesCount}
                                             </button>
-                                            <button className="flex items-center gap-2 text-gray-400 hover:text-blue-500 transition-colors text-xs font-bold">
-                                                <MessageCircle size={18} /> {post.comments?.length || 0}
+                                            <button className="flex items-center gap-1.5 text-zinc-400 hover:text-green-700 transition-colors">
+                                                <MessageCircle size={16} /> {post.comments?.length || 0}
                                             </button>
                                         </div>
-                                        <button className="text-gray-400 hover:text-gray-900 transition-colors"><Share2 size={18} /></button>
+                                        <button className="text-zinc-400 hover:text-zinc-950 transition-colors"><Share2 size={16} /></button>
                                     </div>
                                 </Card>
                             )) : (
-                                <div className="py-20 text-center space-y-4">
-                                    <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto text-gray-300">
-                                        <MessageCircle size={40} />
+                                <div className="py-20 text-center space-y-4 border border-zinc-200 border-dashed bg-white">
+                                    <div className="w-12 h-12 bg-zinc-100 border border-zinc-200 rounded-none flex items-center justify-center mx-auto text-zinc-400">
+                                        <MessageCircle size={20} />
                                     </div>
-                                    <h3 className="font-black text-gray-900">No conversations yet</h3>
-                                    <p className="text-sm text-gray-500 max-w-xs mx-auto italic">Be the first to share an update with the Bleefy community!</p>
+                                    <h3 className="font-mono text-xs font-bold uppercase tracking-widest text-zinc-950">No conversations yet</h3>
+                                    <p className="text-xs text-zinc-500 max-w-xs mx-auto italic font-sans">Be the first to share an update with the Bleefy community!</p>
                                 </div>
                             )}
                         </div>
@@ -194,8 +204,8 @@ export const CommunityHub = () => {
 
                     {/* Right Sidebar: Trends & Experts */}
                     <aside className="hidden lg:block lg:col-span-3 space-y-8">
-                        <Card className="p-6 border-none shadow-sm rounded-[2rem] bg-white">
-                            <h3 className="text-xs font-black text-gray-900 uppercase tracking-widest mb-6">Trending Topics</h3>
+                        <Card className="p-6 border border-zinc-200 rounded-none shadow-none bg-white font-mono text-xs">
+                            <h3 className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-6 border-b border-zinc-200 pb-2">Trending Topics</h3>
                             <div className="space-y-6">
                                 {[
                                     { tag: 'CassavaPricing', count: '1.2k' },
@@ -204,26 +214,26 @@ export const CommunityHub = () => {
                                 ].map((trend, i) => (
                                     <div key={i} className="flex justify-between items-center group cursor-pointer">
                                         <div>
-                                            <p className="text-sm font-bold text-gray-900 group-hover:text-blue-600 transition-colors">#{trend.tag}</p>
-                                            <p className="text-[10px] text-gray-400 font-medium">{trend.count} discussions</p>
+                                            <p className="text-xs font-bold text-zinc-950 group-hover:text-green-700 transition-colors">#{trend.tag}</p>
+                                            <p className="text-[9px] text-zinc-500 font-bold uppercase tracking-wider mt-0.5">{trend.count} discussions</p>
                                         </div>
-                                        <ArrowRight size={14} className="text-gray-300 group-hover:translate-x-1 transition-transform" />
+                                        <ArrowRight size={12} className="text-zinc-400 group-hover:translate-x-1 transition-transform" />
                                     </div>
                                 ))}
                             </div>
                         </Card>
 
-                        <div className="px-4">
-                            <h3 className="text-xs font-black text-gray-900 uppercase tracking-widest mb-6">Top Experts</h3>
+                        <div className="px-2 font-mono text-xs">
+                            <h3 className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-4">Top Experts</h3>
                             <div className="space-y-4">
                                 {[1, 2, 3].map((_, i) => (
                                     <div key={i} className="flex items-center gap-3">
-                                        <div className="w-10 h-10 rounded-xl bg-gray-200" />
-                                        <div className="flex-1">
-                                            <p className="text-xs font-bold text-gray-900">Dr. Sarah Johnson</p>
-                                            <p className="text-[10px] text-emerald-600 font-black">Soil Specialist</p>
+                                        <div className="w-8 h-8 rounded-none border border-zinc-200 bg-zinc-50 shrink-0" />
+                                        <div className="flex-1 min-w-0">
+                                            <p className="text-xs font-mono font-bold text-zinc-950 uppercase truncate leading-none">Dr. Sarah Johnson</p>
+                                            <p className="text-[9px] text-green-700 font-mono uppercase font-bold mt-1 tracking-wider leading-none">Soil Specialist</p>
                                         </div>
-                                        <Button variant="outline" className="h-8 rounded-lg text-[10px] px-3 border-gray-100 hover:bg-blue-600 hover:text-white hover:border-blue-600">Follow</Button>
+                                        <Button variant="outline" className="h-8 rounded-none text-[10px] font-mono font-bold uppercase tracking-wider px-3 border border-green-750 text-green-750 hover:bg-green-50 shrink-0">Follow</Button>
                                     </div>
                                 ))}
                             </div>
@@ -233,4 +243,4 @@ export const CommunityHub = () => {
             </div>
         </div>
     );
-}
+};

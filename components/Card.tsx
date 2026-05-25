@@ -10,7 +10,7 @@ interface CardProps {
 export const Card: React.FC<CardProps> = ({ children, className = '', noPadding = false, onClick }) => {
   return (
     <div 
-      className={`bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden ${className} ${onClick ? 'cursor-pointer transition-transform hover:-translate-y-1' : ''}`}
+      className={`bg-white rounded-none border border-zinc-200 overflow-hidden ${className} ${onClick ? 'cursor-pointer transition-colors hover:bg-zinc-50/60 hover:border-zinc-300' : ''}`}
       onClick={onClick}
     >
       <div className={noPadding ? '' : 'p-4'}>

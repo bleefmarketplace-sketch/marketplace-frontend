@@ -21,9 +21,9 @@ export const PhoneNumberInput: React.FC<PhoneNumberInputProps> = ({
   defaultCountry = "NG",
 }) => {
   return (
-    <div className="w-full">
+    <div className="w-full font-mono text-xs">
       {label && (
-        <label className="block text-sm font-medium text-gray-700 mb-1">
+        <label className="block text-xs font-mono font-bold text-zinc-500 uppercase tracking-widest mb-1.5 ml-1">
           {label}
         </label>
       )}
@@ -31,41 +31,22 @@ export const PhoneNumberInput: React.FC<PhoneNumberInputProps> = ({
       <div
         className={`
           relative flex items-center
-          rounded-lg border bg-white p-2
-          ${error ? "border-red-500" : "border-gray-300"}
-          focus-within:border-primary-500
-          focus-within:ring-1
-          focus-within:ring-primary-500
+          rounded-none border bg-white px-3 py-2.5
+          ${error ? "border-red-600" : "border-zinc-300"}
+          focus-within:border-green-700
+          focus-within:ring-0
         `}
       >
-        {/* Left Icon */}
-       {/*  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400 z-10">
-          <Phone size={18} />
-        </div> */}
-
         <PhoneInput
           international
           defaultCountry={defaultCountry as any}
           value={value}
           onChange={(val) => onChange(val || "")}
-          className="w-full"
-          /* inputClass="
-            w-full bg-transparent
-            py-2 pl-10 pr-3
-            text-sm placeholder-gray-400
-            focus:outline-none
-          "
-          countrySelectProps={{
-            className: `
-              bg-transparent border-0 pl-3 pr-1 m-5
-              text-sm text-gray-700
-              focus:outline-none
-            `,
-          }} */
+          className="w-full text-xs font-mono bg-transparent outline-none border-none focus:outline-none"
         />
       </div>
 
-      {error && <p className="mt-1 text-xs text-red-500">{error}</p>}
+      {error && <p className="mt-1 text-[10px] font-bold text-red-600 uppercase ml-1">{error}</p>}
     </div>
   );
 };

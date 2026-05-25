@@ -7,7 +7,7 @@ import { Button } from '@/components/Button';
 import { useRouter } from 'next/navigation';
 
 export const CartDrawer = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) => {
-  const router = useRouter()
+  const router = useRouter();
   const { items, updateQuantity, removeItem, getTotalPrice } = useCartStore();
 
   if (!isOpen) return null;
@@ -15,61 +15,106 @@ export const CartDrawer = ({ isOpen, onClose }: { isOpen: boolean; onClose: () =
   return (
     <div className="fixed inset-0 z-50 overflow-hidden">
       {/* Overlay */}
-      <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={onClose} />
+      <div className="absolute inset-0 bg-zinc-950/65 backdrop-blur-xs" onClick={onClose} />
       
       {/* Drawer */}
-      <div className="absolute inset-y-0 right-0 max-w-md w-full bg-white shadow-2xl flex flex-col animate-in slide-in-from-right duration-300">
-        <div className="p-6 flex items-center justify-between border-b">
-            <div className="flex items-center gap-2">
-                <ShoppingBag className="text-emerald-600" />
-                <h2 className="text-xl font-black text-gray-900">Your Basket</h2>
+      <div className="absolute inset-y-0 right-0 max-w-md w-full bg-white border-l border-zinc-200 shadow-none flex flex-col animate-in slide-in-from-right duration-200">
+        
+        {/* Header */}
+        <div className="p-6 flex items-center justify-between border-b border-zinc-200 font-mono text-xs">
+            <div className="flex items-center gap-2.5">
+                <div className="border border-green-700 bg-green-50 p-1.5 text-green-700 rounded-none shrink-0">
+                    <ShoppingBag size={16} />
+                </div>
+                <h2 className="text-sm font-black text-zinc-950 uppercase tracking-wider">YOUR BASKET</h2>
             </div>
-            <button onClick={onClose} className="p-2 hover:bg-gray-100 rounded-full"><X size={20}/></button>
+            <button 
+              onClick={onClose} 
+              className="p-1.5 hover:bg-zinc-50 border border-transparent hover:border-zinc-200 rounded-none transition-colors cursor-pointer"
+            >
+              <X size={16}/>
+            </button>
         </div>
 
-        <div className="flex-1 overflow-y-auto p-6 space-y-6">
+        {/* Item deck */}
+        <div className="flex-1 overflow-y-auto p-6 space-y-5 font-mono text-xs">
           {items.length === 0 ? (
-            <div className="text-center py-20">
-              <div className="bg-gray-50 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4 text-gray-300">
-                <ShoppingBag size={40} />
+            <div className="text-center py-20 border border-dashed border-zinc-250 bg-zinc-50 rounded-none p-6">
+              <div className="bg-white border border-zinc-200 w-12 h-12 rounded-none flex items-center justify-center mx-auto mb-4 text-zinc-300">
+                <ShoppingBag size={20} />
               </div>
-              <p className="text-gray-500 font-medium">Your basket is empty</p>
-              <Button variant="ghost" className="mt-4 text-emerald-600" onClick={onClose}>Start Shopping</Button>
+              <p className="text-zinc-500 font-bold uppercase tracking-tight">YOUR BASKET IS EMPTY</p>
+              <Button 
+                variant="ghost" 
+                className="mt-4 border border-green-700 text-green-800 bg-white hover:bg-zinc-50 rounded-none font-bold uppercase tracking-wider cursor-pointer py-1.5 px-4" 
+                onClick={onClose}
+              >
+                START SHOPPING
+              </Button>
             </div>
           ) : (
             items.map((item) => (
-              <div key={item.id} className="flex gap-4 group">
-                <div className="relative w-20 h-20 rounded-xl overflow-hidden bg-gray-100 border flex-shrink-0">
+              <div key={item.id} className="flex gap-4 group items-center">
+                <div className="relative w-16 h-16 rounded-none border border-zinc-200 overflow-hidden bg-zinc-50 flex-shrink-0">
                   <Image unoptimized fill src={item.primaryImage} alt={item.title} className="object-cover" />
                 </div>
-                <div className="flex-1">
-                  <h4 className="text-sm font-bold text-gray-900 line-clamp-1">{item.title}</h4>
-                  <p className="text-[10px] text-gray-400 uppercase font-bold mb-2">{item.seller?.companyName || 'Verified Farm'}</p>
+                <div className="flex-1 min-w-0">
+                  <h4 className="font-bold text-zinc-950 uppercase truncate">{item.title}</h4>
+                  <p className="text-[9px] text-zinc-450 uppercase font-bold tracking-wider mb-2 block">
+                    SUPPLIER: { (item.seller?.companyName || 'Verified Farm').toUpperCase() }
+                  </p>
                   
                   <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3 bg-gray-50 rounded-full px-2 py-1">
-                        <button onClick={() => updateQuantity(item.id, item.quantity - 1)} className="p-1 hover:bg-white rounded-full"><Minus size={12}/></button>
-                        <span className="text-xs font-bold">{item.quantity}</span>
-                        <button onClick={() => updateQuantity(item.id, item.quantity + 1)} className="p-1 hover:bg-white rounded-full"><Plus size={12}/></button>
+                    <div className="flex items-center border border-zinc-300 bg-white">
+                        <button 
+                          onClick={() => updateQuantity(item.id, item.quantity - 1)} 
+                          className="px-2 py-1 hover:text-green-700 transition-colors border-r border-zinc-200 cursor-pointer"
+                        >
+                          <Minus size={10} strokeWidth={2.5}/>
+                        </button>
+                        <span className="px-3 text-[11px] font-black text-center w-8">{item.quantity}</span>
+                        <button 
+                          onClick={() => updateQuantity(item.id, item.quantity + 1)} 
+                          className="px-2 py-1 hover:text-green-700 transition-colors border-l border-zinc-200 cursor-pointer"
+                        >
+                          <Plus size={10} strokeWidth={2.5}/>
+                        </button>
                     </div>
-                    <span className="font-black text-emerald-600">₦{(item.price * item.quantity).toLocaleString()}</span>
+                    <span className="font-black text-zinc-950">₦{(item.price * item.quantity).toLocaleString()}</span>
                   </div>
                 </div>
-                <button onClick={() => removeItem(item.id)} className="text-gray-300 hover:text-red-500 self-start p-1"><Trash2 size={16}/></button>
+                <button 
+                  onClick={() => removeItem(item.id)} 
+                  className="text-zinc-300 hover:text-red-700 hover:bg-red-50 border border-transparent hover:border-red-200 p-1.5 rounded-none cursor-pointer self-start transition-all"
+                  title="Remove Item"
+                >
+                  <Trash2 size={14}/>
+                </button>
               </div>
             ))
           )}
         </div>
 
+        {/* Footer Summary */}
         {items.length > 0 && (
-          <div className="p-6 border-t bg-gray-50 space-y-4">
-            <div className="flex items-center justify-between">
-              <span className="text-gray-500 font-medium">Estimated Total</span>
-              <span className="text-2xl font-black text-gray-900">₦{getTotalPrice().toLocaleString()}</span>
+          <div className="p-6 border-t border-zinc-200 bg-zinc-50 font-mono text-xs space-y-4">
+            <div className="flex items-center justify-between font-bold uppercase tracking-wider">
+              <span className="text-zinc-500">ESTIMATED TOTAL</span>
+              <span className="text-lg font-black text-zinc-950">₦{getTotalPrice().toLocaleString()}</span>
             </div>
-            <p className="text-[10px] text-gray-400 text-center uppercase tracking-wider font-bold">Shipping and taxes calculated at checkout</p>
-            <Button onClick={() => router.push("/marketplace/checkout")} fullWidth size="lg" className="bg-emerald-600 hover:bg-emerald-700 rounded-full shadow-lg shadow-emerald-100 gap-2">
-              Proceed to Checkout <ArrowRight size={18} />
+            <p className="text-[9px] text-zinc-400 text-center uppercase tracking-widest font-bold">
+              SHIPPING AND TAXES ESTIMATED AT CHECKOUT
+            </p>
+            <Button 
+              onClick={() => {
+                onClose();
+                router.push("/marketplace/checkout");
+              }} 
+              fullWidth 
+              size="lg" 
+              className="w-full py-4 text-xs font-bold uppercase tracking-wider rounded-none flex items-center justify-center gap-2 cursor-pointer"
+            >
+              PROCEED TO CHECKOUT <ArrowRight size={14} />
             </Button>
           </div>
         )}

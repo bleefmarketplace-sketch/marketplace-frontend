@@ -84,48 +84,48 @@ const OnboardingPage = () => {
     const renderRoleSelection = () => (
         <div className="space-y-6 animate-in fade-in slide-in-from-right-8 duration-500">
             <div className="text-center mb-8">
-                <h2 className="text-3xl font-bold text-gray-900">What brings you to here?</h2>
-                <p className="text-gray-600 mt-2">Choose the role that best fits your goals. You can always change this later.</p>
+                <h2 className="text-lg font-black text-zinc-950 uppercase tracking-tight mb-1.5">What brings you here?</h2>
+                <p className="text-zinc-500 font-sans text-xs">Choose the role that best fits your goals. You can always change this later.</p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div
                     onClick={() => setSelectedRole('buyer')}
-                    className={`cursor-pointer border-2 rounded-xl p-6 transition-all hover:-translate-y-1 relative overflow-hidden group ${selectedRole === 'buyer' ? 'border-primary-600 bg-primary-50 ring-1 ring-primary-600' : 'border-gray-100 hover:border-primary-200'
+                    className={`cursor-pointer border rounded-none p-6 transition-colors hover:bg-zinc-50 relative group ${selectedRole === 'buyer' ? 'border-green-700 bg-green-50/50' : 'border-zinc-200 bg-white'
                         }`}
                 >
-                    <div className={`w-12 h-12 rounded-full flex items-center justify-center mb-4 transition-colors ${selectedRole === 'buyer' ? 'bg-primary-600 text-white' : 'bg-gray-100 text-gray-500 group-hover:bg-primary-100 group-hover:text-primary-600'
+                    <div className={`w-12 h-12 border rounded-none flex items-center justify-center mb-4 transition-colors ${selectedRole === 'buyer' ? 'border-green-700 bg-green-50 text-green-700' : 'border-zinc-200 bg-white text-zinc-500 group-hover:border-zinc-300 group-hover:bg-zinc-50 group-hover:text-zinc-950'
                         }`}>
-                        <ShoppingBag size={24} />
+                        <ShoppingBag size={20} />
                     </div>
-                    <h3 className="font-bold text-gray-900 text-lg">Buyer</h3>
-                    <p className="text-sm text-gray-500 mt-2 leading-relaxed">I want to source high-quality produce, seeds, and equipment directly from farmers.</p>
+                    <h3 className="font-mono text-xs uppercase font-bold tracking-widest text-zinc-950">Buyer</h3>
+                    <p className="text-xs text-zinc-500 font-sans mt-2 leading-relaxed">I want to source high-quality produce, seeds, and equipment directly from farmers.</p>
                 </div>
 
                 <div
                     onClick={() => setSelectedRole('seller')}
-                    className={`cursor-pointer border-2 rounded-xl p-6 transition-all hover:-translate-y-1 relative overflow-hidden group ${selectedRole === 'seller' ? 'border-primary-600 bg-primary-50 ring-1 ring-primary-600' : 'border-gray-100 hover:border-primary-200'
+                    className={`cursor-pointer border rounded-none p-6 transition-colors hover:bg-zinc-50 relative group ${selectedRole === 'seller' ? 'border-green-700 bg-green-50/50' : 'border-zinc-200 bg-white'
                         }`}
                 >
-                    <div className={`w-12 h-12 rounded-full flex items-center justify-center mb-4 transition-colors ${selectedRole === 'seller' ? 'bg-primary-600 text-white' : 'bg-gray-100 text-gray-500 group-hover:bg-primary-100 group-hover:text-primary-600'
+                    <div className={`w-12 h-12 border rounded-none flex items-center justify-center mb-4 transition-colors ${selectedRole === 'seller' ? 'border-green-700 bg-green-50 text-green-700' : 'border-zinc-200 bg-white text-zinc-500 group-hover:border-zinc-300 group-hover:bg-zinc-50 group-hover:text-zinc-950'
                         }`}>
-                        <Store size={24} />
+                        <Store size={20} />
                     </div>
-                    <h3 className="font-bold text-gray-900 text-lg">Seller</h3>
-                    <p className="text-sm text-gray-500 mt-2 leading-relaxed">I want to sell my harvest, livestock, or machinery to a global market.</p>
+                    <h3 className="font-mono text-xs uppercase font-bold tracking-widest text-zinc-950">Seller</h3>
+                    <p className="text-xs text-zinc-500 font-sans mt-2 leading-relaxed">I want to sell my harvest, livestock, or machinery to a global market.</p>
                 </div>
 
                 <div
                     onClick={() => setSelectedRole('creator')}
-                    className={`cursor-pointer border-2 rounded-xl p-6 transition-all hover:-translate-y-1 relative overflow-hidden group ${selectedRole === 'creator' ? 'border-primary-600 bg-primary-50 ring-1 ring-primary-600' : 'border-gray-100 hover:border-primary-200'
+                    className={`cursor-pointer border rounded-none p-6 transition-colors hover:bg-zinc-50 relative group ${selectedRole === 'creator' ? 'border-green-700 bg-green-50/50' : 'border-zinc-200 bg-white'
                         }`}
                 >
-                    <div className={`w-12 h-12 rounded-full flex items-center justify-center mb-4 transition-colors ${selectedRole === 'creator' ? 'bg-primary-600 text-white' : 'bg-gray-100 text-gray-500 group-hover:bg-primary-100 group-hover:text-primary-600'
+                    <div className={`w-12 h-12 border rounded-none flex items-center justify-center mb-4 transition-colors ${selectedRole === 'creator' ? 'border-green-700 bg-green-50 text-green-700' : 'border-zinc-200 bg-white text-zinc-500 group-hover:border-zinc-300 group-hover:bg-zinc-50 group-hover:text-zinc-950'
                         }`}>
-                        <BookOpen size={24} />
+                        <BookOpen size={20} />
                     </div>
-                    <h3 className="font-bold text-gray-900 text-lg">Creator</h3>
-                    <p className="text-sm text-gray-500 mt-2 leading-relaxed">I want to share my knowledge, publish courses, and educate the community.</p>
+                    <h3 className="font-mono text-xs uppercase font-bold tracking-widest text-zinc-950">Creator</h3>
+                    <p className="text-xs text-zinc-500 font-sans mt-2 leading-relaxed">I want to share my knowledge, publish courses, and educate the community.</p>
                 </div>
             </div>
         </div>
@@ -134,8 +134,8 @@ const OnboardingPage = () => {
     const renderDetailsForm = () => (
         <div className="space-y-6 animate-in fade-in slide-in-from-right-8 duration-500">
             <div className="text-center mb-6">
-                <h2 className="text-2xl font-bold text-gray-900">Tell us a bit more</h2>
-                <p className="text-gray-600">We need a few details to personalize your {selectedRole} experience.</p>
+                <h2 className="text-lg font-black text-zinc-950 uppercase tracking-tight mb-1.5">Tell us a bit more</h2>
+                <p className="text-zinc-500 font-sans text-xs">We need a few details to personalize your <span className="font-mono text-green-700 uppercase font-bold">{selectedRole}</span> experience.</p>
             </div>
 
             <div className="grid md:grid-cols-2 gap-4">
@@ -144,28 +144,30 @@ const OnboardingPage = () => {
                     placeholder="e.g. 23 Main St, Anytown, Nigeria"
                     value={formData.address}
                     onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-                    icon={<MapPin size={18} />}
+                    icon={<MapPin size={16} className="text-zinc-400" />}
                 />
                 <Input
                     label="Location (City, Country)"
                     placeholder="e.g. Austin, Texas"
                     value={formData.location}
                     onChange={(e) => setFormData({ ...formData, location: e.target.value })}
-                    icon={<MapPin size={18} />}
+                    icon={<MapPin size={16} className="text-zinc-400" />}
                 />
                 <PhoneNumberInput
-  label="Phone Number"
-  value={formData.phone}
-  onChange={(value) =>
-    setFormData({ ...formData, phone: value })
-  }
-/>
+                    label="Phone Number"
+                    value={formData.phone}
+                    onChange={(value) =>
+                        setFormData({ ...formData, phone: value })
+                    }
+                />
             </div>
 
             {/* Seller Specifics */}
             {selectedRole === 'seller' && (
-                <div className="space-y-4 pt-4 border-t border-gray-100">
-                    <h3 className="font-bold text-gray-900 flex items-center gap-2"><Tractor size={18} /> Farm Details</h3>
+                <div className="space-y-4 pt-4 border-t border-zinc-200">
+                    <h3 className="font-mono text-xs uppercase font-bold tracking-widest text-zinc-950 flex items-center gap-2">
+                        <Tractor size={14} className="text-green-700" /> Farm Details
+                    </h3>
                     <div className="grid md:grid-cols-2 gap-4">
                         <Input
                             label="Business Name"
@@ -186,8 +188,10 @@ const OnboardingPage = () => {
 
             {/* Creator Specifics */}
             {selectedRole === 'creator' && (
-                <div className="space-y-4 pt-4 border-t border-gray-100">
-                    <h3 className="font-bold text-gray-900 flex items-center gap-2"><Book size={18} /> Professional Info</h3>
+                <div className="space-y-4 pt-4 border-t border-zinc-200">
+                    <h3 className="font-mono text-xs uppercase font-bold tracking-widest text-zinc-950 flex items-center gap-2">
+                        <Book size={14} className="text-green-700" /> Professional Info
+                    </h3>
                     <Input
                         label="Area of Expertise"
                         placeholder="e.g. Hydroponics, Organic Pest Control"
@@ -198,16 +202,18 @@ const OnboardingPage = () => {
             )}
 
             {/* Buyer/All Interests */}
-            <div className="space-y-3 pt-4 border-t border-gray-100">
-                <label className="block text-sm font-medium text-gray-700">What are you interested in? (Select all that apply)</label>
+            <div className="space-y-3 pt-4 border-t border-zinc-200">
+                <label className="block text-xs font-mono font-bold text-zinc-500 uppercase tracking-widest mb-1.5 ml-1">
+                    What are you interested in? (Select all that apply)
+                </label>
                 <div className="flex flex-wrap gap-2">
                     {['Livestock', 'Organic Feed', 'Machinery', 'Seeds', 'Dairy', 'Vegetables', 'Fruits', 'Tools'].map(tag => (
                         <button
                             key={tag}
                             onClick={() => toggleInterest(tag)}
-                            className={`px-3 py-1.5 rounded-full text-sm font-medium border transition-colors ${formData.interests.includes(tag)
-                                ? 'bg-primary-100 text-primary-700 border-primary-200'
-                                : 'bg-white text-gray-600 border-gray-200 hover:border-gray-300'
+                            className={`px-3 py-1.5 rounded-none text-xs font-mono font-bold uppercase tracking-wider border transition-colors cursor-pointer ${formData.interests.includes(tag)
+                                ? 'bg-green-50 text-green-700 border-green-700'
+                                : 'bg-white text-zinc-500 border-zinc-200 hover:border-zinc-300 hover:bg-zinc-50'
                                 }`}
                         >
                             {tag}
@@ -219,41 +225,40 @@ const OnboardingPage = () => {
     );
 
     const renderConfirmation = () => (
-        <div className="text-center space-y-8 animate-in fade-in slide-in-from-right-8 duration-500 py-8">
+        <div className="text-center space-y-6 animate-in fade-in slide-in-from-right-8 duration-500 py-6 font-mono text-xs">
             <div className="relative inline-block">
-                <div className="w-24 h-24 bg-green-100 rounded-full flex items-center justify-center mx-auto relative z-10">
-                    <Check className="text-green-600 w-12 h-12" />
+                <div className="w-16 h-16 border border-green-700 bg-green-50 flex items-center justify-center mx-auto relative z-10 rounded-none">
+                    <Check className="text-green-700 w-8 h-8" />
                 </div>
-                <div className="absolute inset-0 bg-green-200 rounded-full animate-ping opacity-20"></div>
             </div>
 
             <div>
-                <h2 className="text-3xl font-bold text-gray-900">You&apos;re all set!</h2>
-                <p className="text-gray-600 mt-2 text-lg max-w-md mx-auto">
-                    Your profile is ready. We&apos;ve customized your dashboard for <span className="font-bold text-gray-900">{selectedRole === 'seller' ? formData.farmName || 'your farm' : 'you'}</span>.
+                <h2 className="text-lg font-black text-zinc-950 uppercase tracking-tight mb-1.5">You&apos;re all set!</h2>
+                <p className="text-zinc-500 font-sans text-xs max-w-md mx-auto">
+                    Your profile is ready. We&apos;ve customized your dashboard for <span className="font-mono text-zinc-950 font-bold uppercase tracking-wider">{selectedRole === 'seller' ? formData.farmName || 'your farm' : 'you'}</span>.
                 </p>
             </div>
 
-            <div className="bg-gray-50 p-6 rounded-xl border border-gray-100 max-w-sm mx-auto text-left shadow-sm">
-                <h4 className="font-bold text-gray-900 mb-4 text-center border-b border-gray-200 pb-2">Your Profile Summary</h4>
-                <div className="space-y-3 text-sm">
+            <div className="bg-zinc-50 p-6 border border-zinc-200 max-w-sm mx-auto text-left rounded-none shadow-none">
+                <h4 className="font-mono text-xs font-bold text-zinc-950 uppercase tracking-widest mb-4 text-center border-b border-zinc-200 pb-2">Profile Summary</h4>
+                <div className="space-y-3 text-xs">
                     <div className="flex justify-between">
-                        <span className="text-gray-500">Role</span>
-                        <span className="font-medium capitalize">{selectedRole}</span>
+                        <span className="text-zinc-500 uppercase tracking-wider font-bold text-[10px]">Role</span>
+                        <span className="font-bold text-zinc-950 uppercase">{selectedRole}</span>
                     </div>
                     <div className="flex justify-between">
-                        <span className="text-gray-500">Location</span>
-                        <span className="font-medium">{formData.location}</span>
+                        <span className="text-zinc-500 uppercase tracking-wider font-bold text-[10px]">Location</span>
+                        <span className="font-bold text-zinc-950 uppercase">{formData.location}</span>
                     </div>
                     {selectedRole === 'seller' && (
                         <div className="flex justify-between">
-                            <span className="text-gray-500">Farm Name</span>
-                            <span className="font-medium">{formData.farmName}</span>
+                            <span className="text-zinc-500 uppercase tracking-wider font-bold text-[10px]">Farm Name</span>
+                            <span className="font-bold text-zinc-950 uppercase">{formData.farmName}</span>
                         </div>
                     )}
                     <div className="flex justify-between">
-                        <span className="text-gray-500">Interests</span>
-                        <span className="font-medium">{formData.interests.length} selected</span>
+                        <span className="text-zinc-500 uppercase tracking-wider font-bold text-[10px]">Interests</span>
+                        <span className="font-bold text-zinc-950 uppercase">{formData.interests.length} selected</span>
                     </div>
                 </div>
             </div>
@@ -267,23 +272,31 @@ const OnboardingPage = () => {
                 ? prev.interests.filter(i => i !== interest)
                 : [...prev.interests, interest]
         }));
-
-    }
-
-
-
+    };
 
     return (
-        <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
-            <div className="max-w-3xl w-full bg-white rounded-3xl shadow-xl overflow-hidden flex flex-col min-h-150">
+        <div className="py-16 w-full flex items-center justify-center bg-zinc-50 text-zinc-900 font-mono text-xs antialiased px-4">
+            <div className="max-w-4xl w-full bg-white border border-zinc-200 rounded-none shadow-none flex flex-col min-h-150">
                 {/* Header Progress */}
-                <div className="bg-white p-6 border-b border-gray-100 flex items-center justify-between">
+                <div className="bg-white p-6 border-b border-zinc-200 flex items-center justify-between font-mono text-xs uppercase font-bold tracking-widest text-zinc-900">
                     <div className="flex items-center gap-2">
-                        <Image src="/logo.png" alt="Bleefy" width={80} height={80} className="object-contain" />
+                        <span>ONBOARDING STEP</span>
+                        <span className="text-green-700 bg-green-50 px-2 py-0.5 border border-green-700/30">0{step} / 03</span>
                     </div>
-                    <div className="flex gap-2">
+                    <div className="flex items-center gap-3">
                         {[1, 2, 3].map(i => (
-                            <div key={i} className={`w-2.5 h-2.5 rounded-full transition-colors ${i <= step ? 'bg-primary-600' : 'bg-gray-200'}`}></div>
+                            <span 
+                                key={i} 
+                                className={`transition-colors ${
+                                    i === step 
+                                        ? 'text-green-700 font-black' 
+                                        : i < step 
+                                            ? 'text-zinc-500 line-through' 
+                                            : 'text-zinc-350'
+                                }`}
+                            >
+                                [0{i}]
+                            </span>
                         ))}
                     </div>
                 </div>
@@ -294,10 +307,10 @@ const OnboardingPage = () => {
                     {step === 3 && renderConfirmation()}
                 </div>
 
-                <div className="p-6 border-t border-gray-100 flex justify-between bg-gray-50">
+                <div className="p-6 border-t border-zinc-200 flex justify-between bg-zinc-50/50 rounded-none">
                     {step === 2 && (
-                        <Button variant="ghost" onClick={() => setStep(1)} disabled={isSubmitting}>
-                            <ArrowLeft size={18} className="mr-2" /> Back
+                        <Button variant="ghost" onClick={() => setStep(1)} disabled={isSubmitting} className="rounded-none font-mono uppercase font-bold text-xs tracking-wider">
+                            <ArrowLeft size={14} className="mr-1.5" /> Back
                         </Button>
                     )}
 
@@ -307,12 +320,13 @@ const OnboardingPage = () => {
                                 onClick={handleNext}
                                 isLoading={isSubmitting}
                                 disabled={isSubmitting}
+                                className="rounded-none font-mono uppercase font-bold text-xs tracking-wider"
                             >
-                                Continue <ArrowRight size={18} className="ml-2" />
+                                Continue <ArrowRight size={14} className="ml-1.5" />
                             </Button>
                         ) : (
-                            <Button onClick={handleFinalRedirect}>
-                              Go to Login<ArrowRight size={18} className="ml-2" />
+                            <Button onClick={handleFinalRedirect} className="rounded-none font-mono uppercase font-bold text-xs tracking-wider bg-green-700 text-white hover:bg-green-800">
+                               Go to Dashboard <ArrowRight size={14} className="ml-1.5" />
                             </Button>
                         )}
                     </div>

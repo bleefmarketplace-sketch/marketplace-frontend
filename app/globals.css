@@ -1,81 +1,107 @@
 @import "tailwindcss";
- 
+
 @theme {
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+
   --color-primary-50: #f0fdf4;
   --color-primary-100: #dcfce7;
   --color-primary-200: #bbf7d0;
   --color-primary-300: #86efac;
   --color-primary-400: #4ade80;
-  --color-primary-500: #22c55e;
-  --color-primary-600: #16a34a;
-  --color-primary-700: #15803d;
-  --color-primary-800: #166534;
+  --color-primary-500: #15803d;
+  /* green-700 equivalent */
+  --color-primary-600: #166534;
+  /* green-800 equivalent */
+  --color-primary-700: #14532d;
+  /* green-900 equivalent */
+  --color-primary-800: #14532d;
   --color-primary-900: #14532d;
 }
 
 @layer base {
   body {
-    @apply bg-gray-50 text-gray-900;
+    @apply bg-zinc-50 text-zinc-900 font-sans antialiased;
   }
 }
 
-/* Custom styles from previous index.html */
+/* Custom scrollbars matching technical design */
 .no-scrollbar::-webkit-scrollbar {
   display: none;
 }
+
 .no-scrollbar {
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
 
 .custom-scrollbar::-webkit-scrollbar {
-  width: 6px;
+  width: 5px;
+  height: 5px;
 }
+
 .custom-scrollbar::-webkit-scrollbar-track {
   background: transparent;
 }
+
 .custom-scrollbar::-webkit-scrollbar-thumb {
-  background: #e5e7eb;
-  border-radius: 10px;
+  background: #d4d4d8;
+  /* zinc-300 */
+  border-radius: 0px;
 }
+
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: #d1d5db;
+  background: #a1a1aa;
+  /* zinc-400 */
 }
 
 @layer components {
   .btn {
-    @apply inline-flex items-center justify-center rounded-lg font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed;
+    @apply inline-flex items-center justify-center rounded-none font-mono uppercase font-bold tracking-tight transition-colors focus:outline-none focus:ring-1 focus:ring-green-600/30 disabled:opacity-50 disabled:cursor-not-allowed border;
   }
-  
+
   .btn-primary {
-    @apply bg-primary-600 text-white hover:bg-primary-700 focus:ring-primary-500;
+    @apply bg-green-700 text-white border-green-700 hover:bg-green-800;
   }
-  
+
   .btn-secondary {
-    @apply bg-white text-gray-700 border border-gray-300 hover:bg-gray-50 focus:ring-primary-500;
+    @apply bg-white text-zinc-800 border-zinc-200 hover:bg-zinc-50 hover:border-zinc-300;
   }
-  
+
   .btn-outline {
-    @apply bg-transparent border border-primary-600 text-primary-600 hover:bg-primary-50 focus:ring-primary-500;
+    @apply bg-transparent border border-green-700 text-green-800 hover:bg-green-50;
   }
-  
+
   .btn-danger {
-    @apply bg-red-600 text-white hover:bg-red-700 focus:ring-red-500;
+    @apply bg-red-700 text-white border-red-700 hover:bg-red-800;
   }
-  
+
   .btn-ghost {
-    @apply bg-transparent text-gray-600 hover:bg-gray-100 hover:text-gray-900;
+    @apply bg-transparent text-zinc-600 hover:text-zinc-950 hover:bg-zinc-50 border-transparent;
   }
-  
+
   .btn-sm {
-    @apply px-3 py-1.5 text-sm;
+    @apply px-3 py-1.5 text-[10px];
   }
-  
+
   .btn-md {
-    @apply px-4 py-2 text-sm;
+    @apply px-4 py-2 text-xs;
   }
-  
+
   .btn-lg {
-    @apply px-6 py-3 text-base;
+    @apply px-6 py-3 text-sm;
+  }
+
+  /* Tactical badge classes */
+  .badge-verified {
+    @apply bg-green-50 text-green-700 border border-green-200 px-2 py-0.5 text-[9px] font-mono font-black uppercase tracking-wider;
+  }
+
+  .badge-pending {
+    @apply bg-amber-50 text-amber-800 border border-amber-200 px-2 py-0.5 text-[9px] font-mono font-bold uppercase tracking-wider;
+  }
+
+  .badge-flagged {
+    @apply bg-red-50 text-red-700 border border-red-200 px-2 py-0.5 text-[9px] font-mono font-bold uppercase tracking-wider;
   }
 }

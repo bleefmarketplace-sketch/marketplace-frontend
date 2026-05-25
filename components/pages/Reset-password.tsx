@@ -5,12 +5,12 @@ import { Input } from "../Input";
 import { Button } from "../Button";
 import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "react-toastify";
-
+import Image from "next/image";
 
 export const ResetPassword = () => {
     const router = useRouter();
     const searchParams = useSearchParams();
-    const q = searchParams.get("q"); // ✅ from reset link
+    const q = searchParams.get("q");
 
     const [password, setPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
@@ -50,7 +50,6 @@ export const ResetPassword = () => {
 
         setIsLoading(true);
        
-
         try {
             const res = await fetch("/api/auth/reset-password", {
                 method: "POST",
@@ -76,25 +75,26 @@ export const ResetPassword = () => {
 
     /* -------------------- UI -------------------- */
     return (
-        <Suspense>   
-                 <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
-            <div className="max-w-md w-full bg-white rounded-[40px] shadow-2xl overflow-hidden border border-gray-100 p-10">
+        <Suspense fallback={
+          <div className="min-h-screen flex items-center justify-center bg-zinc-50 font-mono text-xs text-zinc-950 uppercase tracking-widest font-bold">
+            LOADING SETTINGS...
+          </div>
+        }>   
+        <div className="py-16 w-full bg-zinc-50 flex items-center justify-center p-4 font-mono text-xs text-zinc-900 antialiased">
+            <div className="max-w-md w-full bg-white border border-zinc-200 rounded-none shadow-none p-8">
 
                 {!isSuccess ? (
-                    <div className="space-y-8 animate-fadeIn">
+                    <div className="space-y-6">
                         <div className="text-center">
-                            <div className="w-20 h-20 bg-blue-100 rounded-3xl flex items-center justify-center mx-auto mb-6 text-3xl">
-                                🛡️
-                            </div>
-                            <h2 className="text-3xl font-black text-gray-900 mb-2">
+                            <h2 className="text-lg font-black text-zinc-950 uppercase tracking-tight mb-1.5">
                                 Set New Password
                             </h2>
-                            <p className="text-gray-500 font-medium">
+                            <p className="text-zinc-500 font-sans text-xs">
                                 Please enter a secure password for your account.
                             </p>
                         </div>
 
-                        <form onSubmit={handleSubmit} className="space-y-6">
+                        <form onSubmit={handleSubmit} className="space-y-5">
                             <Input
                                 label="New Password"
                                 type="password"
@@ -111,14 +111,11 @@ export const ResetPassword = () => {
                                 required
                                 value={confirmPassword}
                                 onChange={(e) => setConfirmPassword(e.target.value)}
-                                 
                             />
-
-                            
 
                             <Button
                                 type="submit"
-                                className="w-full py-4 text-lg rounded-2xl shadow-lg shadow-blue-600/20 bg-blue-600 hover:bg-blue-700"
+                                className="w-full py-4 text-xs font-bold uppercase tracking-wider rounded-none"
                                 isLoading={isLoading}
                             >
                                 Update Password
@@ -126,23 +123,20 @@ export const ResetPassword = () => {
                         </form>
                     </div>
                 ) : (
-                    <div className="space-y-8 text-center animate-fadeIn">
-                        <div className="w-24 h-24 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                            <span className="text-5xl">✅</span>
-                        </div>
+                    <div className="space-y-6 text-center">
 
                         <div>
-                            <h2 className="text-3xl font-black text-gray-900 mb-2">
+                            <h2 className="text-lg font-black text-zinc-950 uppercase tracking-tight mb-1.5">
                                 Password Reset!
                             </h2>
-                            <p className="text-gray-500 font-medium leading-relaxed">
+                            <p className="text-zinc-500 font-sans text-xs leading-relaxed">
                                 Your password has been successfully updated. <br />
                                 You can now login with your new credentials.
                             </p>
                         </div>
 
                         <Button
-                            className="w-full py-4 rounded-2xl"
+                            className="w-full py-4 text-xs font-bold uppercase tracking-wider rounded-none"
                             onClick={() => router.push("/auth/login")}
                         >
                             Continue to Login
@@ -152,6 +146,5 @@ export const ResetPassword = () => {
             </div>
         </div>
         </Suspense>
-
     );
 };

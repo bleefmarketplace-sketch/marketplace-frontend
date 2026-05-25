@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import LandingPagesNav from "@/components/LandingPagesNav";
+import Footer from "@/components/Marketplace/Footer";
 
 export const metadata: Metadata = {
   title: "Secure Access | Bleefy Agri Hub",
@@ -14,5 +16,13 @@ export default function AuthLayout({
 }: {
   children: React.ReactNode;
 }) {
-  return <>{children}</>;
+  return (
+    <div className="min-h-screen bg-zinc-50 flex flex-col antialiased">
+      <LandingPagesNav />
+      <div className="flex-1 flex flex-col justify-center items-center">
+        {children}
+      </div>
+      <Footer />
+    </div>
+  );
 }

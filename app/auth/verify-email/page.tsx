@@ -53,30 +53,15 @@ const Page = () => {
 
     return (
         <Suspense>
-        <div className="min-h-screen flex items-center justify-center relative bg-gray-900 px-4">
-            <div className="absolute inset-0 z-0">
-                <Image
-                    fill
-                    src="https://images.unsplash.com/photo-1500382017468-9049fed747ef?ixlib=rb-4.0.3&auto=format&fit=crop&w=2532&q=80"
-                    alt="Field background"
-                    className="w-full h-full object-cover opacity-50"
-                    priority
-                />
-                <div className="absolute inset-0 bg-gradient-to-b from-green-900/40 via-gray-900/60 to-gray-900/90"></div>
-            </div>
-
-            <button
-                onClick={onBack}
-                className="absolute top-8 left-8 z-20 text-white/80 hover:text-white flex items-center gap-2 transition-colors bg-white/10 backdrop-blur-md px-4 py-2 rounded-full hover:bg-white/20"
-            >
-                <ArrowLeft size={18} /> <span className="text-sm font-medium">Back to Home</span>
-            </button>
+        <div className="py-16 w-full flex items-center justify-center relative bg-zinc-50 px-4 font-mono text-xs antialiased">
+            
             <div className="relative z-10 w-full max-w-md p-6 mx-4">
-                <div className="w-full max-w-md rounded-2xl bg-white shadow-lg p-8 text-center">
+                <div className="w-full max-w-md border border-zinc-200 bg-white rounded-none shadow-none p-8 text-center animate-in fade-in duration-300">
+                    
                     {status === "loading" && (
                         <>
-                            <h2 className="text-xl font-semibold">Verifying your email</h2>
-                            <p className="text-gray-500 mt-2">
+                            <h2 className="text-sm font-black text-zinc-950 uppercase tracking-tight mb-2">VERIFYING YOUR EMAIL</h2>
+                            <p className="text-zinc-500 font-sans text-xs">
                                 Please wait a moment…
                             </p>
                         </>
@@ -84,10 +69,10 @@ const Page = () => {
 
                     {status === "success" && (
                         <>
-                            <h2 className="text-2xl font-bold text-green-600">
-                                Email Verified 🎉
+                            <h2 className="text-sm font-black text-green-700 uppercase tracking-tight mb-2">
+                                EMAIL VERIFIED 🎉
                             </h2>
-                            <p className="text-gray-600 mt-2">
+                            <p className="text-zinc-500 font-sans text-xs">
                                 Your account is now active. Redirecting to login…
                             </p>
                         </>
@@ -95,17 +80,17 @@ const Page = () => {
 
                     {status === "error" && (
                         <>
-                            <h2 className="text-2xl font-bold text-red-600">
-                                Verification Failed
+                            <h2 className="text-sm font-black text-red-700 uppercase tracking-tight mb-2">
+                                VERIFICATION FAILED
                             </h2>
-                            <p className="text-gray-600 mt-2">
+                            <p className="text-zinc-500 font-sans text-xs">
                                 This verification link is invalid or expired.
                             </p>
                             <button
                                 onClick={() => router.push("/auth/login")}
-                                className="mt-6 w-full rounded-xl bg-black py-2 text-white hover:bg-gray-800"
+                                className="mt-6 w-full rounded-none border border-zinc-950 bg-zinc-950 py-2.5 text-white hover:bg-zinc-800 font-mono text-xs font-bold uppercase tracking-wider cursor-pointer"
                             >
-                                Go to Login
+                                GO TO LOGIN
                             </button>
                         </>
                     )}
@@ -116,4 +101,4 @@ const Page = () => {
     );
 }
 
-export default Page
+export default Page;

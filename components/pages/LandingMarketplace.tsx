@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Button } from '@/components/Button';
 import {
-    Star, MapPin, Filter, Package, Plus, X
+    Star, MapPin, Filter, Package, Plus, X, Search, AlertCircle
 } from 'lucide-react';
 import { CATEGORIES } from '../constants';
 import { Product } from '../types';
@@ -10,10 +10,9 @@ import { useCartStore } from '@/store/useCartStore';
 import { toast } from 'react-toastify';
 import { useTracking } from '@/hooks/useTracking';
 
-
-
 export const Marketplace = () => {
     const { trackEvent } = useTracking();
+
     // --- STATE ---
     const [products, setProducts] = useState<Product[]>([]);
     const [loading, setLoading] = useState(true);
@@ -36,7 +35,7 @@ export const Marketplace = () => {
     useEffect(() => {
         const delayDebounceFn = setTimeout(() => {
             setFilters(prev => ({ ...prev, search: searchTerm }));
-        }, 500); // Wait 500ms after typing stops
+        }, 500);
 
         return () => clearTimeout(delayDebounceFn);
     }, [searchTerm]);
@@ -59,7 +58,6 @@ export const Marketplace = () => {
 
             if (data.success === false) throw new Error(data.message);
 
-            // Check if data is the array directly or inside a property
             setProducts(Array.isArray(data) ? data : data.products || []);
         } catch (err: any) {
             setError(err.message || "Failed to connect to server");
@@ -73,10 +71,7 @@ export const Marketplace = () => {
         fetchProducts();
     }, [fetchProducts]);
 
-
     const handleOpenProduct = (product: Product) => {
-
-
         trackEvent('click', product.id, { category: product.categoryId });
         window.open(`/marketplace/${product.slug}`, '_blank');
     };
@@ -93,120 +88,157 @@ export const Marketplace = () => {
     };
 
     return (
-        <div className="min-h-screen bg-[#f4f4f4]">
+        <div className="min-h-screen bg-zinc-50 text-zinc-900 font-sans flex flex-col antialiased">
+            <main className="max-w-7xl mx-auto px-4 py-8 w-full">
 
+                {/* Real-time Integrated Search Input bar (AgriTerminal Parity) */}
+                <div className="border border-zinc-200 bg-white p-4 mb-6 shadow-none">
+                    <div className="flex items-center bg-zinc-50 border border-zinc-200 px-3.5 py-2.5 font-mono text-xs">
+                        <Search className="w-4 h-4 text-zinc-400 mr-3" />
+                        <input
+                            type="text"
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            placeholder="Filter farm-fresh produce, fertilizer complex batches, agronomy tutorials, precision drone inputs..."
+                            className="bg-transparent border-0 focus:outline-none w-full text-zinc-900 placeholder-zinc-400"
+                        />
+                    </div>
+                </div>
 
-            <main className="max-w-7xl mx-auto px-4 py-8">
-                <div className="flex flex-col md:flex-row gap-8">
+                <div className="flex flex-col md:flex-row gap-6 items-stretch">
 
                     {/* --- SIDEBAR --- */}
-                    <aside className="w-full md:w-64 shrink-0">
-                        <div className="sticky top-28 space-y-8">
+                    <aside className="w-full md:w-64 shrink-0 font-mono text-xs">
+                        <div className="space-y-4">
+
                             {/* Category Filter */}
-                            <div>
-                                <div className="flex items-center justify-between mb-4">
-                                    <h3 className="font-bold text-gray-900 flex items-center gap-2">
-                                        <Filter size={16} /> Category
+                            <div className="border border-zinc-200 bg-white p-4">
+                                <div className="flex items-center justify-between mb-4 border-b border-zinc-150 pb-2">
+                                    <h3 className="font-bold text-zinc-900 uppercase tracking-widest flex items-center gap-2 text-[10px]">
+                                        <Filter size={13} className="text-green-700" /> CATEGORIES
                                     </h3>
                                     {filters.category && (
-                                        <button onClick={() => setFilters(f => ({ ...f, category: '' }))} className="text-[10px] text-red-500 font-bold underline">CLEAR</button>
+                                        <button
+                                            onClick={() => setFilters(f => ({ ...f, category: '' }))}
+                                            className="text-[9px] text-red-600 font-black uppercase hover:underline cursor-pointer"
+                                        >
+                                            CLEAR
+                                        </button>
                                     )}
                                 </div>
                                 <div className="space-y-1">
-                                    {CATEGORIES.map((cat) => (
-                                        <button
-                                            key={cat.name}
-                                            onClick={() => setFilters(f => ({ ...f, category: cat.name }))}
-                                            className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-all ${filters.category === cat.name
-                                                ? 'bg-emerald-600 text-white font-bold shadow-md transform translate-x-1'
-                                                : 'text-gray-600 hover:bg-white hover:shadow-sm'
-                                                }`}
-                                        >
-                                            <span className="mr-2">{cat.icon}</span> {cat.name}
-                                        </button>
-                                    ))}
+                                    {CATEGORIES.map((cat) => {
+                                        const isActive = filters.category === cat.name;
+                                        return (
+                                            <button
+                                                key={cat.name}
+                                                onClick={() => setFilters(f => ({ ...f, category: cat.name }))}
+                                                className={`w-full text-left uppercase font-bold tracking-tight py-2 px-3 flex items-center transition-all rounded-none border cursor-pointer ${isActive
+                                                        ? "border-green-600 bg-green-50 text-green-800 shadow-none font-extrabold"
+                                                        : "border-transparent text-zinc-650 hover:text-zinc-950 hover:bg-zinc-50"
+                                                    }`}
+                                            >
+                                                <span className="mr-2.5 text-xs">{cat.icon}</span>
+                                                <span>{cat.name}</span>
+                                            </button>
+                                        );
+                                    })}
                                 </div>
                             </div>
 
                             {/* Price Filter */}
-                            <div className="p-4 bg-white rounded-2xl shadow-sm border border-gray-100">
-                                <h3 className="font-bold text-sm mb-4">Price Range ($)</h3>
+                            <div className="border border-zinc-200 bg-white p-4">
+                                <h3 className="font-bold text-zinc-900 uppercase tracking-widest text-[10px] border-b border-zinc-150 pb-2 mb-3">
+                                    PRICE RANGE ($)
+                                </h3>
                                 <div className="flex items-center gap-2">
                                     <input
                                         type="number"
-                                        placeholder="Min"
-                                        className="w-full p-2 bg-gray-50 border rounded-lg text-xs outline-none focus:ring-1 ring-emerald-500"
+                                        placeholder="MIN"
+                                        className="w-full px-2 py-1.5 bg-zinc-50 border border-zinc-250 rounded-none text-xs outline-none focus:border-green-600 font-mono text-zinc-900"
                                         value={filters.minPrice}
                                         onChange={(e) => setFilters(f => ({ ...f, minPrice: e.target.value }))}
                                     />
-                                    <span className="text-gray-300">-</span>
+                                    <span className="text-zinc-300">-</span>
                                     <input
                                         type="number"
-                                        placeholder="Max"
-                                        className="w-full p-2 bg-gray-50 border rounded-lg text-xs outline-none focus:ring-1 ring-emerald-500"
+                                        placeholder="MAX"
+                                        className="w-full px-2 py-1.5 bg-zinc-50 border border-zinc-250 rounded-none text-xs outline-none focus:border-green-600 font-mono text-zinc-900"
                                         value={filters.maxPrice}
                                         onChange={(e) => setFilters(f => ({ ...f, maxPrice: e.target.value }))}
                                     />
                                 </div>
                             </div>
 
-                            <Button variant="ghost" fullWidth size="sm" onClick={clearFilters} className="text-gray-400">
-                                Reset All Filters
+                            <Button
+                                variant="ghost"
+                                fullWidth
+                                size="sm"
+                                onClick={clearFilters}
+                                className="text-zinc-450 border border-zinc-200 bg-white hover:bg-zinc-50 rounded-none font-bold uppercase tracking-wider cursor-pointer"
+                            >
+                                RESET ALL FILTERS
                             </Button>
                         </div>
                     </aside>
 
                     {/* --- PRODUCT GRID --- */}
-                    <section className="flex-1">
+                    <section className="flex-1 flex flex-col justify-between">
+
                         {/* Sort & Info Header */}
-                        <div className="bg-white p-4 rounded-2xl mb-6 flex items-center justify-between shadow-sm border border-gray-100">
-                            <p className="text-sm font-medium text-gray-500">
-                                Showing <span className="text-gray-900 font-bold">{products.length}</span> results
-                                {filters.search && <span> for &quot;<span className="text-emerald-600">{filters.search}</span>&quot;</span>}
+                        <div className="bg-white border border-zinc-200 p-4 mb-6 flex flex-col sm:flex-row items-center justify-between gap-4 font-mono text-xs shadow-none">
+                            <p className="font-bold text-zinc-500 uppercase tracking-tight">
+                                SHOWING <span className="text-zinc-950 font-black">{products.length}</span> PRODUCTS
+                                {filters.search && (
+                                    <span> FOR &quot;<span className="text-green-700 font-extrabold">{filters.search}</span>&quot;</span>
+                                )}
                             </p>
-                            <select
-                                className="text-sm font-bold bg-gray-50 px-4 py-2 rounded-lg outline-none cursor-pointer"
-                                value={filters.sortBy}
-                                onChange={(e) => setFilters(f => ({ ...f, sortBy: e.target.value }))}
-                            >
-                                <option value="newest">Newest Arrivals</option>
-                                <option value="price_asc">Price: Low to High</option>
-                                <option value="price_desc">Price: High to Low</option>
-                                <option value="rating">Top Rated</option>
-                            </select>
+                            <div className="flex items-center space-x-2 bg-zinc-50 border border-zinc-200 px-2.5 py-1">
+                                <span className="text-[9px] text-zinc-400 uppercase font-bold tracking-wider">SORT:</span>
+                                <select
+                                    className="bg-transparent border-0 font-bold focus:outline-none text-[11px] text-zinc-900 cursor-pointer"
+                                    value={filters.sortBy}
+                                    onChange={(e) => setFilters(f => ({ ...f, sortBy: e.target.value }))}
+                                >
+                                    <option value="newest">NEWEST ARRIVALS</option>
+                                    <option value="price_asc">PRICE: LOW TO HIGH</option>
+                                    <option value="price_desc">PRICE: HIGH TO LOW</option>
+                                    <option value="rating">TOP RATED</option>
+                                </select>
+                            </div>
                         </div>
 
                         {loading ? (
                             <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                                 {[1, 2, 3, 4, 5, 6, 7, 8].map(i => (
-                                    <div key={i} className="h-72 bg-white animate-pulse rounded-2xl" />
+                                    <div key={i} className="h-72 bg-white border border-zinc-150 animate-pulse rounded-none" />
                                 ))}
                             </div>
                         ) : error ? (
-                            <div className="p-20 text-center bg-white rounded-3xl border-2 border-dashed border-gray-200">
-                                <div className="bg-red-50 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-                                    <X className="text-red-500" />
+                            <div className="p-16 text-center bg-white border border-dashed border-zinc-250 font-mono rounded-none">
+                                <div className="bg-red-50 w-12 h-12 border border-red-150 flex items-center justify-center mx-auto mb-4 text-red-650">
+                                    <AlertCircle className="w-6 h-6" />
                                 </div>
-                                <h3 className="text-xl font-bold text-gray-900">Search Failed</h3>
-                                <p className="text-gray-500 mb-6">{error}</p>
-                                <Button onClick={fetchProducts}>Try Again</Button>
+                                <h3 className="text-sm font-bold text-zinc-950 uppercase">SEARCH MATRIX FAILED</h3>
+                                <p className="text-zinc-500 text-xs font-sans mt-1.5 mb-5">{error}</p>
+                                <Button onClick={fetchProducts} size="sm">RETRY QUERY</Button>
                             </div>
                         ) : (
-                            <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                            <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 font-mono text-left">
                                 {products.map((product) => (
                                     <div
                                         key={product.id}
                                         onClick={() => handleOpenProduct(product)}
-                                        className="group bg-white rounded-2xl overflow-hidden border border-transparent hover:border-emerald-500 hover:shadow-xl transition-all cursor-pointer flex flex-col relative"
+                                        className="group bg-white rounded-none border border-zinc-200 hover:border-zinc-350 transition-all cursor-pointer flex flex-col relative"
                                     >
                                         {/* Image Area */}
-                                        <div className="relative aspect-square bg-gray-100 overflow-hidden">
+                                        <div className="relative aspect-square bg-zinc-50 overflow-hidden border-b border-zinc-200">
                                             <Image
                                                 fill
                                                 unoptimized
                                                 src={product.primaryImage || '/placeholder-product.jpg'}
                                                 alt={product.title}
-                                                className="object-cover group-hover:scale-110 transition-transform duration-700"
+                                                className="object-cover group-hover:scale-101 transition-transform duration-300"
                                             />
 
                                             <button
@@ -215,37 +247,39 @@ export const Marketplace = () => {
                                                     addItem(product, 1);
                                                     toast.success('Added to cart!');
                                                 }}
-                                                className="absolute bottom-2 right-2 bg-white/90 backdrop-blur p-2 rounded-full shadow-lg hover:bg-emerald-600 hover:text-white transition-all transform translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100"
+                                                className="absolute bottom-2.5 right-2.5 bg-white border border-zinc-200 p-2 rounded-none hover:bg-green-700 hover:text-white transition-colors cursor-pointer opacity-100 sm:opacity-0 group-hover:opacity-100"
                                             >
-                                                <Plus size={20} />
+                                                <Plus size={16} />
                                             </button>
                                         </div>
 
                                         {/* Content Area */}
-                                        <div className="p-3 flex flex-col flex-1">
-                                            <h3 className="text-sm text-gray-700 line-clamp-2 mb-2 group-hover:text-emerald-600 transition-colors">
-                                                {product.title}
-                                            </h3>
+                                        <div className="p-3 flex flex-col flex-1 justify-between gap-3">
+                                            <div>
+                                                <h3 className="text-xs font-bold text-zinc-950 line-clamp-2 leading-tight uppercase group-hover:text-green-750 transition-colors">
+                                                    {product.title}
+                                                </h3>
+                                            </div>
 
-                                            <div className="mt-auto">
-                                                <div className="flex items-baseline gap-1 mb-1">
-                                                    <span className="text-xs font-bold text-emerald-600">$</span>
-                                                    <span className="text-xl font-black text-emerald-600">{product.price}</span>
+                                            <div className="space-y-2 pt-1 border-t border-zinc-100 bg-zinc-50/20">
+                                                <div className="flex items-baseline gap-0.5">
+                                                    <span className="text-[10px] text-zinc-400 font-bold">$</span>
+                                                    <span className="text-md font-black text-zinc-950">{product.price}</span>
                                                 </div>
 
-                                                <div className="flex items-center gap-2">
-                                                    <div className="flex items-center gap-0.5 text-[10px] font-bold bg-amber-50 text-amber-700 px-1.5 py-0.5 rounded">
-                                                        <Star size={10} className="fill-amber-700" />
+                                                <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[9px] font-bold uppercase">
+                                                    <div className="flex items-center gap-0.5 bg-amber-50 text-amber-705 px-1.5 py-0.5 border border-amber-200 rounded-none">
+                                                        <Star size={9} className="fill-amber-600 text-amber-600" />
                                                         {product.averageRating}
                                                     </div>
-                                                    <span className="text-[10px] text-gray-400 font-medium">
-                                                        {product.reviewCount || 0} sold
+                                                    <span className="text-zinc-450 font-mono">
+                                                        {product.reviewCount || 0} SOLD
                                                     </span>
                                                 </div>
 
-                                                <div className="mt-2 flex items-center gap-1 text-[10px] text-gray-400">
-                                                    <MapPin size={10} />
-                                                    {product.location}
+                                                <div className="flex items-center gap-1 text-[9px] text-zinc-400 font-semibold truncate">
+                                                    <MapPin size={9} className="text-zinc-400" />
+                                                    <span className="truncate">{product.location.toUpperCase()}</span>
                                                 </div>
                                             </div>
                                         </div>
@@ -256,10 +290,10 @@ export const Marketplace = () => {
 
                         {/* Empty State */}
                         {!loading && products.length === 0 && !error && (
-                            <div className="text-center py-20 bg-white rounded-3xl shadow-sm">
-                                <Package size={48} className="mx-auto text-gray-200 mb-4" />
-                                <h3 className="text-lg font-bold">No items match your search</h3>
-                                <p className="text-gray-500">Try adjusting your filters or search terms.</p>
+                            <div className="text-center py-20 bg-white border border-dashed border-zinc-250 font-mono rounded-none">
+                                <Package size={36} className="mx-auto text-zinc-300 mb-3" />
+                                <h3 className="font-bold text-zinc-900 uppercase text-xs">NO ASSETS COMPLY WITH QUERY</h3>
+                                <p className="text-zinc-500 text-[11px] font-sans mt-1">Try adjusting your filters or search terms.</p>
                             </div>
                         )}
                     </section>

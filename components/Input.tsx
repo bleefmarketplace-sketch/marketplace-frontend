@@ -16,30 +16,30 @@ export const Input: React.FC<InputProps> = ({ label, error, icon, className = ''
 
   return (
     <div className={`w-full ${className}`}>
-      {label && <label className="block text-sm font-medium text-gray-700 mb-1">{label}</label>}
+      {label && <label className="block text-xs font-mono font-bold text-zinc-500 uppercase tracking-widest mb-1.5">{label}</label>}
       <div className="relative">
         {icon && (
-          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
+          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-zinc-400">
             {icon}
           </div>
         )}
         <input
           type={inputType}
-          className={`w-full rounded-lg border border-gray-300 bg-white py-2 ${icon ? 'pl-10' : 'pl-3'} ${isPassword ? 'pr-10' : 'pr-3'} text-sm placeholder-gray-400 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 disabled:bg-gray-100`}
+          className={`w-full rounded-none border border-zinc-300 bg-white font-mono py-2 ${icon ? 'pl-9' : 'pl-3'} ${isPassword ? 'pr-9' : 'pr-3'} text-xs placeholder-zinc-400 focus:border-green-600 focus:outline-none focus:ring-1 focus:ring-green-600/30 disabled:bg-zinc-100`}
           {...props}
         />
         {isPassword && (
           <button
             type="button"
-            className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 focus:outline-none"
+            className="absolute inset-y-0 right-0 pr-3 flex items-center text-zinc-400 hover:text-zinc-600 focus:outline-none"
             onClick={() => setShowPassword(!showPassword)}
             tabIndex={-1}
           >
-            {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+            {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
           </button>
         )}
       </div>
-      {error && <p className="mt-1 text-xs text-red-500">{error}</p>}
+      {error && <p className="mt-1 text-[10px] font-mono text-red-600">{error}</p>}
     </div>
   );
 };

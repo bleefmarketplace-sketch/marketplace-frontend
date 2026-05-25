@@ -2,7 +2,7 @@
 import React, { Suspense, useState } from 'react';
 import { Button } from '@/components/Button';
 import { Input } from '@/components/Input';
-import { Mail, Lock, ArrowLeft, Sprout, Loader2 } from 'lucide-react';
+import { Mail, Lock, ArrowLeft, Loader2 } from 'lucide-react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
@@ -23,7 +23,6 @@ const LoginPage = () => {
   const [showMfaModal, setShowMfaModal] = useState(false);
   const [tempUserId, setTempUserId] = useState('');
 
-
   const validateForm = (): boolean => {
     const newErrors: { email?: string; password?: string } = {};
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -36,7 +35,7 @@ const LoginPage = () => {
 
     if (!password) {
       newErrors.password = "Password is required";
-    } else if (password.length < 6) { // Adjusted to 6 for common standards, or keep at 8
+    } else if (password.length < 6) {
       newErrors.password = "Password must be at least 6 characters";
     }
 
@@ -46,101 +45,71 @@ const LoginPage = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
     if (!validateForm()) return;
 
-    // The AuthContext's signIn handles:
-    // 1. The API call
-    // 2. Setting cookies & state
-    // 3. Error Toasts
-    // 4. Redirecting to Onboarding vs Dashboard
     const result = await signIn(email, password, rememberMe);
 
-     if (result?.mfaRequired) {
+    if (result?.mfaRequired) {
         setTempUserId(result.userId);
         setShowMfaModal(true);
     }
   };
 
-  
-
   const handleMfaVerify = async (code: string) => {
-      // Calls the verify2FA context method
       await verify2FA(tempUserId, code, rememberMe);
   };
 
   return (
     <Suspense fallback={
-      <div className="flex justify-center py-20">
-        <Loader2 className="animate-spin text-emerald-600" />
+      <div className="flex justify-center py-20 bg-zinc-50 font-mono text-xs">
+        <Loader2 className="animate-spin text-green-700" />
       </div>
     }>
-    <div className="min-h-screen flex items-center justify-center relative bg-gray-900 overflow-hidden">
-      {/* Background with Overlay */}
-      <div className="absolute inset-0 z-0">
-        <Image
-          fill
-          src="https://images.unsplash.com/photo-1500382017468-9049fed747ef?ixlib=rb-4.0.3&auto=format&fit=crop&w=2532&q=80"
-          alt="Farm background"
-          className="object-cover opacity-50"
-          priority
-        />
-        <div className="absolute inset-0 bg-gradient-to-b from-gray-900/40 via-gray-900/60 to-gray-900/90"></div>
-      </div>
-
-      <button
-        onClick={() => router.push("/")}
-        className="absolute top-8 left-8 z-20 text-white/80 hover:text-white flex items-center gap-2 transition-colors bg-white/10 backdrop-blur-md px-4 py-2 rounded-full hover:bg-white/20"
-      >
-        <ArrowLeft size={18} /> <span className="text-sm font-medium">Back to Home</span>
-      </button>
-
+    <div className="py-16 w-full flex items-center justify-center relative bg-zinc-50 text-zinc-900 overflow-hidden font-mono text-xs">
+      
       <div className="relative z-10 w-full max-w-md p-6 mx-4">
-        <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-3xl shadow-2xl overflow-hidden p-8 animate-in fade-in zoom-in-95 duration-500">
+        <div className="bg-white border border-zinc-200 rounded-none shadow-none p-8 animate-in fade-in duration-300">
 
           <div className="text-center mb-8">
-            <div className="w-12 h-12 bg-green-600 rounded-xl flex items-center justify-center text-white mx-auto mb-4 shadow-lg shadow-green-600/30">
-              <Sprout size={24} />
-            </div>
-            <h2 className="text-3xl font-bold text-white mb-2">Welcome Back</h2>
-            <p className="text-gray-300 text-sm">Enter your details to access your account.</p>
+            <h2 className="text-lg font-black text-zinc-950 uppercase tracking-tight mb-1.5">Welcome Back</h2>
+            <p className="text-zinc-500 font-sans text-xs">Enter your details to access your account.</p>
           </div>
 
-          <form className="space-y-6" onSubmit={handleSubmit}>
+          <form className="space-y-5" onSubmit={handleSubmit}>
             <div className="space-y-4">
               <div>
-                <label className="block text-xs font-medium text-gray-300 uppercase tracking-wider mb-1.5 ml-1">Email</label>
+                <label className="block text-xs font-mono font-bold text-zinc-500 uppercase tracking-widest mb-1.5 ml-1">Email</label>
                 <Input
                   type="email"
                   placeholder="name@example.com"
-                  icon={<Mail size={18} className="text-gray-500" />}
+                  icon={<Mail size={16} className="text-zinc-400" />}
                   value={email}
                   onChange={(e) => {
                     setEmail(e.target.value);
                     if (errors.email) setErrors({ ...errors, email: undefined });
                   }}
-                  className={`bg-white/90 border-transparent focus:bg-white transition-all text-gray-900 ${errors.email ? "ring-2 ring-red-500" : ""}`}
+                  className={`${errors.email ? "ring-1 ring-red-650" : ""}`}
                 />
-                {errors.email && <p className="text-red-400 text-[10px] mt-1 ml-1 uppercase font-bold">{errors.email}</p>}
+                {errors.email && <p className="text-red-600 text-[10px] mt-1 ml-1 uppercase font-bold">{errors.email}</p>}
               </div>
 
               <div>
                 <div className="flex justify-between items-center mb-1.5 ml-1">
-                  <label className="block text-xs font-medium text-gray-300 uppercase tracking-wider">Password</label>
-                  <Link href="/auth/forgot-password" className="text-xs text-green-400 hover:text-green-300 font-medium">Forgot Password?</Link>
+                  <label className="block text-xs font-mono font-bold text-zinc-500 uppercase tracking-widest">Password</label>
+                  <Link href="/auth/forgot-password" className="text-xs text-green-700 hover:text-green-800 font-bold uppercase tracking-wide">Forgot?</Link>
                 </div>
                 <Input
                   type="password"
                   placeholder="••••••••"
-                  icon={<Lock size={18} className="text-gray-500" />}
+                  icon={<Lock size={16} className="text-zinc-400" />}
                   value={password}
                   onChange={(e) => {
                     setPassword(e.target.value);
                     if (errors.password) setErrors({ ...errors, password: undefined });
                   }}
-                  className={`bg-white/90 border-transparent focus:bg-white transition-all text-gray-900 ${errors.password ? "ring-2 ring-red-500" : ""}`}
+                  className={`${errors.password ? "ring-1 ring-red-650" : ""}`}
                 />
-                {errors.password && <p className="text-red-400 text-[10px] mt-1 ml-1 uppercase font-bold">{errors.password}</p>}
+                {errors.password && <p className="text-red-600 text-[10px] mt-1 ml-1 uppercase font-bold">{errors.password}</p>}
               </div>
 
               <div className="flex items-center gap-2 mb-1.5 ml-1">
@@ -149,9 +118,9 @@ const LoginPage = () => {
                   type="checkbox"
                   checked={rememberMe}
                   onChange={(e) => setRememberMe(e.target.checked)}
-                  className="h-4 w-4 rounded border-gray-300 focus:ring-green-500 text-green-600 cursor-pointer"
+                  className="h-4 w-4 rounded-none border-zinc-300 focus:ring-green-600 text-green-700 cursor-pointer"
                 />
-                <label htmlFor="remember-me" className="block text-xs font-medium text-gray-300 uppercase tracking-wider cursor-pointer">
+                <label htmlFor="remember-me" className="block text-[10px] font-mono font-bold text-zinc-500 uppercase tracking-widest cursor-pointer">
                   Remember me
                 </label>
               </div>
@@ -162,15 +131,15 @@ const LoginPage = () => {
                 size="lg" 
                 type="submit" 
                 isLoading={isLoading} 
-                className="shadow-lg shadow-green-600/20 bg-green-600 hover:bg-green-700"
+                className="w-full py-4 text-xs font-bold uppercase tracking-wider rounded-none"
             >
               Sign In
             </Button>
           </form>
 
-          <p className="mt-8 text-center text-sm text-gray-400">
+          <p className="mt-8 text-center text-xs text-zinc-500 font-bold uppercase tracking-wide">
             Don&apos;t have an account?{' '}
-            <button onClick={() => router.push('/auth/signup')} className="font-bold text-green-400 hover:text-green-300">
+            <button onClick={() => router.push('/auth/signup')} className="font-bold text-green-750 hover:text-green-800 hover:underline cursor-pointer">
               Create free account
             </button>
           </p>

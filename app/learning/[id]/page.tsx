@@ -75,110 +75,113 @@ export default function CourseDetailsPage() {
         }
     };
 
-    if (loading) return <div className="min-h-screen flex items-center justify-center"><Loader2 className="animate-spin text-emerald-600" size={40} /></div>;
-    if (!course) return <div className="min-h-screen flex items-center justify-center font-bold text-gray-400">Course not found</div>;
+    if (loading) return <div className="min-h-screen flex items-center justify-center bg-zinc-50"><Loader2 className="animate-spin text-green-700" size={32} /></div>;
+    if (!course) return <div className="min-h-screen flex items-center justify-center font-mono text-xs font-bold uppercase tracking-wider text-zinc-450 bg-zinc-50">Course not found</div>;
 
     return (
-        <div className="min-h-screen bg-gray-50/30 pb-20">
+        <div className="min-h-screen bg-zinc-50 pb-20 text-zinc-900 font-mono text-xs antialiased">
             {/* Header */}
-            <div className="bg-gray-900 text-white pt-12 pb-24 md:pb-32 relative overflow-hidden">
-                <div className="absolute inset-0 opacity-20">
+            <div className="bg-zinc-950 text-white pt-12 pb-24 md:pb-32 relative overflow-hidden border-b border-zinc-800">
+                <div className="absolute inset-0 opacity-5">
                     <Image fill src={course.primaryImage} alt="" className="object-cover blur-lg" unoptimized />
                 </div>
                 <div className="max-w-7xl mx-auto px-6 relative z-10">
-                    <button onClick={() => router.back()} className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors mb-8 font-black uppercase tracking-widest text-[10px]">
-                        <ChevronLeft size={16} /> Back to Academy
+                    <button 
+                        onClick={() => router.back()} 
+                        className="flex items-center gap-1.5 text-zinc-400 hover:text-white transition-colors mb-8 font-mono text-[10px] uppercase font-bold tracking-widest border border-zinc-700 bg-transparent px-3 py-1.5 rounded-none cursor-pointer w-fit"
+                    >
+                        <ChevronLeft size={12} /> Back to Academy
                     </button>
                     
                     <div className="grid lg:grid-cols-3 gap-12 items-start">
                         <div className="lg:col-span-2 space-y-6">
-                            <div className="flex flex-wrap gap-3">
-                                <span className="px-3 py-1 bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 rounded-full text-[10px] font-black uppercase tracking-widest">
+                            <div className="flex flex-wrap gap-2">
+                                <span className="px-2.5 py-0.5 bg-green-950/40 text-green-400 border border-green-700/30 rounded-none text-[10px] font-bold uppercase tracking-wider">
                                     {course.category?.name || 'Agri-Expert'}
                                 </span>
-                                <span className="px-3 py-1 bg-blue-500/20 text-blue-400 border border-blue-500/30 rounded-full text-[10px] font-black uppercase tracking-widest">
+                                <span className="px-2.5 py-0.5 bg-zinc-800 text-zinc-300 border border-zinc-700 rounded-none text-[10px] font-bold uppercase tracking-wider">
                                     Course
                                 </span>
                             </div>
-                            <h1 className="text-4xl md:text-5xl font-black leading-tight tracking-tight">{course.title}</h1>
-                            <p className="text-gray-400 text-lg md:text-xl font-medium leading-relaxed max-w-3xl">
+                            <h1 className="text-3xl md:text-5xl font-black leading-tight tracking-tight uppercase font-mono">{course.title}</h1>
+                            <p className="text-zinc-400 font-sans text-xs max-w-2xl leading-relaxed">
                                 {course.description}
                             </p>
                             
-                            <div className="flex flex-wrap items-center gap-6 text-sm">
-                                <div className="flex items-center gap-2">
-                                    <Star size={18} className="text-yellow-500 fill-current" />
-                                    <span className="font-black">{course.digitalMetadata?.trustScore || '4.8'}</span>
-                                    <span className="text-gray-500 font-bold">(120+ Reviews)</span>
+                            <div className="flex flex-wrap items-center gap-4 text-[10px] font-bold uppercase tracking-wider text-zinc-400">
+                                <div className="flex items-center gap-1.5">
+                                    <Star size={14} className="text-yellow-600 fill-current" />
+                                    <span className="text-white font-black">{course.digitalMetadata?.trustScore || '4.8'}</span>
+                                    <span className="text-zinc-500 font-normal">(120+ Reviews)</span>
                                 </div>
-                                <div className="w-px h-4 bg-gray-700" />
-                                <div className="flex items-center gap-2 text-gray-400 font-bold">
-                                    <Award size={18} className="text-blue-400" /> Verified Instructor
+                                <div className="w-px h-3 bg-zinc-800" />
+                                <div className="flex items-center gap-1.5 text-zinc-350">
+                                    <Award size={14} className="text-green-500" /> Verified Instructor
                                 </div>
-                                <div className="w-px h-4 bg-gray-700" />
-                                <div className="flex items-center gap-2 text-gray-400 font-bold">
-                                    <Zap size={18} className="text-orange-400" /> {course.digitalMetadata?.aiAccuracyScore || '95'}% AI Certified
+                                <div className="w-px h-3 bg-zinc-800" />
+                                <div className="flex items-center gap-1.5 text-zinc-350">
+                                    <Zap size={14} className="text-yellow-600" /> {course.digitalMetadata?.aiAccuracyScore || '95'}% AI Certified
                                 </div>
                             </div>
                         </div>
 
                         {/* Floating Purchase Card (Desktop) */}
                         <div className="hidden lg:block sticky top-24">
-                            <Card className="p-0 border-none shadow-2xl rounded-[2.5rem] overflow-hidden bg-white">
-                                <div className="aspect-video relative">
+                            <Card className="p-0 border border-zinc-200 shadow-none rounded-none overflow-hidden bg-white font-mono text-xs">
+                                <div className="aspect-video relative border-b border-zinc-200 bg-zinc-100">
                                     <Image fill src={course.primaryImage} alt="" className="object-cover" unoptimized />
                                     <div className="absolute inset-0 bg-black/40 flex items-center justify-center group cursor-pointer">
-                                        <div className="w-16 h-16 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-white border border-white/30 transform group-hover:scale-110 transition-transform">
-                                            <PlayCircle size={32} />
+                                        <div className="w-12 h-12 rounded-none border border-white/40 bg-black/40 flex items-center justify-center text-white transform group-hover:scale-105 transition-all">
+                                            <PlayCircle size={24} />
                                         </div>
                                     </div>
                                 </div>
                                 <div className="p-8 space-y-6">
                                     <div className="flex items-center justify-between">
-                                        <span className="text-3xl font-black text-gray-900 tracking-tighter">₦{Number(course.price).toLocaleString()}</span>
-                                        <span className="text-xs font-black text-emerald-600 bg-emerald-50 px-3 py-1 rounded-full uppercase tracking-widest">Digital Access</span>
+                                        <span className="text-xl font-bold text-zinc-950 tracking-wider">₦{Number(course.price).toLocaleString()}</span>
+                                        <span className="text-[9px] font-bold text-green-700 bg-green-50 border border-green-700/20 px-2 py-0.5 rounded-none uppercase tracking-widest">Digital Access</span>
                                     </div>
                                     
                                     {!isPurchased && (
                                         <div className="space-y-4">
-                                            <p className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Select Payment Gateway</p>
+                                            <p className="text-[9px] font-bold text-zinc-500 uppercase tracking-widest">Select Payment Gateway</p>
                                             <div className="grid grid-cols-2 gap-3">
                                                 <button 
                                                     onClick={() => setPaymentMethod('paystack')}
-                                                    className={`py-3 rounded-xl border-2 transition-all flex flex-col items-center gap-1 ${
+                                                    className={`py-2.5 rounded-none border transition-colors flex flex-col items-center gap-0.5 cursor-pointer ${
                                                         paymentMethod === 'paystack' 
-                                                        ? 'border-emerald-500 bg-emerald-50' 
-                                                        : 'border-gray-50 bg-gray-50'
+                                                        ? 'border-green-700 bg-green-50/50' 
+                                                        : 'border-zinc-200 bg-white hover:bg-zinc-50'
                                                     }`}
                                                 >
-                                                    <span className="text-[10px] font-black text-blue-600">PAYSTACK</span>
+                                                    <span className="text-[9px] font-bold text-zinc-900 tracking-wide">PAYSTACK</span>
                                                 </button>
                                                 <button 
                                                     onClick={() => setPaymentMethod('flutterwave')}
-                                                    className={`py-3 rounded-xl border-2 transition-all flex flex-col items-center gap-1 ${
+                                                    className={`py-2.5 rounded-none border transition-colors flex flex-col items-center gap-0.5 cursor-pointer ${
                                                         paymentMethod === 'flutterwave' 
-                                                        ? 'border-orange-500 bg-orange-50' 
-                                                        : 'border-gray-50 bg-gray-50'
+                                                        ? 'border-green-700 bg-green-50/50' 
+                                                        : 'border-zinc-200 bg-white hover:bg-zinc-50'
                                                     }`}
                                                 >
-                                                    <span className="text-[10px] font-black text-orange-500">FLUTTERWAVE</span>
+                                                    <span className="text-[9px] font-bold text-zinc-900 tracking-wide">FLUTTERWAVE</span>
                                                 </button>
                                             </div>
                                         </div>
                                     )}
 
                                     {isPurchased ? (
-                                        <Button fullWidth className="h-14 rounded-2xl bg-emerald-600 font-black uppercase tracking-widest" onClick={() => router.push(`/learning/vault/${id}`)}>
+                                        <Button fullWidth className="h-12 rounded-none bg-green-700 hover:bg-green-800 text-white font-mono text-xs uppercase font-bold tracking-wider border-none" onClick={() => router.push(`/learning/vault/${id}`)}>
                                             Access Course Content
                                         </Button>
                                     ) : (
-                                        <Button fullWidth className="h-14 rounded-2xl bg-gray-900 hover:bg-gray-800 font-black uppercase tracking-widest shadow-xl shadow-gray-200" onClick={handleEnroll} disabled={enrolling}>
-                                            {enrolling ? <Loader2 className="animate-spin" /> : 'Enroll in Academy'}
+                                        <Button fullWidth className="h-12 rounded-none bg-zinc-950 hover:bg-zinc-850 text-white font-mono text-xs uppercase font-bold tracking-wider border-none" onClick={handleEnroll} disabled={enrolling}>
+                                            {enrolling ? <Loader2 className="animate-spin" size={14} /> : 'Enroll in Academy'}
                                         </Button>
                                     )}
 
-                                    <div className="space-y-3 pt-4">
-                                        <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest text-center">Includes:</p>
+                                    <div className="space-y-3 pt-4 border-t border-zinc-150">
+                                        <p className="text-[9px] font-bold text-zinc-500 uppercase tracking-widest text-center">Includes:</p>
                                         <div className="space-y-2">
                                             <IncludeItem icon={PlayCircle} label="On-demand video lessons" />
                                             <IncludeItem icon={BookOpen} label="Downloadable resources" />
@@ -198,9 +201,9 @@ export default function CourseDetailsPage() {
                 <div className="grid lg:grid-cols-3 gap-12">
                     <div className="lg:col-span-2 space-y-12">
                         {/* Highlights */}
-                        <Card className="p-8 md:p-12 border-none shadow-xl rounded-[3rem] bg-white">
-                            <h2 className="text-2xl font-black text-gray-900 mb-8 flex items-center gap-3">
-                                <Sparkles className="text-emerald-600" /> What you&apos;ll master
+                        <Card className="p-8 border border-zinc-200 shadow-none rounded-none bg-white font-mono text-xs">
+                            <h2 className="text-sm font-bold uppercase tracking-widest text-zinc-950 mb-6 flex items-center gap-2">
+                                <Sparkles size={14} className="text-green-700" /> What you&apos;ll master
                             </h2>
                             <div className="grid md:grid-cols-2 gap-6">
                                 {[
@@ -212,39 +215,39 @@ export default function CourseDetailsPage() {
                                     "Market access and supply chain logic"
                                 ].map((item, i) => (
                                     <div key={i} className="flex items-start gap-3">
-                                        <CheckCircle className="text-emerald-500 shrink-0 mt-0.5" size={18} />
-                                        <span className="text-sm font-medium text-gray-600 leading-relaxed">{item}</span>
+                                        <CheckCircle className="text-green-700 shrink-0 mt-0.5" size={14} />
+                                        <span className="text-xs text-zinc-650 font-sans leading-relaxed">{item}</span>
                                     </div>
                                 ))}
                             </div>
                         </Card>
 
                         {/* Syllabus */}
-                        <div className="space-y-6">
-                            <h2 className="text-2xl font-black text-gray-900 px-4">Academy Curriculum</h2>
-                            <div className="space-y-4">
+                        <div className="space-y-4">
+                            <h2 className="text-sm font-bold uppercase tracking-widest text-zinc-950 mb-4 px-2 font-mono">Academy Curriculum</h2>
+                            <div className="space-y-3">
                                 {course.digitalAssets?.length > 0 ? (
                                     course.digitalAssets.sort((a:any, b:any) => a.sortOrder - b.sortOrder).map((asset: any, i: number) => (
-                                        <Card key={asset.id} className="p-6 border-gray-100 hover:border-emerald-200 transition-colors rounded-2xl group">
+                                        <Card key={asset.id} className="p-4 border border-zinc-200 bg-white hover:bg-zinc-50 transition-colors rounded-none shadow-none group">
                                             <div className="flex items-center justify-between">
                                                 <div className="flex items-center gap-4">
-                                                    <div className="w-10 h-10 rounded-xl bg-gray-50 flex items-center justify-center text-gray-400 group-hover:bg-emerald-50 group-hover:text-emerald-600 transition-colors">
-                                                        {asset.fileType === 'video' ? <PlayCircle size={20} /> : <BookOpen size={20} />}
+                                                    <div className="w-8 h-8 rounded-none border border-zinc-200 bg-zinc-50 flex items-center justify-center text-zinc-500 group-hover:border-green-700 group-hover:bg-green-50 group-hover:text-green-700 transition-colors">
+                                                        {asset.fileType === 'video' ? <PlayCircle size={16} /> : <BookOpen size={16} />}
                                                     </div>
                                                     <div>
-                                                        <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-0.5">Lesson {i + 1}</p>
-                                                        <h4 className="font-bold text-gray-900 text-sm">{asset.title}</h4>
+                                                        <p className="text-[9px] font-bold text-zinc-500 uppercase tracking-widest leading-none mb-1">Lesson {i + 1}</p>
+                                                        <h4 className="font-bold text-zinc-950 font-mono text-xs uppercase tracking-wide leading-tight">{asset.title}</h4>
                                                     </div>
                                                 </div>
-                                                <div className="flex items-center gap-4">
-                                                    <span className="text-xs font-bold text-gray-400 capitalize">{asset.fileType}</span>
-                                                    {!isPurchased && <Lock size={16} className="text-gray-300" />}
+                                                <div className="flex items-center gap-4 text-[10px] font-bold text-zinc-500 font-mono uppercase">
+                                                    <span className="capitalize">{asset.fileType}</span>
+                                                    {!isPurchased && <Lock size={14} className="text-zinc-400" />}
                                                 </div>
                                             </div>
                                         </Card>
                                     ))
                                 ) : (
-                                    <div className="p-12 text-center bg-gray-100 rounded-3xl border-2 border-dashed border-gray-200 text-gray-400 font-bold">
+                                    <div className="p-12 text-center bg-white rounded-none border border-dashed border-zinc-300 text-zinc-400 font-mono font-bold uppercase tracking-widest">
                                         Syllabus is being finalized by the instructor.
                                     </div>
                                 )}
@@ -253,21 +256,21 @@ export default function CourseDetailsPage() {
                     </div>
 
                     {/* Mobile Purchase Button (Sticky) */}
-                    <div className="lg:hidden fixed bottom-0 left-0 right-0 p-4 bg-white border-t border-gray-100 z-50">
+                    <div className="lg:hidden fixed bottom-0 left-0 right-0 p-4 bg-white border-t border-zinc-200 z-50">
                         <div className="flex items-center justify-between gap-4">
                             <div>
-                                <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Total Price</p>
-                                <p className="text-2xl font-black text-gray-900">₦{Number(course.price).toLocaleString()}</p>
+                                <p className="text-[9px] font-bold text-zinc-500 uppercase tracking-widest">Total Price</p>
+                                <p className="text-lg font-bold text-zinc-950 font-mono">₦{Number(course.price).toLocaleString()}</p>
                             </div>
                             <div className="flex flex-col gap-2">
                                 {!isPurchased && (
                                      <div className="flex gap-2 mb-1">
-                                        <button onClick={() => setPaymentMethod('paystack')} className={`px-3 py-1 rounded-lg text-[8px] font-black border ${paymentMethod === 'paystack' ? 'bg-blue-50 border-blue-500 text-blue-600' : 'bg-gray-50 border-gray-100 text-gray-400'}`}>PAYSTACK</button>
-                                        <button onClick={() => setPaymentMethod('flutterwave')} className={`px-3 py-1 rounded-lg text-[8px] font-black border ${paymentMethod === 'flutterwave' ? 'bg-orange-50 border-orange-500 text-orange-600' : 'bg-gray-50 border-gray-100 text-gray-400'}`}>FLUTTERWAVE</button>
+                                        <button onClick={() => setPaymentMethod('paystack')} className={`px-3 py-1 rounded-none text-[8px] font-mono font-bold uppercase tracking-wider border cursor-pointer ${paymentMethod === 'paystack' ? 'bg-green-50 border-green-700 text-green-700' : 'bg-white border-zinc-200 text-zinc-500'}`}>PAYSTACK</button>
+                                        <button onClick={() => setPaymentMethod('flutterwave')} className={`px-3 py-1 rounded-none text-[8px] font-mono font-bold uppercase tracking-wider border cursor-pointer ${paymentMethod === 'flutterwave' ? 'bg-green-50 border-green-700 text-green-700' : 'bg-white border-zinc-200 text-zinc-500'}`}>FLUTTERWAVE</button>
                                      </div>
                                 )}
-                                <Button className="flex-1 h-14 rounded-2xl bg-emerald-600 font-black uppercase tracking-widest shadow-lg" onClick={handleEnroll} disabled={enrolling}>
-                                    {enrolling ? <Loader2 className="animate-spin" /> : isPurchased ? 'Access Vault' : 'Enroll Now'}
+                                <Button className="flex-1 h-12 rounded-none bg-green-700 hover:bg-green-800 text-white font-mono text-xs uppercase font-bold tracking-wider" onClick={handleEnroll} disabled={enrolling}>
+                                    {enrolling ? <Loader2 className="animate-spin" size={14} /> : isPurchased ? 'Access Vault' : 'Enroll Now'}
                                 </Button>
                             </div>
                         </div>
@@ -279,16 +282,16 @@ export default function CourseDetailsPage() {
 }
 
 const IncludeItem = ({ icon: Icon, label }: { icon: any, label: string }) => (
-    <div className="flex items-center gap-3 text-gray-600">
-        <Icon size={16} className="text-emerald-500" />
-        <span className="text-xs font-medium">{label}</span>
+    <div className="flex items-center gap-3 text-zinc-500">
+        <Icon size={14} className="text-green-700" />
+        <span className="text-[11px] font-medium font-sans">{label}</span>
     </div>
 );
 
-const Sparkles = ({ className }: { className?: string }) => (
+const Sparkles = ({ className, size = 16 }: { className?: string, size?: number }) => (
     <svg 
-        width="24" 
-        height="24" 
+        width={size} 
+        height={size} 
         viewBox="0 0 24 24" 
         fill="none" 
         stroke="currentColor" 
