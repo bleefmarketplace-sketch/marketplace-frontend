@@ -1,18 +1,19 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
     ChevronLeft, Camera, Loader2, Save,
     Mail, Phone, MapPin, CheckCircle,
-    Users
+    Users, User as UserIcon
 } from 'lucide-react';
-import { Button } from '@/components/Button';
-import { Input } from '@/components/Input';
 import { useAuth, User } from '@/context/AuthContext';
 import { useApi } from '@/hooks/useApi';
 import { useRouter } from 'next/navigation';
 import { toast } from 'react-toastify';
 import Image from 'next/image';
+import { CameraCaptureModal } from '@/components/CameraCaptureModal';
+import { Card } from '@/components/Card';
+import { Input } from '@/components/Input';
 
 export default function ProfileEditPage() {
     const { user, updateUser } = useAuth();
@@ -30,6 +31,64 @@ export default function ProfileEditPage() {
     const [loading, setLoading] = useState(false);
     const [uploading, setUploading] = useState(false);
 
+    // --- Drag & Drop & Webcam States & Handlers ---
+    const avatarInputRef = useRef<HTMLInputElement>(null);
+    const [isDraggingAvatar, setIsDraggingAvatar] = useState(false);
+    const [isCameraOpen, setIsCameraOpen] = useState(false);
+
+    const handleAvatarDragOver = (e: React.DragEvent) => {
+        e.preventDefault();
+        setIsDraggingAvatar(true);
+    };
+
+    const handleAvatarDragLeave = () => {
+        setIsDraggingAvatar(false);
+    };
+
+    const uploadSingleFile = async (file: File) => {
+        setUploading(true);
+        try {
+            const formData = new FormData();
+            formData.append('image', file);
+
+            const res = await fetch('/api/upload/upload-single-image', {
+                method: 'POST',
+                body: formData
+            });
+            const data = await res.json();
+
+            if (data.success) {
+                setForm(prev => ({ ...prev, userAvatar: data.data.url }));
+                toast.success("Photo loaded! Save changes to apply.");
+            } else {
+                const url = data.url || data.data?.url;
+                if (url) {
+                    setForm(prev => ({ ...prev, userAvatar: url }));
+                    toast.success("Photo loaded! Save changes to apply.");
+                } else {
+                    toast.error("Upload failed");
+                }
+            }
+        } catch (err) {
+            toast.error("Failed to upload image");
+        } finally {
+            setUploading(false);
+        }
+    };
+
+    const handleAvatarDrop = async (e: React.DragEvent) => {
+        e.preventDefault();
+        setIsDraggingAvatar(false);
+        const file = e.dataTransfer.files?.[0];
+        if (file && file.type.startsWith("image/")) {
+            await uploadSingleFile(file);
+        }
+    };
+
+    const handleCameraCapture = async (file: File) => {
+        await uploadSingleFile(file);
+    };
+
     useEffect(() => {
         if (user) {
             setForm({
@@ -45,30 +104,11 @@ export default function ProfileEditPage() {
     const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (!file) return;
-
-        setUploading(true);
-        try {
-            const formData = new FormData();
-            formData.append('image', file);
-
-            const res = await fetch('/api/upload/upload-single-image', {
-                method: 'POST',
-                body: formData
-            });
-            const data = await res.json();
-
-            if (data.success) {
-                setForm(prev => ({ ...prev, userAvatar: data.data.url }));
-                toast.success("Photo uploaded! Save changes to apply.");
-            }
-        } catch (err) {
-            toast.error("Failed to upload image");
-        } finally {
-            setUploading(false);
-        }
+        await uploadSingleFile(file);
     };
 
-    const handleSave = async () => {
+    const handleSave = async (e: React.FormEvent) => {
+        e.preventDefault();
         if (!user) return;
         setLoading(true);
         try {
@@ -78,7 +118,6 @@ export default function ProfileEditPage() {
             });
 
             if (res.success) {
-                // Update local auth context
                 const updatedUser: User = {
                     ...user,
                     ...form,
@@ -86,7 +125,7 @@ export default function ProfileEditPage() {
 
                 updateUser(updatedUser);
                 toast.success("Profile updated successfully");
-                router.back();
+                router.push('/account');
             }
         } catch (err: any) {
             toast.error(err.message || "Failed to update profile");
@@ -96,125 +135,149 @@ export default function ProfileEditPage() {
     };
 
     return (
-        <div className="min-h-screen bg-white">
-            {/* Header */}
-            <div className="sticky top-0 z-30 bg-white/80 backdrop-blur-md border-b border-gray-100 h-16 flex items-center px-4">
-                <button onClick={() => router.back()} className="p-2 hover:bg-gray-50 rounded-full">
-                    <ChevronLeft size={24} className="text-gray-900" />
+        <div className="max-w-xl mx-auto py-10 px-4 space-y-6 font-mono text-zinc-900 text-xs antialiased pb-24">
+            {/* Telemetry Header */}
+            <div className="border border-zinc-200 bg-white p-5 select-none sticky top-16 z-20 shadow-none flex items-center gap-4">
+                <button 
+                    onClick={() => router.push('/account')} 
+                    className="p-2 border border-zinc-200 bg-zinc-50 hover:bg-zinc-100 rounded-none cursor-pointer flex items-center justify-center shrink-0"
+                >
+                    <ChevronLeft size={16} />
                 </button>
-                <h1 className="flex-1 text-center font-black text-gray-900 mr-10">Edit Profile</h1>
+                <div>
+                    <span className="px-2 py-0.5 text-[9px] font-mono bg-green-50 text-green-800 border border-green-200 font-bold uppercase tracking-widest">
+                        IDENTITY PARAMETER DEFINITION
+                    </span>
+                    <h1 className="text-xl font-bold uppercase tracking-wider text-zinc-955 mt-1">Profile Configurations</h1>
+                </div>
             </div>
 
-            <div className="max-w-xl mx-auto p-6 space-y-10 pb-32">
-                {/* Avatar Section */}
-                <div className="flex flex-col items-center">
-                    <div className="relative group">
-                        <div className="w-32 h-32 rounded-[2.5rem] bg-gray-100 border-4 border-white shadow-2xl overflow-hidden relative">
+            <form onSubmit={handleSave} className="space-y-6">
+                <Card className="p-6 md:p-8 bg-white border border-zinc-200 rounded-none shadow-none flex flex-col items-center gap-4">
+                    {/* Avatar drag & drop */}
+                    <div 
+                        onDragOver={handleAvatarDragOver}
+                        onDragLeave={handleAvatarDragLeave}
+                        onDrop={handleAvatarDrop}
+                        className={`relative group border transition-all duration-150 p-1 rounded-none select-none ${
+                            isDraggingAvatar ? "border-green-600 bg-green-50/20" : "border-transparent"
+                        }`}
+                    >
+                        <div 
+                            onClick={() => avatarInputRef.current?.click()}
+                            className="w-28 h-28 bg-zinc-50 border border-zinc-250 hover:bg-zinc-100/50 flex items-center justify-center shrink-0 overflow-hidden relative rounded-none cursor-pointer transition-colors"
+                            title="Click to select profile avatar image"
+                        >
                             {form.userAvatar ? (
                                 <Image fill src={form.userAvatar} alt="Avatar" className="object-cover" unoptimized />
                             ) : (
-                                <div className="w-full h-full flex items-center justify-center text-gray-300">
-                                    <Users size={48} />
-                                </div>
+                                <UserIcon size={36} className="text-green-700" />
                             )}
                             {uploading && (
-                                <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
-                                    <Loader2 className="animate-spin text-white" size={24} />
+                                <div className="absolute inset-0 bg-white/85 flex items-center justify-center">
+                                    <Loader2 className="animate-spin text-green-700" size={20} />
                                 </div>
                             )}
                         </div>
-                        <label className="absolute -bottom-2 -right-2 p-3 bg-emerald-600 text-white rounded-2xl shadow-xl hover:bg-emerald-700 transition-colors cursor-pointer border-2 border-white">
-                            <Camera size={18} />
-                            <input type="file" className="hidden" accept="image/*" onChange={handleUpload} disabled={uploading} />
-                        </label>
+                        <button 
+                            type="button"
+                            onClick={(e) => { e.stopPropagation(); setIsCameraOpen(true); }}
+                            className="absolute -bottom-1 -right-1 p-2 bg-zinc-950 text-white border border-zinc-800 rounded-none shadow-md hover:bg-zinc-900 transition-colors cursor-pointer"
+                            title="Snap avatar from webcam"
+                        >
+                            <Camera size={14} />
+                        </button>
+                        <input type="file" ref={avatarInputRef} className="hidden" accept="image/*" onChange={handleUpload} disabled={uploading} />
                     </div>
-                    <p className="mt-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">Profile Photo</p>
-                </div>
+                    <p className="text-[8px] font-bold text-zinc-400 uppercase tracking-widest font-mono select-none">Drag & Drop or Webcam snap</p>
+                </Card>
 
                 {/* Form Fields */}
-                <div className="space-y-6">
+                <Card className="p-6 md:p-8 bg-white border border-zinc-200 rounded-none shadow-none space-y-6">
                     <div className="space-y-2">
-                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Full Name</label>
+                        <label className="text-[9px] font-bold text-zinc-450 uppercase tracking-widest ml-1">Full Name</label>
                         <Input
                             value={form.fullName}
                             onChange={e => setForm({ ...form, fullName: e.target.value })}
                             placeholder="Your display name"
-                            className="h-14 rounded-2xl"
-                            icon={<Users size={18} className="text-gray-400" />}
+                            icon={<Users size={16} className="text-zinc-400" />}
+                            required
                         />
                     </div>
 
                     <div className="space-y-2">
-                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Email (Read-only)</label>
+                        <label className="text-[9px] font-bold text-zinc-450 uppercase tracking-widest ml-1">Email Address (Read-only)</label>
                         <Input
                             value={user?.email || ''}
                             readOnly
                             disabled
-                            className="h-14 rounded-2xl bg-gray-50 text-gray-400 border-gray-100"
-                            icon={<Mail size={18} className="text-gray-200" />}
+                            icon={<Mail size={16} className="text-zinc-300" />}
                         />
                     </div>
 
                     <div className="space-y-2">
-                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Phone Number</label>
+                        <label className="text-[9px] font-bold text-zinc-450 uppercase tracking-widest ml-1">Phone Number</label>
                         <Input
                             value={form.phoneNumber}
                             onChange={e => setForm({ ...form, phoneNumber: e.target.value })}
                             placeholder="+234 ..."
-                            className="h-14 rounded-2xl"
-                            icon={<Phone size={18} className="text-gray-400" />}
+                            icon={<Phone size={16} className="text-zinc-400" />}
+                            required
                         />
                     </div>
 
                     <div className="space-y-2">
-                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Location / State</label>
+                        <label className="text-[9px] font-bold text-zinc-450 uppercase tracking-widest ml-1">Location / State</label>
                         <Input
                             value={form.location}
                             onChange={e => setForm({ ...form, location: e.target.value })}
                             placeholder="e.g. Lagos, Nigeria"
-                            className="h-14 rounded-2xl"
-                            icon={<MapPin size={18} className="text-gray-400" />}
+                            icon={<MapPin size={16} className="text-zinc-400" />}
+                            required
                         />
                     </div>
 
-                    <div className="space-y-2">
-                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Shipping Address</label>
+                    <div className="space-y-2 font-mono">
+                        <label className="text-[9px] font-bold text-zinc-455 uppercase tracking-widest ml-1 block mb-1">Shipping Coordinates Address</label>
                         <textarea
                             value={form.address}
                             onChange={e => setForm({ ...form, address: e.target.value })}
-                            placeholder="Enter your full home or office address..."
-                            className="w-full p-4 border border-gray-200 rounded-2xl min-h-[120px] focus:outline-none focus:ring-1 focus:ring-emerald-500 text-sm"
+                            placeholder="ENTER FULL PHYSICAL SHIPPING ADDRESS..."
+                            className="w-full p-3 border border-zinc-250 rounded-none bg-white font-mono text-xs uppercase tracking-wider text-zinc-900 focus:outline-none focus:border-green-700 min-h-[100px] leading-relaxed"
+                            required
                         />
                     </div>
-                </div>
+                </Card>
 
                 {/* Trust Badge */}
-                <div className="bg-emerald-50 p-6 rounded-3xl border border-emerald-100 flex items-start gap-4">
-                    <CheckCircle className="text-emerald-600 shrink-0 mt-1" size={20} />
-                    <div>
-                        <h4 className="font-bold text-gray-900 text-sm">Profile Integrity</h4>
-                        <p className="text-xs text-gray-600 mt-1 leading-relaxed">
-                            Keeping your information up to date ensures faster order processing and reliable delivery.
-                            Verified profiles have a 40% higher trust rating in the marketplace.
+                <div className="bg-green-50 p-5 border border-green-200 flex items-start gap-4 select-none">
+                    <CheckCircle className="text-green-700 shrink-0 mt-0.5" size={16} />
+                    <div className="space-y-1">
+                        <h4 className="font-bold text-zinc-950 uppercase tracking-wider text-[10px]">Profile Integrity Verified</h4>
+                        <p className="text-[9px] text-zinc-500 leading-relaxed font-bold uppercase tracking-wider">
+                            Keeping your coordinates up to date ensures immediate logistics processing and optimal cargo dispatch.
                         </p>
                     </div>
                 </div>
-            </div>
 
-            {/* Bottom Action */}
-            <div className="fixed bottom-0 left-0 right-0 p-4 bg-white border-t border-gray-100 z-40">
-                <div className="max-w-xl mx-auto">
-                    <Button
-                        fullWidth
-                        className="h-14 rounded-2xl font-black uppercase tracking-widest shadow-xl shadow-emerald-100"
-                        onClick={handleSave}
+                {/* Commit Action */}
+                <div className="flex justify-end pt-2 border-t border-zinc-200">
+                    <button 
+                        type="submit"
                         disabled={loading || uploading}
+                        className="rounded-none h-10 px-6 bg-green-700 border border-green-800 hover:bg-green-800 text-white font-bold uppercase tracking-wider text-[10px] cursor-pointer flex items-center justify-center gap-1.5 transition-colors"
                     >
-                        {loading ? <Loader2 className="animate-spin mr-2" /> : <Save className="mr-2" size={18} />}
-                        Save Changes
-                    </Button>
+                        {loading ? <Loader2 className="animate-spin text-white" size={14} /> : <Save size={13} />}
+                        Commit Profile Settings
+                    </button>
                 </div>
-            </div>
+            </form>
+
+            <CameraCaptureModal
+                isOpen={isCameraOpen}
+                onClose={() => setIsCameraOpen(false)}
+                onCapture={handleCameraCapture}
+            />
         </div>
     );
 }

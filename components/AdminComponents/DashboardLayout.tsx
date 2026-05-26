@@ -26,6 +26,10 @@ export const DashboardLayout: React.FC<LayoutProps> = ({ children }) => {
 
   const role = user?.role;
 
+  if (pathname.startsWith('/dashboard/buyer')) {
+    return <>{children}</>;
+  }
+
   // Live Telemetry Ticker States
   const [tickerOffset, setTickerOffset] = useState(0);
   const [timeStr, setTimeStr] = useState("");
@@ -43,11 +47,10 @@ export const DashboardLayout: React.FC<LayoutProps> = ({ children }) => {
     switch (role) {
       case "buyer":
         return [
-          { key: "home", label: "Marketplace", icon: Home, path: "/dashboard/buyer" },
-          { key: "orders", label: "Orders", icon: Package, path: "/dashboard/buyer/orders" },
-          { key: "wallet", label: "Wallet", icon: Wallet, path: "/dashboard/buyer/wallet" },
-          { key: "library", label: "My Library", icon: Library, path: "/dashboard/buyer/library" },
-          { key: "vendors", label: "Vendors", icon: Store, path: "/dashboard/buyer/vendors" },
+          { key: "home", label: "Account Home", icon: Home, path: "/account" },
+          { key: "orders", label: "Orders", icon: Package, path: "/account/orders" },
+          { key: "library", label: "My Library", icon: Library, path: "/account/library" },
+          { key: "vendors", label: "Vendors", icon: Store, path: "/account/vendors" },
         ];
       case "seller":
         return [

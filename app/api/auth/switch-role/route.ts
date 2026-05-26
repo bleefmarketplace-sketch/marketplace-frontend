@@ -32,7 +32,9 @@ export async function POST(request: Request) {
       }
     );
 
-    const { user, accessToken, refreshToken } = response.data;
+
+
+    const { user, accessToken, refreshToken } = response?.data?.data;
 
     return NextResponse.json(
       {

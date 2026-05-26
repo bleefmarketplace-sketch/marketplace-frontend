@@ -42,7 +42,7 @@ export default function VerifyOrderPage() {
                         </div>
                         <h1 className="text-3xl font-black text-gray-900">Payment Successful!</h1>
                         <p className="text-gray-500">Your funds are now held in escrow. The farmer has been notified to ship your produce.</p>
-                        <Button fullWidth onClick={() => router.push('/dashboard/buyer/orders')}>
+                        <Button fullWidth onClick={() => router.push('/account/orders')}>
                             Track My Order
                         </Button>
                     </>

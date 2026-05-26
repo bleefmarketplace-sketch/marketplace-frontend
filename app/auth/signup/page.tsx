@@ -43,7 +43,7 @@ const Page: React.FC = () => {
       } else if (!isOnboarded) {
         router.push('/auth/onboarding');
       } else {
-        router.push('/dashboard/buyer');
+        router.push('/account');
       }
 
     } catch (err: any) {

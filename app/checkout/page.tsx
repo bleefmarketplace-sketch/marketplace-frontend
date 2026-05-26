@@ -110,7 +110,7 @@ export default function CheckoutCallbackPage() {
                         <Button
                             fullWidth
                             className="h-16 rounded-2xl bg-emerald-600 font-black uppercase tracking-widest text-sm shadow-xl shadow-emerald-100"
-                            onClick={() => router.push('/dashboard/buyer/orders')}
+                            onClick={() => router.push('/account/orders')}
                         >
                             <ShoppingBag className="mr-2" /> Track Your Order
                         </Button>

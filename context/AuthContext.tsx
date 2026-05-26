@@ -173,7 +173,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             setToken(decryptedToken);
 
             toast.info(`Session updated: Switched to ${parsedUser.role} account.`);
-            router.push(`/dashboard/${parsedUser.role.toLowerCase()}`);
+            if (parsedUser.role.toLowerCase() === "buyer") {
+              router.push("/account");
+            } else {
+              router.push(`/dashboard/${parsedUser.role.toLowerCase()}`);
+            }
           } catch (err) {
             logout(true);
           }
@@ -252,7 +256,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       router.push(`/auth/onboarding?u=${userData.id}`);
     } else {
       const rawRedirect = searchParams.get("redirect");
-      let redirectUrl = `/dashboard/${userData.role.toLowerCase()}`;
+      let redirectUrl = userData.role.toLowerCase() === "buyer" 
+        ? "/account" 
+        : `/dashboard/${userData.role.toLowerCase()}`;
       
       if (rawRedirect && rawRedirect.startsWith("/") && !rawRedirect.includes("://")) {
         redirectUrl = decodeURIComponent(rawRedirect);
@@ -378,7 +384,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       window.localStorage.setItem("login_event", Date.now().toString());
 
       toast.success(`Successfully switched to ${targetRole} view!`);
-      router.push(`/dashboard/${targetRole.toLowerCase()}`);
+      if (targetRole.toUpperCase() === 'BUYER') {
+        router.push('/account');
+      } else {
+        router.push(`/dashboard/${targetRole.toLowerCase()}`);
+      }
       return true;
     } catch (err: any) {
       toast.error(err.message || "Failed to switch role");

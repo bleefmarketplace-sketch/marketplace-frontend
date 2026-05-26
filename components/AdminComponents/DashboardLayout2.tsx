@@ -53,8 +53,7 @@ export const DashboardLayout: React.FC<LayoutProps> = ({ children }) => {
       case "buyer":
         return [
           { key: "home", label: "Home", icon: Home, path: "/dashboard/buyer/marketplace" },
-          { key: "orders", label: "Orders", icon: Package, path: "/dashboard/buyer/orders" },
-          { key: "wallet", label: "Wallet", icon: Wallet, path: "/dashboard/buyer/wallet" },
+          { key: "orders", label: "Orders", icon: Package, path: "/account/orders" },
           { key: "wishlist", label: "Saved", icon: Heart, path: "/dashboard/buyer/wishlist" },
           { key: "community", label: "Community", icon: Users, path: "/dashboard/buyer/community" },
           { key: "courses", label: "Courses", icon: BookOpen, path: "/dashboard/buyer/courses" },

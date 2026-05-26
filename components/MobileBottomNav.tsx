@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Home, Search, ShoppingBag, User, Heart, BookOpen, MessageCircle } from 'lucide-react';
 import { useRouter, usePathname } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
@@ -11,6 +11,11 @@ export const MobileBottomNav = () => {
     const pathname = usePathname();
     const { user } = useAuth();
     const getItemCount = useCartStore((state) => state.getItemCount());
+    const [mounted, setMounted] = useState(false);
+
+    useEffect(() => {
+        setMounted(true);
+    }, []);
 
     // Only show on marketplace and account related pages, and only on mobile
     const showOn = ['/marketplace', '/account', '/community', '/learning'];
@@ -22,7 +27,7 @@ export const MobileBottomNav = () => {
         { label: 'Shop', icon: Home, path: '/marketplace', active: pathname.startsWith('/marketplace') },
         { label: 'Academy', icon: BookOpen, path: '/learning', active: pathname.startsWith('/learning') },
         { label: 'Social', icon: MessageCircle, path: '/community', active: pathname.startsWith('/community') },
-        { label: 'Orders', icon: ShoppingBag, path: '/dashboard/buyer/orders', active: pathname.includes('orders') },
+        { label: 'Orders', icon: ShoppingBag, path: '/account/orders', active: pathname.includes('orders') },
         { 
             label: 'Account', 
             icon: User, 
@@ -43,7 +48,7 @@ export const MobileBottomNav = () => {
                 >
                     <div className="relative">
                         <item.icon size={20} strokeWidth={item.active ? 2.5 : 2} />
-                        {item.label === 'Orders' && getItemCount > 0 && (
+                        {item.label === 'Orders' && mounted && getItemCount > 0 && (
                             <span className="absolute -top-1.5 -right-1.5 bg-red-600 text-white text-[8px] font-mono font-black w-3.5 h-3.5 rounded-none flex items-center justify-center">
                                 {getItemCount}
                             </span>
