@@ -64,88 +64,102 @@ export default function SupportCenterPage() {
     ];
 
     return (
-        <div className="min-h-screen bg-gray-50/50 pb-20">
+        <div className="w-full min-h-screen bg-zinc-50 font-mono text-xs text-zinc-900 antialiased pb-20">
             {/* Header Area */}
-            <div className="bg-emerald-600 text-white pt-16 pb-32 px-6">
-                <div className="max-w-4xl mx-auto space-y-6 text-center">
-                    <button onClick={() => router.back()} className="flex items-center gap-2 text-emerald-100 hover:text-white transition-colors mx-auto text-sm font-bold">
-                        <ArrowLeft size={16} /> Back to Dashboard
+            <div className="bg-zinc-950 text-zinc-300 border-b border-zinc-800 pt-12 pb-24 px-6 text-center">
+                <div className="max-w-3xl mx-auto space-y-5">
+                    <button 
+                        onClick={() => router.back()} 
+                        className="flex items-center gap-1.5 text-zinc-400 hover:text-white border border-zinc-800 bg-zinc-900/60 px-3 py-1.5 rounded-none font-bold uppercase tracking-wider text-[10px] transition-colors mx-auto cursor-pointer"
+                    >
+                        <ArrowLeft size={13} /> Back to Dashboard
                     </button>
-                    <h1 className="text-4xl md:text-5xl font-black tracking-tight">How can we help?</h1>
-                    <p className="text-emerald-100 text-lg opacity-90">Find answers or reach out to our dedicated support team.</p>
                     
-                    <div className="relative max-w-2xl mx-auto mt-8">
-                        <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-emerald-300" size={20} />
+                    <div className="space-y-1">
+                        <span className="px-2 py-0.5 text-[8px] font-mono bg-green-950 text-green-400 border border-green-900 font-bold uppercase tracking-widest">
+                            SYSTEM TELEMETRY SUPPORT
+                        </span>
+                        <h1 className="text-2xl font-bold uppercase tracking-wider text-white mt-3">How can we help?</h1>
+                        <p className="text-zinc-500 text-[10px] uppercase tracking-wider">Search help articles or raise a support ticket file.</p>
+                    </div>
+                    
+                    <div className="relative max-w-xl mx-auto mt-6">
+                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500" size={16} />
                         <input 
                             type="text" 
-                            placeholder="Search help articles..." 
-                            className="w-full h-16 pl-16 pr-6 rounded-[2rem] bg-white/10 backdrop-blur-md border-2 border-white/20 text-white placeholder:text-emerald-200 focus:bg-white focus:text-gray-900 focus:placeholder:text-gray-400 outline-none transition-all shadow-2xl"
+                            placeholder="SEARCH ARTICLES..." 
+                            className="w-full h-11 pl-11 pr-4 bg-zinc-900 border border-zinc-800 rounded-none text-zinc-100 placeholder:text-zinc-650 font-mono text-xs uppercase tracking-wider focus:outline-none focus:border-green-700"
                         />
                     </div>
                 </div>
             </div>
 
-            <div className="max-w-5xl mx-auto px-6 -mt-16 space-y-12">
+            <div className="max-w-4xl mx-auto px-6 -mt-12 space-y-10">
                 {/* Fast Help Cards */}
-                <div className="grid md:grid-cols-3 gap-6">
+                <div className="grid md:grid-cols-3 gap-4">
                     {faqs.map((faq, i) => (
-                        <Card key={i} className="p-8 hover:shadow-xl transition-all border-none group cursor-pointer bg-white rounded-[2rem]">
-                            <div className="w-12 h-12 bg-emerald-100 text-emerald-600 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-emerald-600 group-hover:text-white transition-colors">
-                                <LifeBuoy size={24} />
+                        <Card key={i} className="p-5 border border-zinc-200 bg-white rounded-none shadow-none hover:bg-zinc-50/60 transition-colors flex flex-col justify-between group cursor-pointer text-zinc-900">
+                            <div>
+                                <div className="w-10 h-10 border border-zinc-250 bg-zinc-50 text-green-700 rounded-none flex items-center justify-center mb-4 shrink-0">
+                                    <LifeBuoy size={20} />
+                                </div>
+                                <h3 className="font-bold text-zinc-950 uppercase tracking-wider mb-2 leading-snug">{faq.q}</h3>
+                                <p className="text-[10px] text-zinc-500 leading-relaxed font-bold">{faq.a}</p>
                             </div>
-                            <h3 className="font-black text-gray-900 mb-3 leading-tight">{faq.q}</h3>
-                            <p className="text-sm text-gray-500 leading-relaxed">{faq.a}</p>
                         </Card>
                     ))}
                 </div>
 
                 {/* Tickets Section */}
-                <div className="space-y-6">
+                <div className="space-y-4">
                     <div className="flex items-center justify-between">
-                        <h2 className="text-2xl font-black text-gray-900 flex items-center gap-3">
-                            <MessageSquare size={28} className="text-emerald-600" /> Your Tickets
+                        <h2 className="text-sm font-bold text-zinc-950 uppercase tracking-wider flex items-center gap-2">
+                            <MessageSquare size={16} className="text-green-700" /> Active Tickets
                         </h2>
-                        <Button onClick={() => setIsModalOpen(true)} className="rounded-2xl px-6 bg-emerald-600 hover:bg-emerald-700 shadow-lg shadow-emerald-100">
-                            <Plus size={20} className="mr-2" /> New Ticket
+                        <Button 
+                            onClick={() => setIsModalOpen(true)} 
+                            className="rounded-none h-10 px-4 bg-green-700 hover:bg-green-800 border-green-700 text-white font-bold uppercase tracking-wider text-[10px] flex items-center justify-center cursor-pointer shadow-none"
+                        >
+                            <Plus size={14} className="mr-1.5" /> Open Ticket
                         </Button>
                     </div>
 
                     {loading ? (
-                        <div className="flex justify-center py-20">
-                            <Loader2 className="animate-spin text-emerald-600" size={40} />
+                        <div className="flex justify-center py-16">
+                            <Loader2 className="animate-spin text-green-700" size={32} />
                         </div>
                     ) : tickets.length === 0 ? (
-                        <Card className="p-20 text-center border-dashed border-2 border-gray-200 bg-transparent rounded-[3rem]">
-                            <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6 text-gray-300">
-                                <MessageSquare size={40} />
+                        <Card className="p-16 text-center border border-zinc-200 border-dashed rounded-none bg-white">
+                            <div className="w-14 h-14 border border-zinc-200 bg-zinc-50 flex items-center justify-center mx-auto mb-4 text-zinc-300 rounded-none">
+                                <MessageSquare size={24} />
                             </div>
-                            <h3 className="text-xl font-bold text-gray-400">No active tickets</h3>
-                            <p className="text-sm text-gray-400 mt-2 italic">If you have a problem, we're here to solve it.</p>
+                            <h3 className="text-xs font-bold text-zinc-450 uppercase tracking-widest">NO ACTIVE TICKETS</h3>
+                            <p className="text-zinc-500 text-[10px] mt-2 leading-relaxed">If you require system adjustments, launch a new support file above.</p>
                         </Card>
                     ) : (
-                        <div className="grid gap-4">
+                        <div className="space-y-3">
                             {tickets.map((ticket) => (
-                                <Card key={ticket.id} className="p-6 border-none shadow-sm hover:shadow-md transition-all rounded-3xl bg-white flex items-center justify-between group">
-                                    <div className="flex items-center gap-6">
-                                        <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${
-                                            ticket.status === 'open' ? 'bg-blue-100 text-blue-600' :
-                                            ticket.status === 'resolved' ? 'bg-emerald-100 text-emerald-600' : 'bg-gray-100 text-gray-400'
+                                <Card key={ticket.id} className="p-4 border border-zinc-200 bg-white rounded-none shadow-none hover:bg-zinc-50/60 transition-colors flex items-center justify-between group">
+                                    <div className="flex items-center gap-4">
+                                        <div className={`w-10 h-10 border rounded-none flex items-center justify-center shrink-0 ${
+                                            ticket.status === 'open' ? 'border-blue-200 bg-blue-50 text-blue-800' :
+                                            ticket.status === 'resolved' ? 'border-green-200 bg-green-50 text-green-800' : 'border-zinc-200 bg-zinc-50 text-zinc-650'
                                         }`}>
-                                            {ticket.status === 'open' ? <Clock size={24} /> : <CheckCircle2 size={24} />}
+                                            {ticket.status === 'open' ? <Clock size={16} /> : <CheckCircle2 size={16} />}
                                         </div>
                                         <div>
-                                            <h4 className="font-bold text-gray-900">{ticket.subject}</h4>
-                                            <div className="flex items-center gap-3 mt-1">
-                                                <span className={`text-[10px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full ${
-                                                    ticket.status === 'open' ? 'bg-blue-50 text-blue-600' : 'bg-emerald-50 text-emerald-600'
+                                            <h4 className="font-bold text-zinc-950 uppercase tracking-wider">{ticket.subject}</h4>
+                                            <div className="flex items-center gap-2 mt-1.5 text-[9px] font-bold text-zinc-400 font-mono">
+                                                <span className={`px-1.5 py-0.5 border uppercase tracking-wider rounded-none ${
+                                                    ticket.status === 'open' ? 'border-blue-200 bg-blue-50 text-blue-800' : 'border-green-200 bg-green-50 text-green-800'
                                                 }`}>
                                                     {ticket.status}
                                                 </span>
-                                                <span className="text-xs text-gray-400">Ref: {ticket.id.slice(0, 8)}</span>
+                                                <span>REF: {ticket.id.slice(0, 8).toUpperCase()}</span>
                                             </div>
                                         </div>
                                     </div>
-                                    <ChevronRight size={20} className="text-gray-300 group-hover:text-gray-900 transition-colors" />
+                                    <ChevronRight size={16} className="text-zinc-300 group-hover:text-green-700 transition-colors" />
                                 </Card>
                             ))}
                         </div>
@@ -153,56 +167,68 @@ export default function SupportCenterPage() {
                 </div>
 
                 {/* Contact Banner */}
-                <Card className="p-10 bg-gray-900 text-white rounded-[3rem] border-none flex flex-col md:flex-row items-center justify-between gap-8 shadow-2xl">
-                    <div className="space-y-4 text-center md:text-left">
-                        <h3 className="text-2xl font-black">Still have questions?</h3>
-                        <p className="text-gray-400 text-sm max-w-md">Our support team is available Monday - Friday, 9am - 5pm. Average response time is 2 hours.</p>
+                <Card className="p-8 bg-zinc-950 text-white border border-zinc-800 rounded-none shadow-none flex flex-col md:flex-row items-center justify-between gap-6 font-mono text-xs">
+                    <div className="space-y-1.5 text-center md:text-left">
+                        <h3 className="text-sm font-bold uppercase tracking-wider text-white">Still have questions?</h3>
+                        <p className="text-zinc-500 text-[10px] uppercase tracking-wider leading-relaxed">
+                            Support desk is online Monday - Friday. Average escalation audit is committed within 2 hours.
+                        </p>
                     </div>
-                    <div className="flex gap-4">
-                        <Button variant="outline" className="border-gray-700 text-white hover:bg-white hover:text-gray-900 rounded-2xl px-8 h-14 font-bold">Email Us</Button>
-                        <Button className="bg-emerald-600 hover:bg-emerald-700 rounded-2xl px-8 h-14 font-black">Live Chat</Button>
+                    <div className="flex gap-2">
+                        <button 
+                            type="button"
+                            className="border border-zinc-800 bg-zinc-900 text-zinc-300 hover:bg-zinc-800 rounded-none px-6 h-10 font-bold uppercase text-[10px] cursor-pointer"
+                        >
+                            Email Us
+                        </button>
+                        <button 
+                            type="button"
+                            className="bg-green-700 hover:bg-green-800 border border-green-700 text-white rounded-none px-6 h-10 font-bold uppercase text-[10px] cursor-pointer"
+                        >
+                            Live Chat
+                        </button>
                     </div>
                 </Card>
             </div>
 
             {/* New Ticket Modal */}
-            <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title="Open Support Ticket">
-                <div className="space-y-6 pt-4">
-                    <div className="bg-emerald-50 p-4 rounded-2xl border border-emerald-100 flex gap-3">
-                        <AlertCircle className="text-emerald-600 shrink-0" size={20} />
-                        <p className="text-xs text-emerald-800 leading-relaxed">Please describe your issue in detail. If it's about an order, include the order reference number.</p>
+            <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title="OPEN SUPPORT TICKET">
+                <div className="space-y-5 font-mono text-xs text-zinc-900 antialiased pt-2">
+                    <div className="bg-green-50 p-4 border border-green-200 text-green-800 rounded-none text-[10px] font-bold uppercase tracking-wider flex items-start gap-2.5 leading-relaxed">
+                        <AlertCircle className="text-green-700 shrink-0 mt-0.5" size={14} />
+                        <p>Detailed message description log is required. Ensure any transactional order reference is specified.</p>
                     </div>
 
                     <div className="space-y-4">
-                        <div className="space-y-2">
-                            <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Subject</label>
+                        <div className="space-y-1">
+                            <label className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest block mb-0.5">Subject</label>
                             <Input 
                                 value={newTicket.subject}
                                 onChange={e => setNewTicket({...newTicket, subject: e.target.value})}
-                                placeholder="What's the issue?"
-                                className="h-14 rounded-2xl"
+                                placeholder="WHAT IS THE ISSUE?"
+                                className="h-10 rounded-none"
                             />
                         </div>
 
-                        <div className="space-y-2">
-                            <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Category</label>
+                        <div className="space-y-1">
+                            <label className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest block mb-0.5">Category</label>
                             <select 
-                                className="w-full h-14 px-4 bg-gray-50 border-none rounded-2xl outline-none text-sm font-bold text-gray-900 focus:ring-2 focus:ring-emerald-500"
+                                className="w-full h-11 px-3 bg-white border border-zinc-300 rounded-none outline-none text-xs font-mono focus:border-green-700"
                                 value={newTicket.category}
                                 onChange={e => setNewTicket({...newTicket, category: e.target.value})}
                             >
-                                <option value="general">General Inquiry</option>
-                                <option value="payment">Payment & Refunds</option>
-                                <option value="account">Account Access</option>
-                                <option value="delivery">Shipping & Delivery</option>
+                                <option value="general">GENERAL INQUIRY</option>
+                                <option value="payment">PAYMENT & REFUNDS</option>
+                                <option value="account">ACCOUNT ACCESS</option>
+                                <option value="delivery">SHIPPING & DELIVERY</option>
                             </select>
                         </div>
 
-                        <div className="space-y-2">
-                            <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Detailed Message</label>
+                        <div className="space-y-1">
+                            <label className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest block mb-0.5">Detailed Message</label>
                             <textarea 
-                                className="w-full p-4 bg-gray-50 border-none rounded-3xl outline-none text-sm min-h-[150px] focus:ring-2 focus:ring-emerald-500"
-                                placeholder="Describe exactly what happened..."
+                                className="w-full p-3 bg-white border border-zinc-300 rounded-none outline-none text-xs font-mono focus:border-green-700 min-h-[120px]"
+                                placeholder="DESCRIBE THE ADJUSTMENT DETAILS..."
                                 value={newTicket.message}
                                 onChange={e => setNewTicket({...newTicket, message: e.target.value})}
                             />
@@ -213,10 +239,10 @@ export default function SupportCenterPage() {
                         fullWidth 
                         onClick={handleSubmitTicket}
                         disabled={submitting || !newTicket.subject || !newTicket.message}
-                        className="h-16 rounded-2xl bg-emerald-600 hover:bg-emerald-700 font-black uppercase tracking-widest text-lg shadow-xl shadow-emerald-100"
+                        className="h-11 rounded-none bg-green-700 hover:bg-green-800 border-green-700 text-white font-bold uppercase tracking-wider text-[10px] shadow-none flex items-center justify-center cursor-pointer"
                     >
-                        {submitting ? <Loader2 className="animate-spin mr-2" /> : <Send size={18} className="mr-2" />}
-                        Send Ticket
+                        {submitting ? <Loader2 className="animate-spin text-white" size={14} /> : <Send size={14} className="mr-1.5" />}
+                        Submit Support Ticket
                     </Button>
                 </div>
             </Modal>

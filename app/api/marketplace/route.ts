@@ -9,6 +9,7 @@ export async function GET(request: NextRequest) {
         
         const search = searchParams.get("search");
         const category = searchParams.get("category");
+        const subCategory = searchParams.get("subCategory");
         const minPrice = searchParams.get("minPrice");
         const maxPrice = searchParams.get("maxPrice");
         const location = searchParams.get("location");
@@ -20,6 +21,7 @@ export async function GET(request: NextRequest) {
         const queryParams = {
             ...(search && { search }),
             ...(category && { category }),
+            ...(subCategory && { subCategory }),
             ...(minPrice && { minPrice: Number(minPrice) }),
             ...(maxPrice && { maxPrice: Number(maxPrice) }),
             ...(location && { location }),

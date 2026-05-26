@@ -1,6 +1,6 @@
 'use client';
 
-import React, { Suspense, useEffect, useState } from 'react';
+import React, { Suspense, useEffect, useState, useRef } from 'react';
 import { Card } from '@/components/Card';
 import { Button } from '@/components/Button';
 import {
@@ -41,8 +41,12 @@ export default function DigitalLibraryPage() {
 
   const [library, setLibrary] = useState<OrderItem[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
+  const hasFetched = useRef(false);
 
   useEffect(() => {
+    if (hasFetched.current) return;
+    hasFetched.current = true;
+
     const loadLibrary = async () => {
       try {
         const orders = await fetcher('/api/orders/my-orders');

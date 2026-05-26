@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Button } from '@/components/Button';
 import { Card } from '@/components/Card';
 import { Input } from '@/components/Input';
@@ -59,6 +59,7 @@ const WalletPage = () => {
     const [withdrawAmount, setWithdrawAmount] = useState('');
 
     const fetcher = useApi();
+    const hasFetched = useRef(false);
 
     // --- API HELPER ---
     const safeFetch = async <T,>(url: string, options?: RequestInit): Promise<T> => {
@@ -87,7 +88,11 @@ const WalletPage = () => {
         }
     }, []);
 
-    useEffect(() => { loadInitialData(); }, [loadInitialData]);
+    useEffect(() => {
+        if (hasFetched.current) return;
+        hasFetched.current = true;
+        loadInitialData();
+    }, [loadInitialData]);
 
     // --- ACCOUNT RESOLUTION ---
     const resolveAccount = useCallback(async () => {

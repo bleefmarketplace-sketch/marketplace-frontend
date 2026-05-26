@@ -75,65 +75,78 @@ export default function DisputeDetailPage() {
         } catch (e: any) { toast.error(e.message); }
     };
 
-    if (loading) return <div className="flex justify-center py-20"><Loader2 className="animate-spin text-emerald-600" size={40} /></div>;
-    if (!dispute) return <div className="text-center py-20">Dispute not found.</div>;
+    if (loading) return (
+        <div className="flex justify-center py-20">
+            <Loader2 className="animate-spin text-green-700" size={32} />
+        </div>
+    );
+    if (!dispute) return <div className="text-center font-mono py-20 text-xs text-zinc-500">DISPUTE ARCHIVE RECORD NOT FOUND.</div>;
 
     const isActive = !['closed', 'resolved_refunded', 'resolved_released'].includes(dispute.status);
 
     return (
-        <div className="max-w-6xl mx-auto py-8 px-4 space-y-6 pb-20">
+        <div className="w-full space-y-4 font-mono text-xs text-zinc-900 antialiased animate-in fade-in duration-300 pb-20">
             {/* Header / Status Bar */}
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-6 rounded-[2rem] shadow-sm border border-gray-100">
-                <div className="flex items-center gap-4">
-                    <button onClick={() => window.history.back()} className="p-2 hover:bg-gray-50 rounded-full transition-colors">
-                        <ArrowLeft size={20} />
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-5 border border-zinc-200 rounded-none shadow-none">
+                <div className="flex items-center gap-3">
+                    <button 
+                        onClick={() => window.history.back()} 
+                        className="p-1 border border-zinc-200 bg-zinc-50 hover:bg-zinc-100 rounded-none transition-colors cursor-pointer"
+                        title="Back"
+                    >
+                        <ArrowLeft size={16} />
                     </button>
                     <div>
                         <div className="flex items-center gap-2">
-                            <h1 className="text-xl font-black text-gray-900">Case: {dispute.reason}</h1>
-                            <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${
-                                dispute.status === 'escalated' ? 'bg-red-100 text-red-600' : 'bg-amber-100 text-amber-600'
+                            <h1 className="text-sm font-bold uppercase tracking-wider text-zinc-950">Case File: {dispute.reason}</h1>
+                            <span className={`px-1.5 py-0.5 border text-[8px] font-bold uppercase tracking-wider rounded-none ${
+                                dispute.status === 'escalated' ? 'border-red-200 bg-red-50 text-red-800' : 'border-amber-200 bg-amber-50 text-amber-800'
                             }`}>
                                 {dispute.status.replace('_', ' ')}
                             </span>
                         </div>
-                        <p className="text-xs text-gray-400 font-medium">Order Reference: #{dispute.order.id.slice(0,8)}</p>
+                        <p className="text-[10px] text-zinc-400 font-bold uppercase tracking-widest mt-0.5">Order Ref: #{dispute.order.id.slice(0,8).toUpperCase()}</p>
                     </div>
                 </div>
 
                 {isActive && dispute.status !== 'escalated' && (
-                    <Button variant="outline" size="sm" onClick={handleEscalate} className="border-red-200 text-red-600 hover:bg-red-50 rounded-xl font-bold">
+                    <Button 
+                        onClick={handleEscalate} 
+                        className="bg-transparent hover:bg-red-50 border border-red-700 text-red-700 rounded-none h-10 px-5 font-bold uppercase tracking-wider text-[10px] cursor-pointer"
+                    >
                         Escalate to Support
                     </Button>
                 )}
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-start">
                 
                 {/* --- LEFT: CHAT INTERFACE (Col 8) --- */}
-                <div className="lg:col-span-8 flex flex-col h-[650px] bg-white rounded-[2.5rem] shadow-sm border border-gray-100 overflow-hidden">
-                    <div className="p-5 border-b bg-gray-50/50 flex justify-between items-center">
-                        <span className="text-xs font-bold text-gray-500 uppercase tracking-widest flex items-center gap-2">
-                            <Clock size={14}/> Negotiation Timeline
+                <div className="lg:col-span-8 flex flex-col h-[600px] bg-white border border-zinc-200 rounded-none shadow-none overflow-hidden">
+                    <div className="p-4 border-b border-zinc-150 bg-zinc-50 flex justify-between items-center text-[10px] font-bold">
+                        <span className="text-zinc-500 uppercase tracking-widest flex items-center gap-1.5">
+                            <Clock size={12}/> Negotiation Timeline Log
                         </span>
-                        <span className="text-[10px] text-gray-400">Escrow amount is safely locked</span>
+                        <span className="text-zinc-400 uppercase tracking-widest font-mono">Contract escrow held active</span>
                     </div>
 
                     {/* Messages Area */}
-                    <div ref={scrollRef} className="flex-1 overflow-y-auto p-8 space-y-6 bg-[url('/chat-bg.png')] bg-repeat">
+                    <div ref={scrollRef} className="flex-1 overflow-y-auto p-5 space-y-4 bg-zinc-50/30">
                         {dispute.messages.map((msg: any) => {
                             const isMe = msg.sender.id === user?.id;
                             return (
                                 <div key={msg.id} className={`flex ${isMe ? 'justify-end' : 'justify-start'}`}>
-                                    <div className={`max-w-[85%] space-y-1 ${isMe ? 'items-end' : 'items-start'}`}>
-                                        <div className={`p-4 rounded-2xl shadow-sm ${
-                                            isMe ? 'bg-emerald-600 text-white rounded-tr-none' : 'bg-gray-100 text-gray-800 rounded-tl-none'
+                                    <div className={`max-w-[80%] flex flex-col ${isMe ? 'items-end' : 'items-start'}`}>
+                                        <div className={`p-4 rounded-none border text-xs leading-relaxed ${
+                                            isMe 
+                                                ? 'bg-green-50/50 border-green-200 text-green-950' 
+                                                : 'bg-white border-zinc-200 text-zinc-900'
                                         }`}>
-                                            <p className="text-sm leading-relaxed">{msg.message}</p>
+                                            <p>{msg.message}</p>
                                         </div>
-                                        <p className="text-[10px] text-gray-400 font-bold px-1">
-                                            {isMe ? 'You' : msg.sender.fullName} • {new Date(msg.createdAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
-                                        </p>
+                                        <span className="text-[9px] font-mono font-bold text-zinc-400 mt-1 px-0.5 uppercase tracking-wider">
+                                            {isMe ? 'YOU' : msg.sender.fullName.toUpperCase()} • {new Date(msg.createdAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
+                                        </span>
                                     </div>
                                 </div>
                             );
@@ -141,84 +154,97 @@ export default function DisputeDetailPage() {
                         
                         {/* Admin Resolution Note (If closed) */}
                         {!isActive && dispute.adminResolutionNote && (
-                            <div className="bg-blue-50 border border-blue-100 p-6 rounded-3xl text-center">
-                                <Gavel className="mx-auto text-blue-500 mb-2" />
-                                <h4 className="font-black text-blue-900 text-sm uppercase">Final Admin Resolution</h4>
-                                <p className="text-blue-700 text-sm mt-2 italic">&quot;{dispute.adminResolutionNote}&quot;</p>
+                            <div className="bg-blue-50 border border-blue-200 p-5 rounded-none text-center font-mono">
+                                <Gavel className="mx-auto text-blue-700 mb-2" size={18} />
+                                <h4 className="font-bold text-blue-900 text-xs uppercase tracking-wider">Final Arbitration Settlement</h4>
+                                <p className="text-blue-700 text-xs mt-2 italic font-bold">" {dispute.adminResolutionNote} "</p>
                             </div>
                         )}
                     </div>
 
                     {/* Input Area */}
                     {isActive && (
-                        <form onSubmit={handleSendMessage} className="p-4 bg-white border-t flex items-center gap-3">
-                            <button type="button" className="p-3 text-gray-400 hover:bg-gray-50 rounded-xl">
-                                <Paperclip size={20} />
+                        <form onSubmit={handleSendMessage} className="p-3 bg-white border-t border-zinc-200 flex items-center gap-2">
+                            <button 
+                                type="button" 
+                                className="p-2.5 text-zinc-400 border border-zinc-200 bg-zinc-50 rounded-none hover:bg-zinc-100 cursor-pointer"
+                                title="Attach File"
+                            >
+                                <Paperclip size={16} />
                             </button>
                             <input 
-                                className="flex-1 bg-gray-50 p-4 rounded-2xl text-sm outline-none focus:ring-2 ring-emerald-500 transition-all"
-                                placeholder="Write your response to settle the case..."
+                                className="flex-1 bg-white p-3 border border-zinc-300 rounded-none text-xs font-mono outline-none focus:border-green-700"
+                                placeholder="WRITE NEGOTIATION RESPONSE..."
                                 value={message}
                                 onChange={(e) => setMessage(e.target.value)}
                             />
-                            <Button type="submit" disabled={sending} className="rounded-2xl h-12 w-12 p-0 flex items-center justify-center bg-emerald-600">
-                                {sending ? <Loader2 className="animate-spin" size={18}/> : <Send size={18} />}
-                            </Button>
+                            <button 
+                                type="submit" 
+                                disabled={sending} 
+                                className="rounded-none h-[38px] w-10 p-0 flex items-center justify-center bg-green-700 hover:bg-green-800 text-white shrink-0 cursor-pointer"
+                            >
+                                {sending ? <Loader2 className="animate-spin text-white" size={14}/> : <Send size={14} />}
+                            </button>
                         </form>
                     )}
                 </div>
 
                 {/* --- RIGHT: SIDEBAR (Col 4) --- */}
-                <div className="lg:col-span-4 space-y-6">
+                <div className="lg:col-span-4 space-y-4">
                     {/* Frozen Escrow Card */}
-                    <Card className="p-6 bg-gray-900 text-white border-none rounded-[2rem] shadow-xl overflow-hidden relative">
-                        <div className="relative z-10">
-                            <div className="flex items-center gap-2 text-emerald-400 mb-4">
-                                <ShieldAlert size={20} />
-                                <span className="text-[10px] font-black uppercase tracking-widest">Escrow Frozen</span>
+                    <Card className="p-5 bg-zinc-950 text-white border border-zinc-800 rounded-none shadow-none overflow-hidden relative">
+                        <div className="relative z-10 font-mono">
+                            <div className="inline-flex items-center gap-1.5 text-red-500 font-bold bg-red-950/40 border border-red-900/60 px-1.5 py-0.5 text-[9px] uppercase tracking-wider mb-4">
+                                <ShieldAlert size={12} />
+                                <span>Escrow Block Active</span>
                             </div>
-                            <p className="text-gray-400 text-xs font-medium">Locked Funds</p>
-                            <h2 className="text-3xl font-black">₦{Number(dispute.order.totalAmount).toLocaleString()}</h2>
-                            <p className="text-[10px] text-gray-500 mt-4 leading-relaxed">
-                                Funds will remain locked until a resolution is reached between both parties or by Admin intervention.
+                            <p className="text-zinc-500 text-[10px] font-bold uppercase tracking-wider">Held Funds</p>
+                            <h2 className="text-2xl font-bold font-mono tracking-tight text-white mt-1">₦{Number(dispute.order.totalAmount).toLocaleString()}</h2>
+                            <p className="text-[9px] text-zinc-450 mt-4 leading-relaxed font-bold uppercase tracking-wider">
+                                Transaction amount will remain frozen within escrow vaults until settlement confirmation is committed.
                             </p>
                         </div>
-                        <div className="absolute -right-10 -bottom-10 w-40 h-40 bg-emerald-500/10 blur-[80px]" />
                     </Card>
 
                     {/* Order Summary Card */}
-                    <Card className="p-6 rounded-[2rem] border-gray-100 bg-white">
-                        <h3 className="font-bold text-gray-900 mb-4 flex items-center gap-2">
-                            <Package size={18} className="text-emerald-500" /> Order Details
+                    <Card className="p-5 rounded-none border border-zinc-200 bg-white">
+                        <h3 className="font-bold text-xs uppercase tracking-wider text-zinc-950 mb-4 pb-2 border-b border-zinc-100 flex items-center gap-2">
+                            <Package size={15} className="text-green-700" /> Disputed Order Details
                         </h3>
                         <div className="space-y-4">
                             {dispute.order.items.map((item: any) => (
                                 <div key={item.id} className="flex gap-3">
-                                    <div className="w-12 h-12 rounded-lg bg-gray-50 border relative overflow-hidden shrink-0">
-                                        <Image unoptimized fill src={item.productSnapshotImage} alt="" className="object-cover" />
+                                    <div className="w-10 h-10 border border-zinc-200 bg-zinc-50 relative overflow-hidden shrink-0 rounded-none">
+                                        {item.productSnapshotImage && (
+                                            <Image unoptimized fill src={item.productSnapshotImage} alt="" className="object-cover" />
+                                        )}
                                     </div>
                                     <div className="min-w-0">
-                                        <p className="text-xs font-bold text-gray-900 truncate">{item.productSnapshotTitle}</p>
-                                        <p className="text-[10px] text-gray-500">{item.quantity} Unit(s) • ₦{item.priceAtPurchase}</p>
+                                        <p className="text-xs font-bold text-zinc-950 uppercase tracking-wider truncate" title={item.productSnapshotTitle}>
+                                            {item.productSnapshotTitle}
+                                        </p>
+                                        <p className="text-[10px] text-zinc-400 font-mono mt-0.5">
+                                            {item.quantity} UNIT(S) • ₦{Number(item.priceAtPurchase).toLocaleString()}
+                                        </p>
                                     </div>
                                 </div>
                             ))}
                         </div>
-                        <div className="mt-6 pt-6 border-t border-gray-50">
+                        <div className="mt-4 pt-4 border-t border-zinc-150 text-[10px] font-bold">
                             <div className="flex justify-between items-center">
-                                <span className="text-xs font-bold text-gray-400 uppercase">Buyer</span>
-                                <span className="text-xs font-bold text-gray-900">{dispute.buyer.fullName}</span>
+                                <span className="text-zinc-400 uppercase tracking-widest">Buyer</span>
+                                <span className="text-zinc-800 uppercase">{dispute.buyer.fullName}</span>
                             </div>
                         </div>
                     </Card>
 
                     {/* Dispute Info */}
-                    <div className="p-6 bg-amber-50 rounded-3xl border border-amber-100 flex items-start gap-4">
-                        <AlertCircle className="text-amber-600 shrink-0" size={20} />
+                    <div className="p-4 bg-amber-50 border border-amber-200 text-amber-900 rounded-none flex items-start gap-3 text-[10px] font-mono">
+                        <AlertCircle className="text-amber-700 shrink-0 mt-0.5" size={14} />
                         <div>
-                            <h5 className="text-xs font-bold text-amber-900 uppercase tracking-wider mb-1">Dispute Policy</h5>
-                            <p className="text-[10px] text-amber-700 leading-relaxed font-medium">
-                                Sellers have 48 hours to respond to a new dispute. If no agreement is found, either party can Escalate to Bleefy Support for a final verdict.
+                            <h5 className="font-bold uppercase tracking-wider text-amber-950 mb-1">Arbitration Terms</h5>
+                            <p className="text-[9px] text-amber-800 leading-relaxed font-bold uppercase tracking-wider">
+                                Sellers have 48 business hours to respond. Escalate if negotiation reaches checklock to issue an administrative audit check.
                             </p>
                         </div>
                     </div>

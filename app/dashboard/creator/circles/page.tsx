@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Card } from '@/components/Card';
 import { Button } from '@/components/Button';
 import { 
@@ -20,6 +20,7 @@ export default function CreatorCirclesPage() {
     const [circles, setCircles] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
     const [search, setSearch] = useState('');
+    const hasFetched = useRef(false);
 
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
     const [submitting, setSubmitting] = useState(false);
@@ -41,7 +42,11 @@ export default function CreatorCirclesPage() {
         }
     }, [fetcher]);
 
-    useEffect(() => { load(); }, [load]);
+    useEffect(() => {
+        if (hasFetched.current) return;
+        hasFetched.current = true;
+        load();
+    }, [load]);
 
     const handleCreateCircle = async () => {
         if (!circleForm.name || !circleForm.slug) return toast.warn("Name and slug are required");

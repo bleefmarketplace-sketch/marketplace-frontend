@@ -148,9 +148,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setIsLoading(false);
   }, [refreshUserData]);
 
+  // --- HYBRID STEP 2: MOUNT WORKLOAD ---
+  // Run once on mount to restore user session from cookies and sync with server
   useEffect(() => {
     loadUserFromCookies();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
+  useEffect(() => {
     // Listen for storage changes (cross-tab logout and session/role alignment)
     const syncSession = (e: StorageEvent) => {
       if (e.key === "logout_event") {
@@ -177,7 +182,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     };
     window.addEventListener("storage", syncSession);
     return () => window.removeEventListener("storage", syncSession);
-  }, [loadUserFromCookies, router, logout]);
+  }, [router, logout]);
 
   const signIn = async (email: string, password: string, rememberMe: boolean): Promise<any> => {
    

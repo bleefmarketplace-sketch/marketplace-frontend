@@ -1,4 +1,7 @@
 import type { Metadata } from "next";
+import React from "react";
+import LandingPagesNav from "@/components/LandingPagesNav";
+import Footer from "@/components/Marketplace/Footer";
 
 export const metadata: Metadata = {
   title: "Bleefy Helpdesk | Customer Support & Escrow Assistance",
@@ -11,5 +14,11 @@ export default function SupportLayout({
 }: {
   children: React.ReactNode;
 }) {
-  return <>{children}</>;
+  return (
+    <div className="flex flex-col min-h-screen bg-zinc-50">
+      <LandingPagesNav />
+      <main className="flex-1">{children}</main>
+      <Footer />
+    </div>
+  );
 }

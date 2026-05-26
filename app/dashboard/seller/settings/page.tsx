@@ -27,6 +27,7 @@ import { useApi } from "@/hooks/useApi";
 import { useAuth } from "@/context/AuthContext";
 import { TwoFactorModal } from "@/components/AdminComponents/TwoFactorModal";
 import { useSearchParams } from "next/navigation";
+import { CameraCaptureModal } from "@/components/CameraCaptureModal";
 
 interface SellerProfile {
   id: string;
@@ -62,6 +63,78 @@ const Page = () => {
   const [is2FAEnabled, setIs2FAEnabled] = useState(false);
   const [uploading, setUploading] = useState(false);
 
+  // --- Drag & Drop & Webcam States ---
+  const [isDraggingAvatar, setIsDraggingAvatar] = useState(false);
+  const [isDraggingLogo, setIsDraggingLogo] = useState(false);
+  const [isCameraOpen, setIsCameraOpen] = useState(false);
+  const [cameraTarget, setCameraTarget] = useState<"avatar" | "logo">("avatar");
+
+  const handleAvatarDragOver = (e: React.DragEvent) => {
+      e.preventDefault();
+      setIsDraggingAvatar(true);
+  };
+
+  const handleAvatarDragLeave = () => {
+      setIsDraggingAvatar(false);
+  };
+
+  const handleAvatarDrop = async (e: React.DragEvent) => {
+      e.preventDefault();
+      setIsDraggingAvatar(false);
+      const file = e.dataTransfer.files?.[0];
+      if (file && file.type.startsWith("image/")) {
+          setUploading(true);
+          try {
+              const url = await uploadImage(file);
+              setProfile(p => ({ ...p, userAvatar: url }));
+              toast.success("Profile avatar updated!");
+          } catch (err: any) {
+              toast.error(err.message || "Failed to upload avatar");
+          } finally {
+              setUploading(false);
+          }
+      }
+  };
+
+  const handleLogoDragOver = (e: React.DragEvent) => {
+      e.preventDefault();
+      setIsDraggingLogo(true);
+  };
+
+  const handleLogoDragLeave = () => {
+      setIsDraggingLogo(false);
+  };
+
+  const handleLogoDrop = (e: React.DragEvent) => {
+      e.preventDefault();
+      setIsDraggingLogo(false);
+      const file = e.dataTransfer.files?.[0];
+      if (file && file.type.startsWith("image/")) {
+          setImageFile(file);
+          setImagePreview(URL.createObjectURL(file));
+          toast.success("Store logo loaded successfully!");
+      }
+  };
+
+  const handleCameraCapture = async (file: File) => {
+      if (cameraTarget === "avatar") {
+          setUploading(true);
+          try {
+              const url = await uploadImage(file);
+              setProfile(p => ({ ...p, userAvatar: url }));
+              toast.success("Avatar snapshot saved!");
+          } catch (err: any) {
+              toast.error(err.message || "Failed to upload avatar");
+          } finally {
+              setUploading(false);
+          }
+      } else {
+          setImageFile(file);
+          setImagePreview(URL.createObjectURL(file));
+          toast.success("Logo snapshot loaded!");
+      }
+  };
+
   // Inline Tag Input states
   const [newExpertise, setNewExpertise] = useState("");
   const [newInterest, setNewInterest] = useState("");
@@ -88,6 +161,8 @@ const Page = () => {
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
 
+  const hasFetchedStore = useRef(false);
+
   const fetchStore = useCallback(async () => {
     try {
       const res = await fetcher("/api/settings/store");
@@ -113,10 +188,11 @@ const Page = () => {
   }, [fetcher]);
 
   useEffect(() => {
-    if (user?.hasCreatedStore) {
+    if (user?.hasCreatedStore && !hasFetchedStore.current) {
+      hasFetchedStore.current = true;
       fetchStore();
     }
-  }, [user, fetchStore]);
+  }, [user?.hasCreatedStore, fetchStore]);
 
   const [profile, setProfile] = useState({
     fullName: '',
@@ -302,20 +378,30 @@ const Page = () => {
             <Card className="p-6 md:p-8 bg-white border border-zinc-200 rounded-none shadow-none">
               {/* Avatar */}
               <div className="flex flex-col md:flex-row items-center gap-8 mb-10 pb-8 border-b border-zinc-150">
-                <div className="relative group">
+                <div 
+                  className={`relative group border transition-all duration-150 ${isDraggingAvatar ? "border-green-600 bg-green-50/20" : "border-transparent"}`}
+                  onDragOver={handleAvatarDragOver}
+                  onDragLeave={handleAvatarDragLeave}
+                  onDrop={handleAvatarDrop}
+                >
                   <div className="w-28 h-28 border border-zinc-250 bg-zinc-50 text-green-700 rounded-none overflow-hidden relative flex items-center justify-center shrink-0">
                     {profile.userAvatar ? <Image unoptimized fill src={profile.userAvatar} className="object-cover" alt="Avatar" /> : <User size={40} />}
                     {uploading && <div className="absolute inset-0 bg-white/70 flex items-center justify-center"><Loader2 className="animate-spin text-green-700" size={16} /></div>}
                   </div>
-                  <button type="button" onClick={() => fileInputRef.current?.click()} className="absolute bottom-0 right-0 bg-zinc-950 text-white p-2 border border-zinc-800 rounded-none cursor-pointer"><Camera size={14} /></button>
+                  <button type="button" onClick={() => { setCameraTarget('avatar'); setIsCameraOpen(true); }} className="absolute bottom-0 right-0 bg-zinc-950 text-white p-2 border border-zinc-800 rounded-none cursor-pointer"><Camera size={14} /></button>
                   <input type="file" ref={fileInputRef} onChange={async (e) => {
                     const file = e.target.files?.[0];
                     if (!file) return;
                     setUploading(true);
-                    const fd = new FormData(); fd.append('file', file);
-                    const res = await fetch('/api/upload/upload-single-image', { method: 'POST', body: fd }).then(r => r.json());
-                    setProfile(p => ({ ...p, userAvatar: res.url }));
-                    setUploading(false);
+                    try {
+                      const url = await uploadImage(file);
+                      setProfile(p => ({ ...p, userAvatar: url }));
+                      toast.success("Profile avatar updated!");
+                    } catch (err: any) {
+                      toast.error(err.message || "Failed to upload avatar");
+                    } finally {
+                      setUploading(false);
+                    }
                   }} className="hidden" accept="image/*" />
                 </div>
                 <div className="text-center md:text-left space-y-1">
@@ -491,31 +577,47 @@ const Page = () => {
                 </h3>
 
                 <div className="flex flex-col sm:flex-row gap-4 items-start pt-1">
-                  <label className="w-20 h-20 border border-dashed border-zinc-355 bg-zinc-50 hover:bg-zinc-100/60 cursor-pointer flex items-center justify-center relative overflow-hidden shrink-0 rounded-none">
-                    {imagePreview ? (
-                      <Image
-                        src={imagePreview}
-                        alt="Store Logo"
-                        fill
-                        unoptimized
-                        className="object-cover"
+                  <div className="flex gap-2.5">
+                    <label 
+                      onDragOver={handleLogoDragOver}
+                      onDragLeave={handleLogoDragLeave}
+                      onDrop={handleLogoDrop}
+                      className={`w-20 h-20 border border-dashed bg-zinc-50 hover:bg-zinc-100/60 cursor-pointer flex items-center justify-center relative overflow-hidden shrink-0 rounded-none transition-all duration-150 ${isDraggingLogo ? "border-green-600 bg-green-50/20" : "border-zinc-355"}`}
+                    >
+                      {imagePreview ? (
+                        <Image
+                          src={imagePreview}
+                          alt="Store Logo"
+                          fill
+                          unoptimized
+                          className="object-cover"
+                        />
+                      ) : (
+                        <ImageIcon className="text-zinc-450" size={18} />
+                      )}
+                      <input
+                        type="file"
+                        hidden
+                        accept="image/*"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) {
+                            setImageFile(file);
+                            setImagePreview(URL.createObjectURL(file));
+                          }
+                        }}
                       />
-                    ) : (
-                      <ImageIcon className="text-zinc-450" size={18} />
-                    )}
-                    <input
-                      type="file"
-                      hidden
-                      accept="image/*"
-                      onChange={(e) => {
-                        const file = e.target.files?.[0];
-                        if (file) {
-                          setImageFile(file);
-                          setImagePreview(URL.createObjectURL(file));
-                        }
-                      }}
-                    />
-                  </label>
+                    </label>
+                    <button
+                      type="button"
+                      onClick={() => { setCameraTarget('logo'); setIsCameraOpen(true); }}
+                      className="w-20 h-20 border border-dashed border-green-200 bg-green-50/20 hover:bg-green-50 text-green-700 flex flex-col items-center justify-center rounded-none cursor-pointer"
+                      title="Snap storefront logo from webcam"
+                    >
+                      <Camera size={18} />
+                      <span className="text-[8px] font-bold uppercase tracking-wider mt-1">Camera</span>
+                    </button>
+                  </div>
 
                   <div className="flex-1 w-full space-y-4 font-mono text-xs">
                     <Input
@@ -684,6 +786,12 @@ const Page = () => {
             setIs2FAModalOpen(false);
             setIs2FAEnabled(true);
           }}
+        />
+
+        <CameraCaptureModal
+          isOpen={isCameraOpen}
+          onClose={() => setIsCameraOpen(false)}
+          onCapture={handleCameraCapture}
         />
       </div>
     </Suspense>

@@ -4,10 +4,11 @@ import { Modal } from '@/components/Modal';
 import { Input } from '@/components/Input';
 import { Button } from '@/components/Button';
 import { Video, FileText, Plus, Trash2, GripVertical, Loader2, Image as ImageIcon, Shield } from 'lucide-react';
-import api from '@/helpers/api';
+import { useApi } from '@/hooks/useApi';
 import { toast } from 'react-toastify';
 
 const ContentBuilderModal = ({ isOpen, onClose, product }: any) => {
+    const fetcher = useApi();
     const [loading, setLoading] = useState(false);
     const [categories, setCategories] = useState<any[]>([]);
     const [form, setForm] = useState({
@@ -47,14 +48,14 @@ const ContentBuilderModal = ({ isOpen, onClose, product }: any) => {
     useEffect(() => {
         const fetchCats = async () => {
             try {
-                const res = await api.get('/categories');
+                const res = await fetcher('/api/categories');
                 setCategories(res.data?.data || res.data || []);
             } catch (e) {
                 console.error('Failed to load categories');
             }
         };
         if (isOpen) fetchCats();
-    }, [isOpen]);
+    }, [isOpen, fetcher]);
 
     const addAsset = () => {
         setForm({ ...form, assets: [...form.assets, { title: '', fileUrl: '', fileType: 'video' }] });
@@ -80,43 +81,54 @@ const ContentBuilderModal = ({ isOpen, onClose, product }: any) => {
         setLoading(true);
         try {
             if (product?.id) {
-                await api.patch(`/creator/products/${product.id}`, {
-                    ...form,
-                    price: Number(form.price),
+                await fetcher(`/api/creator/products/${product.id}`, {
+                    method: 'PATCH',
+                    body: JSON.stringify({
+                        ...form,
+                        price: Number(form.price),
+                    })
                 });
                 toast.success('Content updated successfully!');
             } else {
-                await api.post('/creator/products', {
-                    ...form,
-                    price: Number(form.price),
+                await fetcher('/api/creator/products', {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        ...form,
+                        price: Number(form.price),
+                    })
                 });
                 toast.success('Content submitted for AI verification!');
             }
             onClose();
         } catch (e: any) {
-            toast.error(e.response?.data?.message || 'Failed to save content');
+            toast.error(e.message || 'Failed to save content');
         } finally {
             setLoading(false);
         }
     };
 
     return (
-        <Modal isOpen={isOpen} onClose={onClose} title={product ? "Edit Digital Content" : "Publish Digital Content"} size="lg">
-            <div className="space-y-8 p-2 max-h-[80vh] overflow-y-auto pr-4 scrollbar-hide">
+        <Modal isOpen={isOpen} onClose={onClose} title={product ? "EDIT DIGITAL CONTENT" : "PUBLISH DIGITAL CONTENT"} size="lg">
+            <div className="space-y-6 font-mono text-xs text-zinc-900 antialiased p-1 max-h-[85vh] overflow-y-auto pr-3">
+                
                 {/* Section 1: Basic Info */}
                 <div className="space-y-4">
-                    <h3 className="text-xs font-black text-emerald-600 uppercase tracking-widest border-b pb-2">1. Listing Details</h3>
+                    <h3 className="text-[10px] font-bold text-green-700 uppercase tracking-widest border-b border-zinc-200 pb-1.5 flex items-center justify-between">
+                        <span>1. Listing Details</span>
+                        <span className="text-[8px] text-zinc-400 font-normal">REQUIRED</span>
+                    </h3>
+                    
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <Input label="Title" value={form.title} onChange={e => setForm({...form, title: e.target.value})} placeholder="e.g. Hydroponics Masterclass" />
                         <div className="space-y-1">
-                            <label className="text-sm font-medium text-gray-700">Category</label>
+                            <label className="text-[10px] font-bold uppercase tracking-widest text-zinc-400 block mb-0.5">Category</label>
                             <select 
-                                className="w-full h-10 px-3 bg-white border border-gray-300 rounded-lg text-sm outline-none focus:border-emerald-500"
+                                className="w-full h-10 px-3 bg-white border border-zinc-300 rounded-none text-xs font-mono outline-none focus:border-green-700"
                                 value={form.categoryId}
                                 onChange={e => setForm({...form, categoryId: e.target.value})}
                             >
-                                <option value="">Select Category</option>
-                                {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+                                <option value="">SELECT CATEGORY</option>
+                                {categories.map(c => <option key={c.id} value={c.id}>{c.name.toUpperCase()}</option>)}
                             </select>
                         </div>
                     </div>
@@ -127,10 +139,10 @@ const ContentBuilderModal = ({ isOpen, onClose, product }: any) => {
                     </div>
 
                     <div className="space-y-1">
-                        <label className="text-sm font-medium text-gray-700">Description</label>
+                        <label className="text-[10px] font-bold uppercase tracking-widest text-zinc-400 block mb-0.5">Description</label>
                         <textarea 
-                            className="w-full p-4 bg-gray-50 rounded-2xl border-none ring-1 ring-gray-100 text-sm outline-none focus:ring-2 focus:ring-emerald-500"
-                            placeholder="What will farmers learn from this content?"
+                            className="w-full p-3 bg-white border border-zinc-300 rounded-none text-xs font-mono outline-none focus:border-green-700"
+                            placeholder="What will farmers learn from this digital resource?"
                             rows={3}
                             value={form.description}
                             onChange={e => setForm({...form, description: e.target.value})}
@@ -139,33 +151,44 @@ const ContentBuilderModal = ({ isOpen, onClose, product }: any) => {
                 </div>
 
                 {/* Section 2: Audit Asset */}
-                <div className="space-y-4">
-                    <h3 className="text-xs font-black text-emerald-600 uppercase tracking-widest border-b pb-2">2. Verification Asset</h3>
-                    <p className="text-[10px] text-gray-400">Provide a primary URL for AI auditing (e.g., your main PDF or intro video).</p>
-                    <Input placeholder="Verification File URL" value={form.primaryAssetUrl} onChange={e => setForm({...form, primaryAssetUrl: e.target.value})} icon={<Shield size={16} />} />
+                <div className="space-y-4 border-t border-zinc-150 pt-5">
+                    <h3 className="text-[10px] font-bold text-green-700 uppercase tracking-widest border-b border-zinc-200 pb-1.5 flex items-center justify-between">
+                        <span>2. Verification Asset</span>
+                        <span className="text-[8px] text-zinc-400 font-normal">REQUIRED FOR AUDIT</span>
+                    </h3>
+                    <p className="text-[9px] text-zinc-400 uppercase tracking-wider leading-relaxed">
+                        Provide a primary asset URL for automated integrity evaluation (e.g., your primary handbook PDF or intro module).
+                    </p>
+                    <Input placeholder="VERIFICATION FILE URL (e.g., https://...)" value={form.primaryAssetUrl} onChange={e => setForm({...form, primaryAssetUrl: e.target.value})} icon={<Shield size={14} />} />
                 </div>
 
                 {/* Section 3: The Vault Builder */}
-                <div className="space-y-4">
-                    <div className="flex items-center justify-between border-b pb-2">
-                        <h3 className="text-xs font-black text-emerald-600 uppercase tracking-widest">3. Content Vault (Assets)</h3>
-                        <Button variant="ghost" size="sm" onClick={addAsset} className="text-emerald-600 font-bold h-8"><Plus size={14}/> Add Lesson</Button>
+                <div className="space-y-4 border-t border-zinc-150 pt-5">
+                    <div className="flex items-center justify-between border-b border-zinc-200 pb-1.5">
+                        <h3 className="text-[10px] font-bold text-green-700 uppercase tracking-widest">3. Content Vault (Assets)</h3>
+                        <button 
+                            type="button" 
+                            onClick={addAsset} 
+                            className="text-green-700 hover:text-green-800 font-bold text-[9px] uppercase tracking-wider flex items-center gap-1 cursor-pointer"
+                        >
+                            <Plus size={12}/> Add Lesson
+                        </button>
                     </div>
 
                     <div className="space-y-3">
                         {form.assets.map((asset, idx) => (
-                            <div key={idx} className="bg-gray-50 p-4 rounded-3xl border border-gray-100 flex items-center gap-4 group">
-                                <GripVertical className="text-gray-300" size={18} />
-                                <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div key={idx} className="bg-zinc-50 border border-zinc-200 p-4 rounded-none flex items-center gap-3 group">
+                                <GripVertical className="text-zinc-350 cursor-grab shrink-0" size={14} />
+                                <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-3">
                                     <Input 
                                         placeholder="Lesson Title" 
                                         value={asset.title} 
                                         onChange={e => updateAsset(idx, 'title', e.target.value)}
-                                        className="h-10 text-xs"
+                                        className="h-10 text-xs rounded-none"
                                     />
                                     <div className="flex gap-2">
                                         <select 
-                                            className="bg-white border rounded-xl px-2 text-[10px] font-bold outline-none h-10"
+                                            className="bg-white border border-zinc-300 rounded-none px-2 text-[9px] font-bold outline-none h-10 shrink-0 font-mono focus:border-green-700"
                                             value={asset.fileType}
                                             onChange={e => updateAsset(idx, 'fileType', e.target.value)}
                                         >
@@ -177,32 +200,34 @@ const ContentBuilderModal = ({ isOpen, onClose, product }: any) => {
                                             placeholder="File URL" 
                                             value={asset.fileUrl} 
                                             onChange={e => updateAsset(idx, 'fileUrl', e.target.value)}
-                                            className="h-10 text-xs flex-1"
+                                            className="h-10 text-xs flex-1 rounded-none"
                                         />
                                     </div>
                                 </div>
                                 <button 
                                     onClick={() => removeAsset(idx)}
-                                    className="p-2 text-gray-300 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity"
+                                    type="button"
+                                    className="p-1.5 border border-zinc-200 hover:border-red-200 hover:bg-red-50 text-zinc-300 hover:text-red-750 transition-colors shrink-0 cursor-pointer"
                                 >
-                                    <Trash2 size={16}/>
+                                    <Trash2 size={13}/>
                                 </button>
                             </div>
                         ))}
                     </div>
                 </div>
 
-                <div className="pt-6 border-t border-gray-100">
+                <div className="pt-6 border-t border-zinc-200 mt-6">
                     <Button 
                         fullWidth 
-                        size="lg" 
                         onClick={handleSubmit}
                         disabled={loading}
-                        className="bg-emerald-600 h-14 rounded-2xl font-black uppercase tracking-widest text-xs shadow-xl shadow-emerald-100"
+                        className="bg-green-700 hover:bg-green-800 border-green-700 text-white rounded-none h-11 uppercase font-bold tracking-wider text-[10px] flex items-center justify-center cursor-pointer shadow-none"
                     >
-                        {loading ? <Loader2 className="animate-spin" /> : (product ? "Save Changes" : "Submit for AI Verification")}
+                        {loading ? <Loader2 className="animate-spin text-white" size={14} /> : (product ? "COMMIT CHANGES" : "SUBMIT FOR INTEGRITY CHECK")}
                     </Button>
-                    <p className="text-[10px] text-gray-400 text-center mt-4 uppercase font-bold tracking-widest">Secured by Bleefy AI Integrity Engine</p>
+                    <p className="text-[8px] text-zinc-400 text-center mt-3 uppercase tracking-widest font-mono">
+                        Secured by Bleefy AI Integrity Engine
+                    </p>
                 </div>
             </div>
         </Modal>

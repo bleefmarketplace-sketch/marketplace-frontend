@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useMemo, useEffect, useCallback } from 'react';
+import React, { useState, useMemo, useEffect, useCallback, useRef } from 'react';
 import { 
   ArrowDownLeft, ArrowUpRight, CreditCard, Landmark, 
   Plus, ShoppingCart, Trash2, History, Loader2, 
@@ -21,6 +21,7 @@ export const Wallet = () => {
   const [showTopUp, setShowTopUp] = useState(false);
   const [showWithdraw, setShowWithdraw] = useState(false);
   const [filterType, setFilterType] = useState('All');
+  const hasFetched = useRef(false);
 
   // --- FETCH DATA ---
   const loadWalletData = useCallback(async () => {
@@ -42,6 +43,8 @@ export const Wallet = () => {
   }, [fetcher]);
 
   useEffect(() => {
+    if (hasFetched.current) return;
+    hasFetched.current = true;
     loadWalletData();
   }, [loadWalletData]);
 

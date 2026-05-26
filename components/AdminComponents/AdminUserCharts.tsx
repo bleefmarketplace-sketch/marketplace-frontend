@@ -18,7 +18,8 @@ interface Props {
   users: UserData[];
 }
 
-const COLORS = ['#22c55e', '#ef4444', '#facc15', '#6366f1'];
+// Technical AgriTerminal desaturated status colors
+const COLORS = ['#16803d', '#b91c1c', '#ca8a04', '#4f46e5'];
 
 const AdminUserCharts = ({ users }: Props) => {
   const statusData = [
@@ -35,10 +36,13 @@ const AdminUserCharts = ({ users }: Props) => {
   ];
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 select-none font-mono text-xs text-zinc-900">
+      
       {/* STATUS PIE */}
-      <Card>
-        <h3 className="font-bold mb-4">User Status Distribution</h3>
+      <Card className="rounded-none shadow-none border border-zinc-200 bg-white p-5">
+        <h3 className="font-mono text-xs uppercase font-bold tracking-widest text-zinc-700 mb-4 border-b border-zinc-150 pb-2">
+          User Status Distribution
+        </h3>
         <ResponsiveContainer width="100%" height={250}>
           <PieChart>
             <Pie
@@ -53,20 +57,48 @@ const AdminUserCharts = ({ users }: Props) => {
                 <Cell key={index} fill={COLORS[index % COLORS.length]} />
               ))}
             </Pie>
-            <Tooltip />
+            <Tooltip 
+              contentStyle={{ 
+                fontFamily: 'var(--font-mono, monospace)', 
+                fontSize: '10px',
+                borderRadius: '0px',
+                borderColor: '#e4e4e7',
+                textTransform: 'uppercase'
+              }} 
+            />
           </PieChart>
         </ResponsiveContainer>
       </Card>
 
       {/* ROLE BAR */}
-      <Card>
-        <h3 className="font-bold mb-4">Users by Role</h3>
+      <Card className="rounded-none shadow-none border border-zinc-200 bg-white p-5">
+        <h3 className="font-mono text-xs uppercase font-bold tracking-widest text-zinc-700 mb-4 border-b border-zinc-150 pb-2">
+          Users by Role
+        </h3>
         <ResponsiveContainer width="100%" height={250}>
           <BarChart data={roleData}>
-            <XAxis dataKey="role" />
-            <YAxis allowDecimals={false} />
-            <Tooltip />
-            <Bar dataKey="count" fill="#6366f1" radius={[6, 6, 0, 0]} />
+            <XAxis 
+              dataKey="role" 
+              tick={{ fontFamily: 'var(--font-mono, monospace)', fontSize: '10px', fill: '#71717a' }}
+              axisLine={{ stroke: '#e4e4e7' }}
+              tickLine={{ stroke: '#e4e4e7' }}
+            />
+            <YAxis 
+              allowDecimals={false} 
+              tick={{ fontFamily: 'var(--font-mono, monospace)', fontSize: '10px', fill: '#71717a' }}
+              axisLine={{ stroke: '#e4e4e7' }}
+              tickLine={{ stroke: '#e4e4e7' }}
+            />
+            <Tooltip 
+              contentStyle={{ 
+                fontFamily: 'var(--font-mono, monospace)', 
+                fontSize: '10px',
+                borderRadius: '0px',
+                borderColor: '#e4e4e7',
+                textTransform: 'uppercase'
+              }} 
+            />
+            <Bar dataKey="count" fill="#4f46e5" radius={0} />
           </BarChart>
         </ResponsiveContainer>
       </Card>

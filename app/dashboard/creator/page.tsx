@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { Card } from '@/components/Card';
 import {
   DollarSign, Users, BookOpen, Star,
@@ -24,13 +24,17 @@ export default function CreatorDashboardPage() {
   const router = useRouter();
   const [stats, setStats] = useState<CreatorStats | null>(null);
   const [loading, setLoading] = useState(true);
+  const hasFetched = useRef(false);
 
   const { user } = useAuth();
 
   useEffect(() => {
+    if (user === undefined || hasFetched.current) return;
+
     const load = async () => {
       try {
         if (user?.hasCreatedCreatorProfile) {
+          hasFetched.current = true;
           const res = await fetcher('/api/creator/stats');
           setStats(res.data || res);
         }
@@ -40,8 +44,8 @@ export default function CreatorDashboardPage() {
         setLoading(false);
       }
     };
-    if (user !== undefined) load();
-  }, [user]);
+    load();
+  }, [user, fetcher]);
 
   if (loading) return (
     <div className="flex justify-center py-20 border border-zinc-200 bg-white font-mono text-xs">

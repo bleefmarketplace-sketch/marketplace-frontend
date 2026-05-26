@@ -61,7 +61,7 @@ const UserManagement = () => {
             const result = await res.json();
 
             setUsers(result.data.data);
-            setTotal(result.total);
+            setTotal(result.data?.total || 0);
         } catch (err: any) {
             toast.error(err.message);
         } finally {
@@ -121,16 +121,16 @@ const UserManagement = () => {
         }
     }
     return (
-        <div className="space-y-6 animate-in fade-in">
+        <div className="space-y-6 animate-in fade-in font-mono text-xs text-zinc-900">
 
-            <div className="flex justify-between items-center">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-zinc-200 pb-4">
                 <div>
-                    <h2 className="text-2xl font-bold">User Management</h2>
-                    <p className="text-gray-500">View and manage all registered users.</p>
+                    <h2 className="text-xl font-black uppercase tracking-wider text-zinc-950">User Management</h2>
+                    <p className="text-[10px] text-zinc-500 uppercase tracking-widest mt-1">View and manage all registered users.</p>
                 </div>
-                <div className="flex gap-2">
-                    <div className="relative">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
+                <div className="flex flex-wrap gap-2 items-center w-full sm:w-auto">
+                    <div className="relative flex-grow sm:flex-grow-0">
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400" size={14} />
                         <input
                             value={search}
                             onChange={(e) => {
@@ -138,140 +138,188 @@ const UserManagement = () => {
                                 setSearch(e.target.value);
                             }}
                             placeholder="Search users..."
-                            className="pl-9 pr-4 py-2 border rounded-lg text-sm w-64"
-                        /></div>
-                    <Button><Filter size={16} className="mr-2" /> Filter</Button>
-                    <select onChange={(e) => setRole(e.target.value || undefined)}>
+                            className="pl-9 pr-4 py-1.5 border border-zinc-300 rounded-none text-xs w-full sm:w-64 font-mono bg-white focus:border-green-600 focus:outline-none transition-colors"
+                        />
+                    </div>
+                    
+                    <select 
+                        onChange={(e) => setRole(e.target.value || undefined)}
+                        className="border border-zinc-300 rounded-none text-xs font-mono bg-white px-3 py-1.5 focus:border-green-600 focus:outline-none cursor-pointer"
+                    >
                         <option value="">All Roles</option>
                         <option value="buyer">Buyer</option>
                         <option value="seller">Seller</option>
                         <option value="admin">Admin</option>
+                        <option value="creator">Creator</option>
+                    </select>
+
+                    <select 
+                        onChange={(e) => setStatus(e.target.value || undefined)}
+                        className="border border-zinc-300 rounded-none text-xs font-mono bg-white px-3 py-1.5 focus:border-green-600 focus:outline-none cursor-pointer"
+                    >
+                        <option value="">All Statuses</option>
+                        <option value="active">Active</option>
+                        <option value="pending">Pending</option>
+                        <option value="suspended">Suspended</option>
                     </select>
                 </div>
             </div>
+
             <AdminUserCharts users={users} />
 
             <Card noPadding>
-                <table className="w-full text-sm text-left">
-                    <thead className="text-xs text-gray-500 uppercase bg-gray-50 border-b">
-                        <tr>
-                            <th className="px-6 py-4">User</th>
-                            <th className="px-6 py-4">Role</th>
-                            <th className="px-6 py-4">Status</th>
-                            <th className="px-6 py-4">Joined</th>
-                            <th className="px-6 py-4 text-right">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody className="divide-y divide-gray-100">
-                        {loading && (
+                <div className="overflow-x-auto">
+                    <table className="w-full text-xs text-left border-collapse">
+                        <thead className="text-[10px] text-zinc-500 uppercase bg-zinc-100 border-b border-zinc-200 tracking-widest font-mono font-bold">
                             <tr>
-                                <td colSpan={5} className="text-center py-6 text-gray-400">
-                                    Loading...
-                                </td>
+                                <th className="px-6 py-4 border-r border-zinc-200">User</th>
+                                <th className="px-6 py-4 border-r border-zinc-200">Role</th>
+                                <th className="px-6 py-4 border-r border-zinc-200">Status</th>
+                                <th className="px-6 py-4 border-r border-zinc-200">Joined</th>
+                                <th className="px-6 py-4 text-right">Actions</th>
                             </tr>
-                        )}
-                        {users.map(user => (
-
-                            <tr key={user.id} className="bg-white hover:bg-gray-50">
-
-                                <td className="px-6 py-4" >
-                                    <div className="flex items-center gap-3 cursor-pointer" onClick={() => setSelectedUser(user)}>
-                                        <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center font-bold text-gray-600 text-xs">
-                                            {user.role.charAt(0)}
+                        </thead>
+                        <tbody className="divide-y divide-zinc-200 font-mono">
+                            {loading && (
+                                <tr>
+                                    <td colSpan={5} className="text-center py-8 text-zinc-400 uppercase tracking-wider font-bold">
+                                        Loading user partition data...
+                                    </td>
+                                </tr>
+                            )}
+                            {!loading && users.length === 0 && (
+                                <tr>
+                                    <td colSpan={5} className="text-center py-8 text-zinc-400 uppercase tracking-wider font-bold">
+                                        No users matching query.
+                                    </td>
+                                </tr>
+                            )}
+                            {!loading && users.map(user => (
+                                <tr key={user.id} className="bg-white hover:bg-zinc-50 transition-colors">
+                                    <td className="px-6 py-3.5 border-r border-zinc-200">
+                                        <div className="flex items-center gap-3 cursor-pointer" onClick={() => setSelectedUser(user)}>
+                                            <div className="w-8 h-8 rounded-none border border-zinc-200 bg-zinc-100 flex items-center justify-center font-bold text-zinc-600 text-xs select-none">
+                                                {user.role.charAt(0).toUpperCase()}
+                                            </div>
+                                            <div>
+                                                <p className="font-bold text-zinc-900 uppercase tracking-tight hover:text-green-700 transition-colors">{user.fullName}</p>
+                                                <p className="text-[10px] text-zinc-400 normal-case">{user.email}</p>
+                                            </div>
                                         </div>
-                                        <div>
-                                            <p className="font-bold text-gray-900">{user.fullName}</p>
-                                            <p className="text-xs text-gray-500">{user.email}</p>
+                                    </td>
+                                    <td className="px-6 py-3.5 border-r border-zinc-200">
+                                        <div className="flex items-center gap-2">
+                                            <span className={`px-1.5 py-0.5 rounded-none border text-[9px] font-bold uppercase tracking-wider ${
+                                                user.role === 'seller' ? 'bg-purple-50 text-purple-700 border-purple-200' :
+                                                user.role === 'creator' ? 'bg-orange-50 text-orange-700 border-orange-200' :
+                                                user.role === 'admin' ? 'bg-red-50 text-red-700 border-red-200' :
+                                                'bg-blue-50 text-blue-700 border-blue-200'
+                                            }`}>{user.role}</span>
+                                            
+                                            {(user.role === 'seller' || user.role === 'creator') && user.lifetimeSalesVolume > 0 && (
+                                                <span className="select-none">
+                                                    <UserBadge volume={user.lifetimeSalesVolume} />
+                                                </span>
+                                            )}
                                         </div>
-                                    </div>
-                                </td>
-                                <td className="px-6 py-4 flex items-center gap-2">
-                                    <span className={`px-2 py-1 rounded text-xs font-bold ${user.role === 'seller' ? 'bg-purple-100 text-purple-700' :
-                                        user.role === 'creator' ? 'bg-orange-100 text-orange-700' :
-                                            'bg-blue-100 text-blue-700'
-                                        }`}>{user.role}</span>
-                                    <span>{user.role === 'seller' && <UserBadge volume={user.lifetimeSalesVolume} />}
+                                    </td>
+                                    <td className="px-6 py-3.5 border-r border-zinc-200">
+                                        {user.status === 'active' && (
+                                            <span className="text-green-700 font-bold flex items-center gap-1.5 uppercase text-[10px] tracking-wide select-none">
+                                                <span className="w-1.5 h-1.5 bg-green-600 rounded-none inline-block"></span> Active
+                                            </span>
+                                        )}
+                                        {user.status === 'pending' && (
+                                            <span className="text-amber-700 font-bold flex items-center gap-1.5 uppercase text-[10px] tracking-wide select-none">
+                                                <span className="w-1.5 h-1.5 bg-amber-500 rounded-none inline-block"></span> Pending
+                                            </span>
+                                        )}
+                                        {user.status === 'suspended' && (
+                                            <span className="text-red-700 font-bold flex items-center gap-1.5 uppercase text-[10px] tracking-wide select-none">
+                                                <span className="w-1.5 h-1.5 bg-red-600 rounded-none inline-block"></span> Suspended
+                                            </span>
+                                        )}
+                                    </td>
+                                    <td className="px-6 py-3.5 border-r border-zinc-200 text-zinc-500">
+                                        {new Date(user.createdAt).toISOString().substring(0, 10)}
+                                    </td>
+                                    <td className="px-6 py-3.5 text-right select-none">
+                                        <div className="flex items-center justify-end gap-1.5">
+                                            {user.deletedAt ? (
+                                                <button
+                                                    className="p-1 border border-zinc-200 text-blue-600 hover:bg-zinc-100 cursor-pointer transition-colors"
+                                                    onClick={() => restoreUser(user.id)}
+                                                    title="Restore User"
+                                                >
+                                                    <ArchiveRestore size={14} />
+                                                </button>
+                                            ) : (
+                                                <button
+                                                    className="p-1 border border-zinc-200 text-red-600 hover:bg-zinc-100 cursor-pointer transition-colors"
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        setDeleteUser(user);
+                                                    }}
+                                                    title="Delete User"
+                                                >
+                                                    <Trash size={14} />
+                                                </button>
+                                            )}
 
-                                        {user.role === 'creator' && <UserBadge volume={user.lifetimeSalesVolume} />}
+                                            {user.status === 'active' ? (
+                                                <button
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        updateUserStatus(user.id, 'suspend');
+                                                    }}
+                                                    className="p-1 border border-zinc-200 text-zinc-650 hover:bg-zinc-100 cursor-pointer transition-colors"
+                                                    title="Suspend User"
+                                                >
+                                                    <Ban size={14} />
+                                                </button>
+                                            ) : (
+                                                <button
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        updateUserStatus(user.id, 'activate');
+                                                    }}
+                                                    className="p-1 border border-zinc-200 text-green-700 hover:bg-zinc-100 cursor-pointer transition-colors"
+                                                    title="Activate User"
+                                                >
+                                                    <CheckCircle size={14} />
+                                                </button>
+                                            )}
+                                        </div>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
 
-
-                                    </span>
-                                </td>
-                                <td className="px-6 py-4">
-                                    {user.status === 'active' && <span className="text-green-600 flex items-center gap-1 font-medium"><CheckCircle size={14} /> Active</span>}
-                                    {user.status === 'pending' && <span className="text-yellow-600 flex items-center gap-1 font-medium"><Activity size={14} /> Pending</span>}
-                                    {user.status === 'suspended' && <span className="text-red-600 flex items-center gap-1 font-medium"><XCircle size={14} /> Suspended</span>}
-                                </td>
-                                <td className="px-6 py-4 text-gray-500">
-                                    {new Date(user.createdAt).toLocaleDateString()}
-                                </td>
-                                <td className="px-6 py-4 text-right">
-
-                                    {user.deletedAt ? (
-                                        <button
-                                            className="pr-3 text-blue-600 cursor-pointer"
-                                            onClick={() => restoreUser(user.id)}
-
-                                        >
-                                            <ArchiveRestore size={16} color="blue" />
-                                        </button>
-                                    )
-                                        : (
-                                            <button
-                                                className="pr-3 cursor-pointer"
-                                                onClick={(e) => {
-                                                    e.stopPropagation()
-                                                    setDeleteUser(user)
-                                                }}
-                                            >
-                                                <Trash size={16} color="red" />
-                                            </button>
-                                        )
-                                    }
-                                    {user.status === 'active' ? (
-                                        <button
-                                            onClick={(e) => {
-                                                e.stopPropagation();
-                                                updateUserStatus(user.id, 'suspend');
-                                            }}
-                                            className='cursor-pointer'
-                                        >
-                                            <Ban size={16} />
-                                        </button>
-                                    ) : (
-                                        <button
-                                            onClick={(e) => {
-                                                e.stopPropagation();
-                                                updateUserStatus(user.id, 'activate');
-                                            }}
-                                            className='cursor-pointer'
-                                        >
-                                            <CheckCircle size={16} />
-                                        </button>
-                                    )}
-                                </td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
-                <div className="flex justify-end items-center gap-2 my-4 mr-4">
-
-                    <Button disabled={page === 1} onClick={() => setPage(p => p - 1)}>
+                <div className="flex justify-end items-center gap-3 my-4 mr-4 select-none font-mono">
+                    <button 
+                        disabled={page === 1} 
+                        onClick={() => setPage(p => p - 1)}
+                        className="rounded-none h-8 px-3 text-[10px] font-mono font-bold uppercase tracking-wider bg-zinc-100 border border-zinc-300 text-zinc-700 hover:bg-zinc-200 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer transition-colors"
+                    >
                         Prev
-                    </Button>
+                    </button>
 
-                    <span className="text-sm">
-                        Page {page} of {Math.ceil(total / limit)}
+                    <span className="text-[10px] text-zinc-600 font-bold uppercase tracking-wider">
+                        Page {page} / {Math.max(1, Math.ceil(total / limit))}
                     </span>
 
-                    <Button
+                    <button
                         disabled={page * limit >= total}
                         onClick={() => setPage(p => p + 1)}
+                        className="rounded-none h-8 px-3 text-[10px] font-mono font-bold uppercase tracking-wider bg-zinc-100 border border-zinc-300 text-zinc-700 hover:bg-zinc-200 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer transition-colors"
                     >
                         Next
-                    </Button>
+                    </button>
                 </div>
             </Card>
+
             {selectedUser && (
                 <AdminUserDetailModal
                     user={selectedUser}

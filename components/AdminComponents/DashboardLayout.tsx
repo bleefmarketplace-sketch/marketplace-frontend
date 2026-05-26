@@ -6,7 +6,7 @@ import {
   LayoutDashboard, Package, Settings, Bell, LogOut,
   Gavel, Heart, MessageSquare, Library, Star, Store,
   User, CirclePlus, ShieldCheck, BarChart2, CreditCard,
-  TrendingUp, Shield, Layers, Mail, Globe, Cpu
+  TrendingUp, Shield, Layers, Mail, Globe, Cpu, Activity
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import Image from "next/image";
@@ -77,6 +77,8 @@ export const DashboardLayout: React.FC<LayoutProps> = ({ children }) => {
           { key: "financials", label: "Financials", icon: TrendingUp, path: "/dashboard/admin/financials" },
           { key: "categories", label: "Categories", icon: CirclePlus, path: "/dashboard/admin/categories" },
           { key: "Newsletter", label: "Newsletter", icon: Mail, path: "/dashboard/admin/newsletter" },
+          { key: "health", label: "System Health", icon: Cpu, path: "/dashboard/admin/health" },
+          { key: "logs", label: "Activity Logs", icon: Activity, path: "/dashboard/admin/logs" },
           { key: "settings", label: "Settings", icon: Settings, path: "/dashboard/admin/settings" },
         ];
       default:

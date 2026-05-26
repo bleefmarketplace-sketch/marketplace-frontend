@@ -45,40 +45,49 @@ export const VerificationModal = ({
 
     return (
         <Modal isOpen={isOpen} onClose={onClose} title={title}>
-            <form onSubmit={handleConfirm} className="p-2 pb-6 space-y-8 animate-in fade-in zoom-in duration-300">
+            <form onSubmit={handleConfirm} className="p-2 pb-4 space-y-6 animate-in fade-in zoom-in duration-200 font-mono text-xs text-zinc-900">
+                
                 <div className="text-center space-y-2">
-                    <div className="w-16 h-16 bg-emerald-100 rounded-2xl flex items-center justify-center text-emerald-600 mx-auto mb-4">
-                        <Lock size={32} />
+                    {/* Flat Square Icon Badge */}
+                    <div className="w-12 h-12 border border-green-200 bg-green-50 text-green-700 flex items-center justify-center rounded-none mx-auto mb-4">
+                        <Lock size={20} />
                     </div>
-                    <p className="text-sm text-gray-500 font-medium px-4">{description}</p>
+                    <p className="text-zinc-500 text-[10px] uppercase tracking-wider px-4 leading-relaxed">{description}</p>
                 </div>
 
                 <div className="space-y-4">
                     <div className="relative">
-                        <Input 
-                            placeholder="*** ***" 
+                        <input 
+                            placeholder="******" 
                             maxLength={6}
                             value={code}
                             onChange={(e) => setCode(e.target.value)}
                             autoFocus
                             autoComplete="one-time-code"
-                             className="flex item-center justify-center p-2  rounded-md text-center text-3xl font-black tracking-[0.5em]    bg-gray-50 border-none"
+                            className="w-full text-center text-3xl font-black tracking-[0.3em] font-mono py-2.5 px-4 border border-zinc-300 rounded-none bg-zinc-50 focus:outline-none focus:border-green-600 focus:bg-white transition-colors"
                         />
                     </div>
-
-                     
                 </div>
 
-                <div className="flex gap-3">
-                    <Button type="button" variant="ghost" onClick={onClose} className="h-14 flex-1 rounded-2xl">Cancel</Button>
-                    <Button 
+                {/* Actions */}
+                <div className="flex gap-2 select-none">
+                    <button 
+                        type="button" 
+                        onClick={onClose} 
+                        className="rounded-none h-11 flex-1 font-mono font-bold uppercase tracking-wider text-[10px] bg-zinc-100 border border-zinc-300 text-zinc-700 hover:bg-zinc-200 cursor-pointer transition-colors"
+                    >
+                        Cancel
+                    </button>
+                    
+                    <button 
                         type="submit"
                         disabled={loading || code.length !== 6}
-                        className="flex-[2] bg-emerald-600  rounded-2xl font-black shadow-lg"
+                        className="rounded-none h-11 flex-[2] font-mono font-bold uppercase tracking-wider text-[10px] bg-green-700 hover:bg-green-800 border border-green-700 text-white cursor-pointer transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
                     >
-                        {loading ? <Loader2 className="animate-spin" /> : actionLabel}
-                    </Button>
+                        {loading ? <Loader2 className="animate-spin" size={16} /> : actionLabel}
+                    </button>
                 </div>
+
             </form>
         </Modal>
     );

@@ -26,7 +26,8 @@ export default function AdminDashboard() {
         };
 
         getStats();
-    }, [fetcher]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
 
     if (loading) return (
         <div className="flex items-center justify-center h-96 border border-zinc-200 bg-white font-mono text-xs">

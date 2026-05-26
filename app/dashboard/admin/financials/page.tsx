@@ -4,7 +4,9 @@ import React from 'react'
 
 const Page = () => {
   return (
-    <div><Financials/></div>
+    <div className="w-full">
+      <Financials />
+    </div>
   )
 }
 

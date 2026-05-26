@@ -10,7 +10,8 @@ import {
     Settings2,
     Plus,
     ShieldAlert,
-    X
+    X,
+    Cpu
 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { useApi } from '@/hooks/useApi';
@@ -18,12 +19,13 @@ import { toast } from 'react-toastify';
 import SettingsUtility from './SettingsUtility';
 import Image from 'next/image';
 import { TwoFactorModal } from './TwoFactorModal';
+import HealthPage from '@/app/dashboard/admin/health/page';
 
 export default function SettingsPage() {
     const { user, logout, refreshUserData } = useAuth();
     const fetcher = useApi();
 
-    const [activeTab, setActiveTab] = useState<'profile' | 'security' | 'utility'>('profile');
+    const [activeTab, setActiveTab] = useState<'profile' | 'security' | 'utility' | 'health'>('profile');
     const [loading, setLoading] = useState(false);
     const [uploading, setUploading] = useState(false);
 
@@ -161,6 +163,14 @@ export default function SettingsPage() {
                 >
                     <Settings2 size={14} /> UTILITY
                 </button>
+                {user?.role === 'admin' && (
+                    <button
+                        onClick={() => setActiveTab('health')}
+                        className={`px-5 py-2.5 rounded-none text-xs transition-colors flex items-center gap-2 border border-transparent cursor-pointer ${activeTab === 'health' ? 'bg-white border-zinc-250 text-green-800 font-bold' : 'text-zinc-500 hover:text-zinc-800'}`}
+                    >
+                        <Cpu size={14} /> SYSTEM HEALTH
+                    </button>
+                )}
             </div>
 
             {activeTab === 'profile' ? (
@@ -391,9 +401,13 @@ export default function SettingsPage() {
                         </div>
                     </Card>
                 </div>
-            ) : (
+            ) : activeTab === 'utility' ? (
                 <div className="animate-in fade-in duration-300">
                     <SettingsUtility />  
+                </div>
+            ) : (
+                <div className="animate-in fade-in duration-300">
+                    <HealthPage />
                 </div>
             )}
 

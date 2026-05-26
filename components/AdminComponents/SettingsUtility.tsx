@@ -17,7 +17,6 @@ const SettingsUtility = () => {
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
   
-    
     const [settings, setSettings] = useState({
         COMMISSION_PERCENT: '',
         PAYSTACK_PERCENT: '',
@@ -39,7 +38,8 @@ const SettingsUtility = () => {
             }
         };
         fetchSettings();
-    }, [fetcher]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
 
     const handleChange = (key: string, value: string) => {
         setSettings(prev => ({ ...prev, [key]: value }));
@@ -62,106 +62,108 @@ const SettingsUtility = () => {
     };
 
     if (loading) return (
-        <div className="flex flex-col items-center justify-center h-96 gap-4">
-            <Loader2 className="animate-spin text-emerald-600" size={40} />
-            
+        <div className="flex flex-col items-center justify-center h-64 gap-4 font-mono text-xs">
+            <Loader2 className="animate-spin text-green-700" size={32} />
+            <span className="text-zinc-400 uppercase tracking-widest text-[9px]">RETRIEVING LEDGER CONF...</span>
         </div>
     );
 
     return (
-        <div  >
+        <div className="space-y-6 font-mono text-xs text-zinc-900 antialiased">
              
-                <div className="space-y-6 animate-in slide-in-from-left-4 duration-500">
-                    {/* Marketplace Fees */}
-                    <Card className="p-8 rounded-[2.5rem] border-none shadow-sm ring-1 ring-gray-100">
-                        <h3 className="text-xl font-black text-gray-900 mb-8 flex items-center gap-3">
-                            <div className="p-2 bg-emerald-100 rounded-xl text-emerald-600"><Zap size={20}/></div>
-                            Marketplace Monetization
-                        </h3>
-                        <div className="grid md:grid-cols-2 gap-10">
-                            <div className="space-y-2 px-2">
-                                <Input 
-                                    label="Platform Commission" 
-                                    type="number" step="0.1"
-                                    value={settings.COMMISSION_PERCENT}
-                                    onChange={(e) => handleChange('COMMISSION_PERCENT', e.target.value)}
-                                    icon={<Percent size={16} className="text-emerald-500" />}
-                                />
-                                <p className="text-[10px] text-gray-400 font-bold uppercase tracking-wider px-1">Bleefy&apos;s percentage per sale</p>
-                            </div>
-                            <div className="space-y-2 px-2">
-                                <Input 
-                                    label="Withdrawal Processing Fee" 
-                                    type="number" step="0.01"
-                                    value={settings.PAYSTACK_FLAT_FEE}
-                                    onChange={(e) => handleChange('PAYSTACK_FLAT_FEE', e.target.value)}
-                                    icon={<DollarSign size={16} className="text-emerald-500" />}
-                                />
-                                <p className="text-[10px] text-gray-400 font-bold uppercase tracking-wider px-1">Fixed cost per payout request</p>
-                            </div>
+            <div className="space-y-4 animate-in slide-in-from-left-4 duration-500">
+                {/* Marketplace Fees */}
+                <Card className="p-5 bg-white border border-zinc-200 rounded-none shadow-none">
+                    <h3 className="font-bold text-xs uppercase tracking-wider text-zinc-950 mb-4 pb-2 border-b border-zinc-150 flex items-center gap-2">
+                        <div className="w-8 h-8 border border-zinc-250 bg-zinc-50 flex items-center justify-center shrink-0 rounded-none text-green-700">
+                            <Zap size={14}/>
                         </div>
-                    </Card>
-
-                    {/* Payment Gateway */}
-                    <Card className="p-8 rounded-[2.5rem] border-none shadow-sm ring-1 ring-gray-100">
-                        <h3 className="text-xl font-black text-gray-900 mb-8 flex items-center gap-3">
-                            <div className="p-2 bg-blue-100 rounded-xl text-blue-600"><ShieldCheck size={20}/></div>
-                            Payment Gateway (Paystack)
-                        </h3>
-                        <div className="grid md:grid-cols-2 gap-10">
+                        Marketplace Monetization
+                    </h3>
+                    <div className="grid md:grid-cols-2 gap-6">
+                        <div className="space-y-1">
                             <Input 
-                            className='px-2'
-                                label="Gateway Transaction Fee (%)" 
-                                type="number" step="0.001"
-                                value={settings.PAYSTACK_PERCENT}
-                                onChange={(e) => handleChange('PAYSTACK_PERCENT', e.target.value)}
+                                label="Platform Commission" 
+                                type="number" step="0.1"
+                                value={settings.COMMISSION_PERCENT}
+                                onChange={(e) => handleChange('COMMISSION_PERCENT', e.target.value)}
+                                icon={<Percent size={14} className="text-green-700" />}
                             />
-                            <Input 
-                            className='px-2'
-                                label="Transaction Fee Cap" 
-                                type="number"
-                                value={settings.PAYSTACK_CAP}
-                                onChange={(e) => handleChange('PAYSTACK_CAP', e.target.value)}
-                            />
+                            <p className="text-[9px] text-zinc-450 uppercase tracking-wider font-bold">Bleefy commission per transactional sale</p>
                         </div>
-                        <div className="mt-8 p-4 bg-blue-50 rounded-2xl border border-blue-100 flex items-start gap-4">
-                            <Info className="text-blue-500 shrink-0 mt-0.5" size={20} />
-                            <p className="text-xs text-blue-700 leading-relaxed font-medium">
-                                These values define how Paystack fees are deducted from seller payouts. Ensure these match Paystack&apos;s current regional pricing.
-                            </p>
-                        </div>
-                    </Card>
-                </div>
-          
-                <div className="space-y-8 py-5 animate-in slide-in-from-right-4 duration-500">
-                      {/* Branding */}
-                        <Card className="p-8 rounded-[2.5rem] border-none shadow-sm ring-1 ring-gray-100">
-                            <h3 className="text-xl font-black text-gray-900 mb-8 flex items-center gap-3">
-                                <Mail className="text-emerald-600" size={20} /> Communication
-                            </h3>
+                        <div className="space-y-1">
                             <Input 
-                                label="System Support Email" 
-                                value={settings.SUPPORT_EMAIL}
-                                onChange={(e) => handleChange('SUPPORT_EMAIL', e.target.value)}
-                                placeholder="support@bleefy.com"
+                                label="Withdrawal Processing Fee" 
+                                type="number" step="0.01"
+                                value={settings.PAYSTACK_FLAT_FEE}
+                                onChange={(e) => handleChange('PAYSTACK_FLAT_FEE', e.target.value)}
+                                icon={<DollarSign size={14} className="text-green-700" />}
                             />
-                            <p className="text-[10px] text-gray-400 font-bold uppercase tracking-wider mt-4 px-1">Receiver for system alerts and disputes</p>
-                        </Card>
+                            <p className="text-[9px] text-zinc-450 uppercase tracking-wider font-bold">Fixed administrative cost per payout request</p>
+                        </div>
+                    </div>
+                </Card>
 
-                        
-                  
-                </div>
-                <div className='flex justify-end item-center'>
+                {/* Payment Gateway */}
+                <Card className="p-5 bg-white border border-zinc-200 rounded-none shadow-none">
+                    <h3 className="font-bold text-xs uppercase tracking-wider text-zinc-950 mb-4 pb-2 border-b border-zinc-150 flex items-center gap-2">
+                        <div className="w-8 h-8 border border-zinc-250 bg-zinc-50 flex items-center justify-center shrink-0 rounded-none text-green-700">
+                            <ShieldCheck size={14}/>
+                        </div>
+                        Payment Gateway (Paystack)
+                    </h3>
+                    <div className="grid md:grid-cols-2 gap-6">
+                        <Input 
+                            label="Gateway Transaction Fee (%)" 
+                            type="number" step="0.001"
+                            value={settings.PAYSTACK_PERCENT}
+                            onChange={(e) => handleChange('PAYSTACK_PERCENT', e.target.value)}
+                        />
+                        <Input 
+                            label="Transaction Fee Cap" 
+                            type="number"
+                            value={settings.PAYSTACK_CAP}
+                            onChange={(e) => handleChange('PAYSTACK_CAP', e.target.value)}
+                        />
+                    </div>
+                    <div className="mt-4 p-4 border border-blue-200 bg-blue-50 text-blue-800 rounded-none flex items-start gap-3">
+                        <Info className="text-blue-700 shrink-0 mt-0.5" size={16} />
+                        <p className="text-[10px] leading-relaxed font-bold uppercase tracking-wider">
+                            These variables determine how intermediary Paystack processing fees are distributed and capped. Ensure sync values align with regional merchant pricing.
+                        </p>
+                    </div>
+                </Card>
+            </div>
+      
+            <div className="space-y-4 animate-in slide-in-from-right-4 duration-500">
+                {/* Branding */}
+                <Card className="p-5 bg-white border border-zinc-200 rounded-none shadow-none">
+                    <h3 className="font-bold text-xs uppercase tracking-wider text-zinc-950 mb-4 pb-2 border-b border-zinc-150 flex items-center gap-2">
+                        <div className="w-8 h-8 border border-zinc-250 bg-zinc-50 flex items-center justify-center shrink-0 rounded-none text-green-700">
+                            <Mail size={14} />
+                        </div>
+                        Communication
+                    </h3>
+                    <Input 
+                        label="System Support Email" 
+                        value={settings.SUPPORT_EMAIL}
+                        onChange={(e) => handleChange('SUPPORT_EMAIL', e.target.value)}
+                        placeholder="support@bleefy.com"
+                    />
+                    <p className="text-[9px] text-zinc-450 uppercase tracking-wider font-bold mt-2">Receiver for system escalations, transaction logs, and platform disputes</p>
+                </Card>
+            </div>
 
+            <div className="flex justify-end pt-2">
                  <Button 
                     onClick={() => handleSave()} 
                     disabled={saving}
-                    className="bg-emerald-600 hover:bg-emerald-700 shadow-xl shadow-emerald-100 rounded-2xl h-12 px-8 font-black uppercase tracking-widest text-xs"
+                    className="bg-green-700 hover:bg-green-800 border-green-700 text-white rounded-none h-10 px-6 font-bold uppercase tracking-wider text-[10px] flex items-center justify-center cursor-pointer shadow-none"
                 >
-                    {saving ? <Loader2 className="animate-spin mr-2" size={18}/> : <Save size={18} className="mr-2"/>}
-                    Save Changes
+                    {saving ? <Loader2 className="animate-spin mr-1.5" size={13}/> : <Save size={13} className="mr-1.5"/>}
+                    Commit Configuration
                 </Button>
-                </div>
+            </div>
         
         </div>
     );

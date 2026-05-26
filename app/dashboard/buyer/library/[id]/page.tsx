@@ -1,6 +1,6 @@
 'use client';
 
-import React, { Suspense, useEffect, useState } from 'react';
+import React, { Suspense, useEffect, useState, useRef } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { 
     ChevronLeft, Play, FileText, Download, 
@@ -15,8 +15,12 @@ export default function VaultViewerPage() {
     const [assets, setAssets] = useState<any[]>([]);
     const [activeAsset, setActiveAsset] = useState<any>(null);
     const [loading, setLoading] = useState(true);
+    const hasFetched = useRef(false);
 
     useEffect(() => {
+        if (!id || hasFetched.current) return;
+        hasFetched.current = true;
+
         const fetchVault = async () => {
             try {
                 // Returns array of assets with secureUrl

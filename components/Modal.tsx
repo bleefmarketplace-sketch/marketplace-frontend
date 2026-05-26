@@ -36,17 +36,17 @@ export const Modal: React.FC<ModalProps> = ({ isOpen, onClose, title, children, 
         className="absolute inset-0 bg-gray-900/60 backdrop-blur-sm transition-opacity" 
         onClick={onClose}
       ></div>
-      <div className={`relative bg-white rounded-2xl shadow-2xl w-full ${sizes[size]} max-h-[90vh] flex flex-col animate-in fade-in zoom-in-95 duration-300`}>
-        <div className="flex items-center justify-between p-6 border-b border-gray-100">
-          <h3 className="text-xl font-bold text-gray-900">{title}</h3>
+      <div className={`relative bg-white rounded-none border border-zinc-300 shadow-none w-full ${sizes[size]} max-h-[90vh] flex flex-col animate-in fade-in zoom-in-95 duration-300 font-mono text-xs`}>
+        <div className="flex items-center justify-between p-4 sm:p-5 border-b border-zinc-200">
+          <h3 className="text-xs font-bold text-zinc-950 uppercase tracking-wider">{title}</h3>
           <button 
             onClick={onClose}
-            className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full transition-colors"
+            className="p-1 text-zinc-400 hover:text-zinc-800 hover:bg-zinc-50 border border-zinc-200 rounded-none transition-colors cursor-pointer"
           >
-            <X size={20} />
+            <X size={16} />
           </button>
         </div>
-        <div className="overflow-y-auto p-6 custom-scrollbar">
+        <div className="overflow-y-auto p-4 sm:p-5 custom-scrollbar">
           {children}
         </div>
       </div>

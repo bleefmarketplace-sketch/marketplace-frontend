@@ -9,10 +9,12 @@ import Image from "next/image";
 import { toast } from "react-toastify";
 import { useApi } from "@/hooks/useApi";
 import { slugify } from "@/helpers/slugify";
+import { CameraCaptureModal } from "../CameraCaptureModal";
 
 interface Category {
     id: string;
     name: string;
+    children?: Category[];
 }
 
 interface ProductModalProps {
@@ -35,6 +37,15 @@ const ProductModal: React.FC<ProductModalProps> = ({
     const [title, setTitle] = useState(initialData?.title || "");
     const [slugEdited, setSlugEdited] = useState(false);
 
+    // --- Category & Subcategory State ---
+    const [selectedCategory, setSelectedCategory] = useState(
+        initialData?.category?.id || initialData?.categoryId || ""
+    );
+    const [selectedSubCategory, setSelectedSubCategory] = useState(
+        initialData?.subCategory?.id || initialData?.subCategoryId || ""
+    );
+    const [subCategories, setSubCategories] = useState<Category[]>([]);
+
     // --- Primary Image State ---
     const [primaryFile, setPrimaryFile] = useState<File | null>(null);
     const [primaryPreview, setPrimaryPreview] = useState<string | null>(
@@ -47,11 +58,71 @@ const ProductModal: React.FC<ProductModalProps> = ({
         initialData?.otherImages || []
     );
 
+    // --- Drag & Drop & Webcam States ---
+    const [isDraggingPrimary, setIsDraggingPrimary] = useState(false);
+    const [isDraggingGallery, setIsDraggingGallery] = useState(false);
+    const [isCameraOpen, setIsCameraOpen] = useState(false);
+    const [cameraTarget, setCameraTarget] = useState<"primary" | "gallery">("primary");
+
+    const handlePrimaryDragOver = (e: React.DragEvent) => {
+        e.preventDefault();
+        setIsDraggingPrimary(true);
+    };
+
+    const handlePrimaryDragLeave = () => {
+        setIsDraggingPrimary(false);
+    };
+
+    const handlePrimaryDrop = (e: React.DragEvent) => {
+        e.preventDefault();
+        setIsDraggingPrimary(false);
+        const file = e.dataTransfer.files?.[0];
+        if (file && file.type.startsWith("image/")) {
+            setPrimaryFile(file);
+            setPrimaryPreview(URL.createObjectURL(file));
+            toast.info(`Imported: ${file.name}`);
+        }
+    };
+
+    const handleGalleryDragOver = (e: React.DragEvent) => {
+        e.preventDefault();
+        setIsDraggingGallery(true);
+    };
+
+    const handleGalleryDragLeave = () => {
+        setIsDraggingGallery(false);
+    };
+
+    const handleGalleryDrop = (e: React.DragEvent) => {
+        e.preventDefault();
+        setIsDraggingGallery(false);
+        const files = Array.from(e.dataTransfer.files || []);
+        const imageFiles = files.filter((f) => f.type.startsWith("image/"));
+        if (imageFiles.length > 0) {
+            setOtherFiles((prev) => [...prev, ...imageFiles]);
+            const newPreviews = imageFiles.map((file) => URL.createObjectURL(file));
+            setOtherPreviews((prev) => [...prev, ...newPreviews]);
+            toast.info(`Added ${imageFiles.length} images to gallery`);
+        }
+    };
+
+    const handleCameraCapture = (file: File) => {
+        if (cameraTarget === "primary") {
+            setPrimaryFile(file);
+            setPrimaryPreview(URL.createObjectURL(file));
+            toast.success("Cover photo captured!");
+        } else {
+            setOtherFiles((prev) => [...prev, file]);
+            setOtherPreviews((prev) => [...prev, URL.createObjectURL(file)]);
+            toast.success("Gallery photo captured!");
+        }
+    };
+
     const fetchCategories = useCallback(async () => {
         try {
             const res = await fetcher("/api/categories");
             const data = res?.data;
-            setCategories(data);
+            setCategories(data || []);
         } catch (e) {
             toast.error("Failed to load categories");
         }
@@ -60,6 +131,20 @@ const ProductModal: React.FC<ProductModalProps> = ({
     useEffect(() => {
         fetchCategories();
     }, [fetchCategories]);
+
+    useEffect(() => {
+        if (selectedCategory && categories.length > 0) {
+            const parent = categories.find((c: any) => c.id === selectedCategory);
+            setSubCategories(parent?.children || []);
+        } else {
+            setSubCategories([]);
+        }
+    }, [selectedCategory, categories]);
+
+    const handleCategoryChange = (catId: string) => {
+        setSelectedCategory(catId);
+        setSelectedSubCategory(""); // Reset selected subcategory
+    };
 
     /* ---------------- API: UPLOAD SINGLE (PRIMARY) ---------------- */
     const uploadPrimaryImage = async (file: File): Promise<string> => {
@@ -137,7 +222,8 @@ const ProductModal: React.FC<ProductModalProps> = ({
                 description: formData.get("description"),
                 price: Number(formData.get("price")),
                 stock: Number(formData.get("stock")),
-                categoryId: formData.get("category"),
+                categoryId: selectedCategory,
+                subCategoryId: selectedSubCategory || null,
                 location: formData.get("location"),
                 primaryImage: primaryImageUrl,
                 otherImages: finalOtherImages,
@@ -174,11 +260,16 @@ const ProductModal: React.FC<ProductModalProps> = ({
         <Modal isOpen={isOpen} onClose={onClose} title={initialData ? "Edit Product" : "Add Product"}>
             <form onSubmit={handleSubmit} className="space-y-5 max-h-[80vh] px-1 font-mono text-xs text-zinc-900">
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {/* PRIMARY IMAGE SECTION */}
                     <div>
                         <label className="block text-[10px] font-bold uppercase tracking-widest mb-1.5 text-zinc-500">Primary Image (Cover)</label>
-                        <div className="flex gap-2 h-36">
+                        <div 
+                            className={`flex gap-2 h-36 border transition-all duration-150 ${isDraggingPrimary ? "border-green-600 bg-green-50/20" : "border-transparent"}`}
+                            onDragOver={handlePrimaryDragOver}
+                            onDragLeave={handlePrimaryDragLeave}
+                            onDrop={handlePrimaryDrop}
+                        >
                             {primaryPreview ? (
                                 <label className="relative flex-1 cursor-pointer group rounded-none border border-zinc-200 overflow-hidden">
                                     <input
@@ -216,23 +307,14 @@ const ProductModal: React.FC<ProductModalProps> = ({
                                         <UploadCloud size={20} className="mb-1 text-zinc-450" />
                                         <span className="text-[9px] uppercase font-bold tracking-wider">Choose File</span>
                                     </label>
-                                    <label className="flex-1 border border-dashed border-green-200 rounded-none bg-green-50/50 cursor-pointer hover:bg-green-50 flex flex-col items-center justify-center text-green-700 transition">
-                                        <input
-                                            type="file"
-                                            hidden
-                                            accept="image/*"
-                                            capture="environment"
-                                            onChange={(e) => {
-                                                const file = e.target.files?.[0];
-                                                if (file) {
-                                                    setPrimaryFile(file);
-                                                    setPrimaryPreview(URL.createObjectURL(file));
-                                                }
-                                            }}
-                                        />
+                                    <button 
+                                        type="button"
+                                        onClick={() => { setCameraTarget('primary'); setIsCameraOpen(true); }}
+                                        className="flex-1 border border-dashed border-green-200 rounded-none bg-green-50/50 hover:bg-green-50 flex flex-col items-center justify-center text-green-700 transition cursor-pointer"
+                                    >
                                         <Camera size={20} className="mb-1" />
                                         <span className="text-[9px] uppercase font-bold tracking-wider">Take Photo</span>
-                                    </label>
+                                    </button>
                                 </>
                             )}
                         </div>
@@ -241,7 +323,12 @@ const ProductModal: React.FC<ProductModalProps> = ({
                     {/* OTHER IMAGES SECTION */}
                     <div>
                         <label className="block text-[10px] font-bold uppercase tracking-widest mb-1.5 text-zinc-500">Product Gallery</label>
-                        <div className="grid grid-cols-3 gap-2">
+                        <div 
+                            className={`grid grid-cols-3 gap-2 border transition-all duration-150 p-1.5 min-h-[9rem] ${isDraggingGallery ? "border-green-600 bg-green-50/20" : "border-transparent"}`}
+                            onDragOver={handleGalleryDragOver}
+                            onDragLeave={handleGalleryDragLeave}
+                            onDrop={handleGalleryDrop}
+                        >
                             {otherPreviews.map((url, idx) => (
                                 <div key={idx} className="relative h-16 bg-zinc-50 border border-zinc-200 rounded-none overflow-hidden">
                                     <Image src={url} unoptimized alt="Gallery" fill className="object-cover" />
@@ -258,6 +345,14 @@ const ProductModal: React.FC<ProductModalProps> = ({
                                 <input type="file" hidden multiple accept="image/*" onChange={handleOtherImagesChange} />
                                 <Plus className="text-zinc-400" size={16} />
                             </label>
+                            <button
+                                type="button"
+                                onClick={() => { setCameraTarget('gallery'); setIsCameraOpen(true); }}
+                                className="flex items-center justify-center h-16 border border-dashed border-green-200 bg-green-50/20 hover:bg-green-50 text-green-755 rounded-none cursor-pointer"
+                                title="Snap photo from webcam"
+                            >
+                                <Camera size={16} />
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -293,28 +388,39 @@ const ProductModal: React.FC<ProductModalProps> = ({
 
                     <div className="grid grid-cols-2 gap-4 font-mono">
                         <div className="space-y-1">
-                            <label className="text-[10px] font-bold uppercase tracking-widest text-zinc-400 block mb-0.5">Category</label>
+                            <label className="text-[10px] font-bold uppercase tracking-widest text-zinc-400 block mb-0.5">Main Category</label>
                             <select
                                 name="category"
-                                defaultValue={initialData?.categoryId || ""}
+                                value={selectedCategory}
+                                onChange={(e) => handleCategoryChange(e.target.value)}
                                 required
-                                className="w-full border border-zinc-250 p-2 text-xs bg-white rounded-none font-mono focus:border-green-600 focus:outline-none"
+                                className="w-full border border-zinc-250 p-2 text-xs bg-white rounded-none font-mono focus:border-green-600 focus:outline-none animate-in fade-in duration-100"
                             >
-                                <option value="">Select Category</option>
+                                <option value="">Select Main Category</option>
                                 {categories.map((c: any) => (
-                                    c.children?.length > 0 ? (
-                                        <optgroup key={c.id} label={c.name.toUpperCase()}>
-                                            <option value={c.id}>{c.name.toUpperCase()} (GENERAL)</option>
-                                            {c.children.map((child: any) => (
-                                                <option key={child.id} value={child.id}>{child.name.toUpperCase()}</option>
-                                            ))}
-                                        </optgroup>
-                                    ) : (
-                                        <option key={c.id} value={c.id}>{c.name.toUpperCase()}</option>
-                                    )
+                                    <option key={c.id} value={c.id}>{c.name.toUpperCase()}</option>
                                 ))}
                             </select>
                         </div>
+
+                        <div className="space-y-1">
+                            <label className="text-[10px] font-bold uppercase tracking-widest text-zinc-400 block mb-0.5">Sub Category</label>
+                            <select
+                                name="subCategory"
+                                value={selectedSubCategory}
+                                onChange={(e) => setSelectedSubCategory(e.target.value)}
+                                className="w-full border border-zinc-250 p-2 text-xs bg-white rounded-none font-mono focus:border-green-600 focus:outline-none"
+                                disabled={subCategories.length === 0}
+                            >
+                                <option value="">Select Sub Category (Optional)</option>
+                                {subCategories.map((child: any) => (
+                                    <option key={child.id} value={child.id}>{child.name.toUpperCase()}</option>
+                                ))}
+                            </select>
+                        </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 font-mono">
                         <Input name="location" label="Location" defaultValue={initialData?.location} required />
                     </div>
 
@@ -352,6 +458,12 @@ const ProductModal: React.FC<ProductModalProps> = ({
                     </Button>
                 </div>
             </form>
+
+            <CameraCaptureModal
+                isOpen={isCameraOpen}
+                onClose={() => setIsCameraOpen(false)}
+                onCapture={handleCameraCapture}
+            />
         </Modal>
     );
 };

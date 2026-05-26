@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Button } from '@/components/Button';
 import {
-    Star, MapPin, Filter, Package, Plus, X, Search, AlertCircle
+    Star, MapPin, Filter, Package, Plus, X, Search, AlertCircle, Loader2
 } from 'lucide-react';
 import { CATEGORIES } from '../constants';
 import { Product } from '../types';
@@ -17,6 +17,10 @@ export const Marketplace = () => {
     const [products, setProducts] = useState<Product[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+
+    const [offset, setOffset] = useState(0);
+    const [hasMore, setHasMore] = useState(true);
+    const [loadingMore, setLoadingMore] = useState(false);
 
     const { addItem } = useCartStore();
 
@@ -41,9 +45,11 @@ export const Marketplace = () => {
     }, [searchTerm]);
 
     // --- LOGIC: FETCHING ---
-    const fetchProducts = useCallback(async () => {
+    const fetchInitialProducts = useCallback(async () => {
         setLoading(true);
         setError(null);
+        setHasMore(true);
+        setOffset(0);
         try {
             const params = new URLSearchParams();
             if (filters.search) params.append('search', filters.search);
@@ -52,13 +58,19 @@ export const Marketplace = () => {
             if (filters.minPrice) params.append('minPrice', filters.minPrice);
             if (filters.maxPrice) params.append('maxPrice', filters.maxPrice);
             params.append('limit', '20');
+            params.append('offset', '0');
 
             const response = await fetch(`/api/marketplace?${params.toString()}`);
             const data = await response.json();
 
             if (data.success === false) throw new Error(data.message);
 
-            setProducts(Array.isArray(data) ? data : data.products || []);
+            const items = Array.isArray(data) ? data : data.products || [];
+            setProducts(items);
+            if (items.length < 20) {
+                setHasMore(false);
+            }
+            setOffset(items.length);
         } catch (err: any) {
             setError(err.message || "Failed to connect to server");
             setProducts([]);
@@ -67,9 +79,62 @@ export const Marketplace = () => {
         }
     }, [filters]);
 
+    const fetchMoreProducts = useCallback(async () => {
+        if (loading || loadingMore || !hasMore) return;
+        setLoadingMore(true);
+        try {
+            const params = new URLSearchParams();
+            if (filters.search) params.append('search', filters.search);
+            if (filters.category) params.append('category', filters.category);
+            if (filters.sortBy) params.append('sortBy', filters.sortBy);
+            if (filters.minPrice) params.append('minPrice', filters.minPrice);
+            if (filters.maxPrice) params.append('maxPrice', filters.maxPrice);
+            params.append('limit', '20');
+            params.append('offset', offset.toString());
+
+            const response = await fetch(`/api/marketplace?${params.toString()}`);
+            const data = await response.json();
+
+            if (data.success === false) throw new Error(data.message);
+
+            const items = Array.isArray(data) ? data : data.products || [];
+            if (items.length > 0) {
+                setProducts(prev => [...prev, ...items]);
+                setOffset(prev => prev + items.length);
+            }
+            if (items.length < 20) {
+                setHasMore(false);
+            }
+        } catch (err: any) {
+            console.error("Failed to load more products:", err);
+            toast.error("Failed to load next product batch.");
+        } finally {
+            setLoadingMore(false);
+        }
+    }, [filters, offset, hasMore, loading, loadingMore]);
+
     useEffect(() => {
-        fetchProducts();
-    }, [fetchProducts]);
+        fetchInitialProducts();
+    }, [fetchInitialProducts]);
+
+    // --- LOGIC: INFINITE SCROLL OBSERVER ---
+    useEffect(() => {
+        const observer = new IntersectionObserver((entries) => {
+            const first = entries[0];
+            if (first.isIntersecting && hasMore && !loading && !loadingMore) {
+                fetchMoreProducts();
+            }
+        }, { threshold: 0.1 });
+
+        const target = document.getElementById('infinite-scroll-sentinel');
+        if (target) {
+            observer.observe(target);
+        }
+
+        return () => {
+            if (target) observer.unobserve(target);
+        };
+    }, [hasMore, loading, loadingMore, fetchMoreProducts]);
 
     const handleOpenProduct = (product: Product) => {
         trackEvent('click', product.id, { category: product.categoryId });
@@ -221,7 +286,7 @@ export const Marketplace = () => {
                                 </div>
                                 <h3 className="text-sm font-bold text-zinc-950 uppercase">SEARCH MATRIX FAILED</h3>
                                 <p className="text-zinc-500 text-xs font-sans mt-1.5 mb-5">{error}</p>
-                                <Button onClick={fetchProducts} size="sm">RETRY QUERY</Button>
+                                <Button onClick={fetchInitialProducts} size="sm">RETRY QUERY</Button>
                             </div>
                         ) : (
                             <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 font-mono text-left">
@@ -285,6 +350,22 @@ export const Marketplace = () => {
                                         </div>
                                     </div>
                                 ))}
+                            </div>
+                        )}
+
+                        {/* Sentinel for Infinite Scroll */}
+                        <div id="infinite-scroll-sentinel" className="h-4 w-full" />
+
+                        {loadingMore && (
+                            <div className="mt-4 border border-zinc-200 bg-white p-4 flex items-center justify-center gap-3 font-mono text-[10px] text-zinc-600 uppercase tracking-widest animate-pulse select-none">
+                                <Loader2 className="animate-spin text-green-700" size={13} />
+                                <span>Hydrating Produce Grid [Offset: {offset}]...</span>
+                            </div>
+                        )}
+
+                        {!hasMore && products.length > 0 && (
+                            <div className="mt-6 py-3 text-center border-t border-zinc-200 font-mono text-[9px] text-zinc-400 uppercase tracking-widest select-none">
+                                ● Terminal Stream Completed. All classified products loaded.
                             </div>
                         )}
 

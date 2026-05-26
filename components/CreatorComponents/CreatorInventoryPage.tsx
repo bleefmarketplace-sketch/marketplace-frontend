@@ -1,5 +1,5 @@
 'use client';
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { Card } from '@/components/Card';
 import { Button } from '@/components/Button';
 import {
@@ -33,11 +33,11 @@ interface DigitalProduct {
 }
 
 const STATUS_CONFIG: Record<string, { label: string; color: string; icon: any }> = {
-  published: { label: 'Live', color: 'bg-emerald-100 text-emerald-700', icon: CheckCircle },
-  draft: { label: 'Draft', color: 'bg-gray-100 text-gray-600', icon: Clock },
-  processing: { label: 'Processing', color: 'bg-blue-100 text-blue-700', icon: Clock },
-  pending_review: { label: 'In Review', color: 'bg-amber-100 text-amber-700', icon: AlertTriangle },
-  rejected: { label: 'Rejected', color: 'bg-red-100 text-red-700', icon: AlertTriangle },
+  published: { label: 'LIVE', color: 'border-green-200 bg-green-50 text-green-800', icon: CheckCircle },
+  draft: { label: 'DRAFT', color: 'border-zinc-200 bg-zinc-50 text-zinc-650', icon: Clock },
+  processing: { label: 'PROCESSING', color: 'border-blue-200 bg-blue-50 text-blue-800', icon: Clock },
+  pending_review: { label: 'IN REVIEW', color: 'border-amber-200 bg-amber-50 text-amber-800', icon: AlertTriangle },
+  rejected: { label: 'REJECTED', color: 'border-red-200 bg-red-50 text-red-800', icon: AlertTriangle },
 };
 
 export default function CreatorInventoryPage() {
@@ -47,6 +47,7 @@ export default function CreatorInventoryPage() {
   const [showBuilder, setShowBuilder] = useState(false);
   const [editingProduct, setEditingProduct] = useState<DigitalProduct | null>(null);
   const [search, setSearch] = useState('');
+  const hasFetched = useRef(false);
 
   const { user } = useAuth();
   const router = useRouter();
@@ -65,7 +66,13 @@ export default function CreatorInventoryPage() {
   }, [fetcher, user]);
 
   useEffect(() => { 
-    if (user !== undefined) load(); 
+    if (user === undefined || hasFetched.current) return;
+    if (user?.hasCreatedCreatorProfile) {
+      hasFetched.current = true;
+      load(); 
+    } else {
+      setLoading(false);
+    }
   }, [load, user]);
 
   const handleDelete = async (id: string) => {
@@ -83,163 +90,156 @@ export default function CreatorInventoryPage() {
     !search || p.title.toLowerCase().includes(search.toLowerCase())
   );
 
-
-
   if (loading) return (
     <div className="flex justify-center py-32">
-      <Loader2 className="animate-spin text-emerald-600" size={40} />
+      <Loader2 className="animate-spin text-green-700" size={32} />
     </div>
   );
 
   if (user && !user.hasCreatedCreatorProfile) {
     return (
-      <div className="max-w-3xl mx-auto py-20 px-4 text-center space-y-6 animate-in fade-in">
-        <div className="w-24 h-24 bg-orange-100 text-orange-600 rounded-full flex items-center justify-center mx-auto">
-          <BookOpen size={40} />
+      <div className="w-full max-w-2xl mx-auto py-16 px-4 font-mono text-xs text-zinc-900 antialiased animate-in fade-in">
+        <div className="border border-amber-350 bg-amber-50/50 p-6 space-y-6 rounded-none text-center">
+          <div className="w-16 h-16 border border-amber-250 bg-amber-50 text-amber-700 flex items-center justify-center mx-auto rounded-none">
+            <BookOpen size={28} />
+          </div>
+          <div className="space-y-2">
+            <h1 className="text-sm font-bold uppercase tracking-wider text-zinc-950">CREATOR PROFILE NOT ACTIVE</h1>
+            <p className="text-zinc-500 text-[10px] leading-relaxed max-w-md mx-auto">
+              You must configure and verify your Creator Studio settings before launching new digital products and guides.
+            </p>
+          </div>
+          <div className="pt-2">
+            <Button
+              onClick={() => router.push('/dashboard/creator/settings?tab=store')}
+              className="bg-green-700 hover:bg-green-800 border-green-700 text-white rounded-none h-10 px-6 font-bold uppercase tracking-wider text-[10px] cursor-pointer"
+            >
+              Configure Studio Profile
+            </Button>
+          </div>
         </div>
-        <h1 className="text-3xl font-black text-gray-900">Create Your Profile First</h1>
-        <p className="text-gray-500 max-w-lg mx-auto">
-          You need to set up your Creator Profile before you can upload and manage digital content.
-        </p>
-        <Button
-          onClick={() => router.push('/dashboard/creator/settings?tab=store')}
-          className="bg-emerald-600 hover:bg-emerald-700 h-12 px-8 rounded-xl font-bold"
-        >
-          Setup Creator Profile
-        </Button>
       </div>
     );
   }
 
   return (
-    <div className="max-w-5xl mx-auto py-8 px-4 space-y-6 animate-in fade-in duration-300">
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+    <div className="w-full space-y-6 font-mono text-xs text-zinc-900 antialiased animate-in fade-in duration-300">
+      
+      {/* Header */}
+      <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 border border-zinc-200 bg-white p-5">
         <div>
-          <h1 className="text-2xl font-black text-gray-900">Content Vault</h1>
-          <p className="text-gray-500 text-sm">Manage your digital courses, guides and resources</p>
+          <span className="px-2 py-0.5 text-[9px] font-mono bg-green-50 text-green-800 border border-green-200 font-bold uppercase tracking-widest">
+            DIGITAL REPOSITORY
+          </span>
+          <h1 className="text-xl font-bold uppercase tracking-wider text-zinc-950 mt-2">Content Vault</h1>
+          <p className="text-zinc-500 text-[10px] mt-0.5">Manage digital curriculum assets, agronomy handbooks, and knowledge modules.</p>
         </div>
         <Button
           onClick={() => setShowBuilder(true)}
-          className="bg-emerald-600 hover:bg-emerald-700 gap-2 rounded-2xl shrink-0"
+          className="bg-green-700 hover:bg-green-800 border-green-700 text-white rounded-none h-10 px-5 gap-2 uppercase font-bold tracking-wider text-[10px] flex items-center justify-center cursor-pointer shrink-0"
         >
-          <Plus size={18} /> Upload Content
+          <Plus size={14} /> Upload Content
         </Button>
       </div>
 
       {/* Search */}
       <div className="relative">
-        <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+        <Search size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-400" />
         <input
           type="text"
-          placeholder="Search content..."
-          className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-1 focus:ring-emerald-500"
+          placeholder="SEARCH DIGITAL REPOSITORY..."
+          className="w-full pl-9 pr-4 py-2.5 border border-zinc-250 rounded-none bg-white font-mono text-xs uppercase tracking-wider text-zinc-900 focus:outline-none focus:border-green-700"
           value={search}
           onChange={e => setSearch(e.target.value)}
         />
       </div>
 
       {filtered.length === 0 ? (
-        <Card className="p-20 text-center border-dashed border-2">
-          <BookOpen className="mx-auto text-gray-200 mb-4" size={56} />
-          <h3 className="text-xl font-bold text-gray-400">
-            {search ? 'No content matches your search' : 'No content yet'}
+        <Card className="p-16 text-center border border-zinc-200 border-dashed rounded-none bg-white">
+          <BookOpen className="mx-auto text-zinc-300 mb-4" size={40} />
+          <h3 className="text-xs font-bold text-zinc-450 uppercase tracking-widest">
+            {search ? 'NO DIGITAL ASSETS MATCH CRITERIA' : 'REPOSITORY IS EMPTY'}
           </h3>
           {!search && (
             <>
-              <p className="text-gray-400 text-sm mt-2 max-w-sm mx-auto">
-                Upload your first course, guide, or digital resource to start earning from your expertise.
+              <p className="text-zinc-500 text-[10px] mt-2 max-w-xs mx-auto leading-relaxed">
+                Initialize your first premium agronomy blueprint, crop masterclass, or downloadable manual to deploy to the registry.
               </p>
               <Button
                 onClick={() => setShowBuilder(true)}
-                className="mt-6 bg-emerald-600 hover:bg-emerald-700 gap-2"
+                className="mt-6 bg-green-700 hover:bg-green-800 border-green-700 text-white rounded-none h-10 px-6 uppercase font-bold tracking-wider text-[10px] cursor-pointer"
               >
-                <Plus size={18} /> Create First Content
+                <Plus size={14} className="mr-1.5 inline" /> Create First Content
               </Button>
             </>
           )}
         </Card>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {filtered.map(product => {
             const statusConf = STATUS_CONFIG[product.status] || STATUS_CONFIG.draft;
             const StatusIcon = statusConf.icon;
 
             return (
-              <Card key={product.id} className="overflow-hidden hover:shadow-md transition-shadow">
+              <Card key={product.id} className="overflow-hidden border border-zinc-200 bg-white rounded-none shadow-none flex flex-col justify-between">
                 <div className="flex gap-4 p-5">
-                  <div className="relative w-20 h-20 rounded-xl overflow-hidden bg-gray-100 shrink-0">
+                  <div className="relative w-20 h-20 border border-zinc-200 rounded-none overflow-hidden bg-zinc-50 shrink-0 flex items-center justify-center">
                     {product.primaryImage ? (
                       <Image fill src={product.primaryImage} alt={product.title} className="object-cover" unoptimized />
                     ) : (
-                      <div className="w-full h-full flex items-center justify-center">
-                        <BookOpen size={28} className="text-gray-300" />
-                      </div>
+                      <BookOpen size={24} className="text-zinc-300" />
                     )}
                   </div>
 
                   <div className="flex-1 min-w-0">
                     <div className="flex items-start justify-between gap-2">
-                      <h3 className="font-bold text-gray-900 text-sm truncate">{product.title}</h3>
-                      <span className={`text-[10px] font-bold uppercase px-2 py-0.5 rounded-full flex items-center gap-1 shrink-0 ${statusConf.color}`}>
-                        <StatusIcon size={10} /> {statusConf.label}
+                      <h3 className="font-bold text-zinc-950 text-xs uppercase tracking-wider truncate" title={product.title}>
+                        {product.title}
+                      </h3>
+                      <span className={`text-[8px] font-bold uppercase px-1.5 py-0.5 border flex items-center gap-1 shrink-0 rounded-none ${statusConf.color}`}>
+                        <StatusIcon size={9} /> {statusConf.label}
                       </span>
                     </div>
 
-                    <p className="text-xs text-gray-500 mt-1 line-clamp-2">{product.description}</p>
+                    <p className="text-[10px] text-zinc-500 mt-1 line-clamp-2 leading-relaxed">{product.description}</p>
 
                     <div className="flex items-center gap-3 mt-3">
-                      <span className="font-black text-emerald-600 text-sm">
+                      <span className="font-mono font-bold text-green-700 text-[11px] tracking-wide bg-green-50 px-1.5 py-0.5 border border-green-150">
                         ₦{Number(product.price).toLocaleString()}
                       </span>
 
                       {product.digitalMetadata?.trustScore != null && (
-                        <div className="flex items-center gap-1 text-xs">
-                          <Shield size={12} className={
-                            product.digitalMetadata.trustScore >= 75 ? 'text-emerald-500' :
-                            product.digitalMetadata.trustScore >= 50 ? 'text-amber-500' : 'text-red-500'
+                        <div className="flex items-center gap-1 text-[10px] font-mono font-bold text-zinc-600 bg-zinc-50 px-1.5 py-0.5 border border-zinc-200">
+                          <Shield size={10} className={
+                            product.digitalMetadata.trustScore >= 75 ? 'text-green-600' :
+                            product.digitalMetadata.trustScore >= 50 ? 'text-amber-600' : 'text-red-600'
                           } />
-                          <span className="font-bold text-gray-600">
-                            {product.digitalMetadata.trustScore}/100
+                          <span>
+                            TRUST: {product.digitalMetadata.trustScore}/100
                           </span>
                         </div>
                       )}
 
-                      <span className="text-xs text-gray-400 ml-auto">
+                      <span className="text-[9px] font-mono text-zinc-400 ml-auto">
                         {new Date(product.createdAt).toLocaleDateString()}
                       </span>
                     </div>
                   </div>
                 </div>
 
-                {/* AI Flags Banner */}
-               {/*  {product.digitalMetadata?.aiAuditLog?.riskFlags?.length > 0 && (
-                  <div className="mx-5 mb-4 bg-amber-50 border border-amber-100 rounded-xl p-3">
-                    <p className="text-xs font-bold text-amber-700 flex items-center gap-1 mb-1">
-                      <AlertTriangle size={12} /> AI Flags
-                    </p>
-                    <div className="flex flex-wrap gap-1">
-                      {product.digitalMetadata.aiAuditLog.riskFlags.slice(0, 3).map((flag, i) => (
-                        <span key={i} className="text-[10px] bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full">
-                          {flag.replace(/_/g, ' ')}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                )} */}
-
                 {/* Actions */}
-                <div className="flex gap-2 px-5 pb-5">
+                <div className="flex gap-2 px-5 pb-5 mt-auto">
                   <button
                     onClick={() => setEditingProduct(product)}
-                    className="flex-1 flex items-center justify-center gap-2 py-2.5 bg-gray-50 hover:bg-emerald-50 text-gray-600 hover:text-emerald-700 font-bold text-xs rounded-xl transition-all border border-gray-100 hover:border-emerald-200"
+                    className="flex-1 flex items-center justify-center gap-1.5 py-2 px-4 bg-zinc-50 hover:bg-zinc-100 border border-zinc-250 hover:border-zinc-350 text-zinc-800 font-mono font-bold text-[9px] uppercase tracking-wider rounded-none transition-colors cursor-pointer"
                   >
                     Edit Content
                   </button>
                   <button
                     onClick={() => handleDelete(product.id)}
-                    className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors border border-transparent"
+                    className="p-2 border border-zinc-250 hover:border-red-200 hover:bg-red-50 text-zinc-400 hover:text-red-750 rounded-none transition-colors cursor-pointer"
                   >
-                    <Trash2 size={16} />
+                    <Trash2 size={13} />
                   </button>
                 </div>
               </Card>

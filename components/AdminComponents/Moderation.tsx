@@ -31,9 +31,9 @@ interface Product {
 }
 
 const RISK_COLORS: Record<string, string> = {
-  approve: 'text-emerald-600 bg-emerald-50',
-  flag: 'text-amber-600 bg-amber-50',
-  reject: 'text-red-600 bg-red-50',
+  approve: 'text-green-700 bg-green-50 border border-green-200',
+  flag: 'text-amber-700 bg-amber-50 border border-amber-200',
+  reject: 'text-red-700 bg-red-50 border border-red-200',
 };
 
 export default function AdminModerationPage() {
@@ -75,55 +75,66 @@ export default function AdminModerationPage() {
   };
 
   if (loading) return (
-    <div className="flex justify-center py-32">
-      <Loader2 className="animate-spin text-emerald-600" size={40} />
+    <div className="flex flex-col items-center justify-center py-32 font-mono text-xs text-zinc-500 uppercase tracking-widest gap-3 select-none">
+      <Loader2 className="animate-spin text-green-700" size={32} />
+      <span>Fetching digital product moderation queue...</span>
     </div>
   );
 
   return (
-    <div className="max-w-6xl mx-auto py-8 px-4 space-y-6 animate-in fade-in duration-300">
-      <div className="flex items-center justify-between">
+    <div className="w-full space-y-6 animate-in fade-in duration-300 font-mono text-xs text-zinc-900 select-none">
+      
+      {/* Header Bar */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border border-zinc-200 bg-white p-5">
         <div>
-          <h1 className="text-2xl font-black text-gray-900">Content Moderation</h1>
-          <p className="text-gray-500 text-sm">Review digital products flagged by AI audit</p>
+          <span className="px-2 py-0.5 text-[9px] font-mono bg-green-50 text-green-800 border border-green-200 font-bold uppercase tracking-widest">
+            CONTENT REVIEW COMMAND
+          </span>
+          <h1 className="text-xl font-black uppercase tracking-wider text-zinc-950 mt-2">Content Moderation</h1>
+          <p className="text-[10px] text-zinc-500 uppercase tracking-widest mt-0.5">Review digital products flagged by AI audit Compliance Engine</p>
         </div>
-        <div className="bg-amber-100 text-amber-700 px-4 py-2 rounded-2xl font-bold text-sm flex items-center gap-2">
-          <AlertTriangle size={16} /> {products.length} Pending Review
+        <div className="border border-amber-200 bg-amber-50 text-amber-800 px-3 py-1.5 rounded-none flex items-center gap-2 font-mono font-bold text-[10px] uppercase tracking-wider shrink-0">
+          <AlertTriangle size={12} /> {products.length} PENDING IN QUEUE
         </div>
       </div>
 
       {products.length === 0 ? (
-        <Card className="p-20 text-center border-dashed border-2">
-          <Shield className="mx-auto text-emerald-300 mb-4" size={56} />
-          <h3 className="text-xl font-bold text-gray-400">Queue is clear</h3>
-          <p className="text-sm text-gray-400 mt-1">No digital products require manual review</p>
+        <Card className="rounded-none border border-zinc-200 bg-white p-20 text-center shadow-none">
+          <Shield className="mx-auto text-green-700 mb-4" size={48} />
+          <h3 className="text-sm font-bold uppercase tracking-widest text-zinc-700">Verification Queue is Clear</h3>
+          <p className="text-zinc-400 text-[10px] uppercase tracking-wider mt-1">No digital products require manual review</p>
         </Card>
       ) : (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          
           {/* Product List */}
-          <div className="space-y-3 lg:col-span-1 overflow-y-auto max-h-[70vh]">
+          <div className="space-y-3 lg:col-span-1 overflow-y-auto max-h-[70vh] custom-scrollbar pr-1">
             {products.map(product => (
               <Card
                 key={product.id}
-                className={`p-4 cursor-pointer hover:shadow-md transition-all ${selected?.id === product.id ? 'border-emerald-400 bg-emerald-50/30' : ''}`}
+                className={`p-4 cursor-pointer rounded-none shadow-none border transition-colors ${
+                  selected?.id === product.id 
+                    ? 'border-green-600 bg-green-50/20 border-l-4' 
+                    : 'border-zinc-200 bg-white hover:bg-zinc-50 hover:border-zinc-300'
+                }`}
                 onClick={() => setSelected(product)}
               >
                 <div className="flex gap-3">
-                  <div className="relative w-14 h-14 rounded-xl overflow-hidden bg-gray-100 shrink-0">
+                  <div className="relative w-14 h-14 rounded-none border border-zinc-200 overflow-hidden bg-zinc-100 shrink-0">
                     {product.primaryImage ? (
                       <Image fill src={product.primaryImage} alt={product.title} className="object-cover" unoptimized />
                     ) : (
-                      <div className="w-full h-full flex items-center justify-center">
-                        <BookOpen size={24} className="text-gray-300" />
+                      <div className="w-full h-full flex items-center justify-center text-zinc-400">
+                        <BookOpen size={20} />
                       </div>
                     )}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="font-bold text-sm text-gray-900 truncate">{product.title}</p>
-                    <p className="text-xs text-gray-500 truncate">{product.seller?.businessName}</p>
+                    <p className="font-bold text-xs text-zinc-950 uppercase truncate tracking-tight">{product.title}</p>
+                    <p className="text-[10px] text-zinc-400 uppercase truncate tracking-wider mt-0.5">{product.seller?.businessName}</p>
                     {product.digitalMetadata?.aiAuditLog && (
-                      <span className={`text-[10px] font-bold uppercase px-2 py-0.5 rounded-full mt-1 inline-block ${
-                        RISK_COLORS[product.digitalMetadata.aiAuditLog.suggestedAction] || 'bg-gray-100 text-gray-600'
+                      <span className={`text-[8px] font-bold uppercase px-1.5 py-0.5 rounded-none mt-2 inline-block border ${
+                        RISK_COLORS[product.digitalMetadata.aiAuditLog.suggestedAction] || 'bg-zinc-100 text-zinc-650 border-zinc-200'
                       }`}>
                         AI: {product.digitalMetadata.aiAuditLog.suggestedAction}
                       </span>
@@ -137,62 +148,66 @@ export default function AdminModerationPage() {
           {/* Detail Panel */}
           <div className="lg:col-span-2">
             {!selected ? (
-              <Card className="p-16 text-center h-full flex items-center justify-center">
-                <div className="text-gray-400">
-                  <Eye size={40} className="mx-auto mb-3 text-gray-200" />
-                  <p className="font-bold">Select a product</p>
-                  <p className="text-sm">Choose a product from the list to review details</p>
+              <Card className="rounded-none border border-zinc-200 bg-white p-16 text-center h-full flex items-center justify-center shadow-none">
+                <div className="text-zinc-400 space-y-2">
+                  <Eye size={40} className="mx-auto text-zinc-200" />
+                  <p className="font-bold uppercase tracking-wider text-zinc-700">Select a Product</p>
+                  <p className="text-[10px] uppercase tracking-widest text-zinc-450">Choose an asset from the queue to moderate</p>
                 </div>
               </Card>
             ) : (
-              <Card className="p-6 space-y-6">
+              <Card className="rounded-none border border-zinc-200 bg-white p-6 space-y-6 shadow-none">
+                
                 {/* Header */}
-                <div className="flex gap-4">
-                  <div className="relative w-20 h-20 rounded-2xl overflow-hidden bg-gray-100 shrink-0">
+                <div className="flex gap-4 border-b border-zinc-200 pb-4">
+                  <div className="relative w-20 h-20 rounded-none border border-zinc-200 overflow-hidden bg-zinc-100 shrink-0">
                     {selected.primaryImage ? (
                       <Image fill src={selected.primaryImage} alt={selected.title} className="object-cover" unoptimized />
                     ) : (
-                      <div className="w-full h-full flex items-center justify-center">
-                        <BookOpen size={32} className="text-gray-300" />
+                      <div className="w-full h-full flex items-center justify-center text-zinc-400">
+                        <BookOpen size={28} />
                       </div>
                     )}
                   </div>
                   <div>
-                    <h2 className="font-black text-lg text-gray-900">{selected.title}</h2>
-                    <p className="text-sm text-gray-500">By {selected.seller?.businessName}</p>
-                    <p className="font-bold text-emerald-600 mt-1">₦{Number(selected.price).toLocaleString()}</p>
+                    <span className="px-1.5 py-0.5 text-[8px] font-bold uppercase tracking-widest border border-zinc-200 bg-zinc-50 text-zinc-700">
+                      PRODUCT TELEMETRY
+                    </span>
+                    <h2 className="font-black text-base text-zinc-950 uppercase tracking-tight mt-1">{selected.title}</h2>
+                    <p className="text-[10px] text-zinc-400 uppercase tracking-wider mt-0.5">Seller: {selected.seller?.businessName}</p>
+                    <p className="font-bold text-green-700 text-sm mt-1 font-mono">₦{Number(selected.price).toLocaleString()}</p>
                   </div>
                 </div>
 
                 <div>
-                  <p className="text-xs font-bold text-gray-400 uppercase mb-2">Description</p>
-                  <p className="text-sm text-gray-700 leading-relaxed">{selected.description}</p>
+                  <p className="text-[9px] text-zinc-400 uppercase font-bold tracking-widest mb-1.5">Description</p>
+                  <p className="text-xs text-zinc-750 leading-relaxed max-w-2xl select-text">{selected.description}</p>
                 </div>
 
                 {/* AI Audit Results */}
                 {selected.digitalMetadata?.aiAuditLog && (
-                  <div className="bg-gray-50 rounded-2xl p-5 space-y-4">
-                    <div className="flex items-center justify-between">
-                      <h3 className="font-bold text-gray-900 flex items-center gap-2">
-                        <Shield size={18} className="text-emerald-500" /> AI Audit Report
+                  <div className="border border-zinc-200 bg-zinc-50 p-5 rounded-none space-y-4">
+                    <div className="flex items-center justify-between border-b border-zinc-200 pb-2">
+                      <h3 className="font-bold text-zinc-950 flex items-center gap-2 uppercase tracking-wider text-xs">
+                        <Shield size={16} className="text-green-700" /> AI Compliance Audit Report
                       </h3>
-                      <div className="flex items-center gap-2">
-                        <Star size={14} className="text-amber-400 fill-amber-400" />
-                        <span className="font-bold text-sm">Trust Score: {selected.digitalMetadata.trustScore}/100</span>
+                      <div className="flex items-center gap-2 border border-zinc-200 bg-white px-2 py-0.5 font-mono text-[9px] font-bold text-zinc-800">
+                        <Star size={10} className="text-amber-500 fill-amber-500" />
+                        <span>TRUST INDEX: {selected.digitalMetadata.trustScore}/100</span>
                       </div>
                     </div>
 
                     <div>
-                      <p className="text-xs font-bold text-gray-500 uppercase mb-1">Summary</p>
-                      <p className="text-sm text-gray-700">{selected.digitalMetadata.aiAuditLog.summary}</p>
+                      <p className="text-[9px] text-zinc-400 uppercase font-bold tracking-widest mb-1">Audit Summary</p>
+                      <p className="text-xs text-zinc-800 font-medium uppercase tracking-tight">{selected.digitalMetadata.aiAuditLog.summary}</p>
                     </div>
 
                     {selected.digitalMetadata.aiAuditLog.riskFlags.length > 0 && (
                       <div>
-                        <p className="text-xs font-bold text-red-500 uppercase mb-2">Risk Flags</p>
-                        <div className="flex flex-wrap gap-2">
+                        <p className="text-[9px] text-red-650 uppercase font-bold tracking-widest mb-1.5">Risk Flags Triggered</p>
+                        <div className="flex flex-wrap gap-1.5">
                           {selected.digitalMetadata.aiAuditLog.riskFlags.map((flag, i) => (
-                            <span key={i} className="text-xs bg-red-100 text-red-700 px-2 py-1 rounded-full font-medium">
+                            <span key={i} className="text-[9px] font-bold uppercase bg-red-50 text-red-700 border border-red-200 px-1.5 py-0.5 rounded-none font-mono">
                               {flag.replace(/_/g, ' ')}
                             </span>
                           ))}
@@ -200,32 +215,35 @@ export default function AdminModerationPage() {
                       </div>
                     )}
 
-                    <div className={`flex items-center gap-2 px-3 py-2 rounded-xl text-sm font-bold ${
-                      RISK_COLORS[selected.digitalMetadata.aiAuditLog.suggestedAction]
+                    <div className={`flex items-center gap-2 px-3 py-2 rounded-none border text-[10px] font-bold uppercase tracking-wider font-mono ${
+                      RISK_COLORS[selected.digitalMetadata.aiAuditLog.suggestedAction] || 'bg-zinc-100 text-zinc-700 border-zinc-200'
                     }`}>
-                      AI Recommendation: {selected.digitalMetadata.aiAuditLog.suggestedAction.toUpperCase()}
+                      AI RECOMMENDATION RESULT: {selected.digitalMetadata.aiAuditLog.suggestedAction}
                     </div>
                   </div>
                 )}
 
                 {/* Actions */}
-                <div className="flex gap-3 pt-2">
-                  <Button
+                <div className="flex gap-3 pt-2 border-t border-zinc-150 pt-4">
+                  <button
                     onClick={() => handleAction(selected.id, 'publish')}
                     disabled={!!processing}
-                    isLoading={processing === selected.id}
-                    className="bg-emerald-600 hover:bg-emerald-700 flex-1 gap-2 rounded-xl"
+                    className="rounded-none h-10 px-5 bg-green-700 hover:bg-green-800 border border-green-700 text-white font-bold uppercase tracking-wider text-[10px] flex items-center justify-center gap-2 cursor-pointer transition-colors flex-1 disabled:opacity-50"
                   >
-                    <CheckCircle size={16} /> Approve & Publish
-                  </Button>
-                  <Button
+                    {processing === selected.id ? (
+                      <Loader2 size={14} className="animate-spin" />
+                    ) : (
+                      <CheckCircle size={14} />
+                    )}
+                    Approve & Publish
+                  </button>
+                  <button
                     onClick={() => handleAction(selected.id, 'reject')}
                     disabled={!!processing}
-                    variant="outline"
-                    className="text-red-600 border-red-200 hover:bg-red-50 flex-1 gap-2 rounded-xl"
+                    className="rounded-none h-10 px-5 bg-white border border-zinc-300 text-red-650 hover:bg-zinc-50 font-bold uppercase tracking-wider text-[10px] flex items-center justify-center gap-2 cursor-pointer transition-colors flex-1 disabled:opacity-50"
                   >
-                    <XCircle size={16} /> Reject
-                  </Button>
+                    <XCircle size={14} /> Reject
+                  </button>
                 </div>
               </Card>
             )}

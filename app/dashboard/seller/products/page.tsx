@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState, useCallback, useRef } from "react";
 import { Edit2, Plus, Search, Trash2, Loader2, Eye, ChevronLeft, ChevronRight } from "lucide-react";
 import Image from "next/image";
 import { toast } from "react-toastify";
@@ -28,11 +28,17 @@ const Page = () => {
   const [isProductModalOpen, setIsProductModalOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
 
+  const lastFetchedRef = useRef<string>("");
+
   /* ---------------- FETCH WITH PAGINATION & SEARCH ---------------- */
-  const fetchProducts = useCallback(async () => {
+  const fetchProducts = useCallback(async (force = false) => {
+    const offset = (page - 1) * ITEMS_PER_PAGE;
+    const queryKey = `${page}_${searchTerm}`;
+    if (!force && lastFetchedRef.current === queryKey) return;
+    lastFetchedRef.current = queryKey;
+
     setLoading(true);
     try {
-      const offset = (page - 1) * ITEMS_PER_PAGE;
       const url = `/api/products/seller-products?limit=${ITEMS_PER_PAGE}&offset=${offset}&search=${searchTerm}`;
 
       const res = await fetcher(url);
@@ -53,7 +59,7 @@ const Page = () => {
       }, 500);
       return () => clearTimeout(delayDebounceFn);
     }
-  }, [fetchProducts, user, searchTerm, page]);
+  }, [fetchProducts, user?.hasCreatedStore, searchTerm, page]);
 
   /* ---------------- SAVE (CREATE OR UPDATE) ---------------- */
   const handleSave = async (payload: any) => {
@@ -71,7 +77,7 @@ const Page = () => {
         body: JSON.stringify(payload),
       });
 
-      await fetchProducts();
+      await fetchProducts(true);
       setIsProductModalOpen(false);
       setEditingProduct(null);
     } catch (err) {
@@ -173,7 +179,14 @@ const Page = () => {
                           </div>
                         </td>
                         <td className="px-5 py-4 text-zinc-650 uppercase tracking-wider font-bold">
-                          {product.category?.name || 'Uncategorized'}
+                          <div className="flex flex-col">
+                            <span>{product.category?.name || 'Uncategorized'}</span>
+                            {product.subCategory && (
+                              <span className="text-[9px] text-zinc-400 font-bold tracking-widest mt-0.5">
+                                › {product.subCategory.name}
+                              </span>
+                            )}
+                          </div>
                         </td>
                         <td className="px-5 py-4 font-bold text-zinc-950 font-mono">
                           ₦{Number(product.price).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}

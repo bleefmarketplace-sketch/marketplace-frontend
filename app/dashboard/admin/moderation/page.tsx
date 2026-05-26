@@ -4,7 +4,9 @@ import React from 'react'
 
 const Page = () => {
   return (
-    <div><Moderation/></div>
+    <div className="w-full">
+      <Moderation />
+    </div>
   )
 }
 
