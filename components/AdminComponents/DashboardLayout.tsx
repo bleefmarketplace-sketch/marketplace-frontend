@@ -58,7 +58,7 @@ export const DashboardLayout: React.FC<LayoutProps> = ({ children }) => {
           { key: "products", label: "Products", icon: ShoppingBag, path: "/dashboard/seller/products" },
           { key: "orders", label: "Orders", icon: Package, path: "/dashboard/seller/orders" },
           { key: "payouts", label: "Payouts", icon: Wallet, path: "/dashboard/seller/payouts" },
-          { key: "messages", label: "Messages", icon: MessageSquare, path: "/dashboard/seller/messages" },
+
           { key: "settings", label: "Settings", icon: Settings, path: "/dashboard/seller/settings" },
         ];
       case "creator":
