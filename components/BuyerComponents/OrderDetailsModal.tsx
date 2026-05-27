@@ -98,7 +98,7 @@ const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
                   <CreditCard size={14} /> Visa ending in 4242
                 </p>
                 <p className="mt-1">
-                  Total Paid: <span className="font-bold text-gray-900">${selectedOrder.total.toFixed(2)}</span>
+                  Total Paid: <span className="font-bold text-gray-900">₦{selectedOrder.total.toFixed(2)}</span>
                 </p>
               </div>
             </div>
@@ -123,7 +123,7 @@ const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
                     <p className="font-bold text-gray-900">{item.name}</p>
                     <p className="text-sm text-gray-500">Qty: {item.quantity}</p>
                   </div>
-                  <p className="font-bold text-gray-900">${item.price.toFixed(2)}</p>
+                  <p className="font-bold text-gray-900">₦{item.price.toFixed(2)}</p>
                 </div>
               </div>
             ))}
@@ -134,19 +134,19 @@ const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
             <div className="w-full md:w-1/2 space-y-2">
               <div className="flex justify-between text-sm text-gray-600">
                 <span>Subtotal</span>
-                <span>${(selectedOrder.total - 15).toFixed(2)}</span>
+                <span>₦{(selectedOrder.total - 15).toFixed(2)}</span>
               </div>
               <div className="flex justify-between text-sm text-gray-600">
                 <span>Shipping</span>
-                <span>$15.00</span>
+                <span>₦15.00</span>
               </div>
               <div className="flex justify-between text-sm text-gray-600">
                 <span>Tax</span>
-                <span>$0.00</span>
+                <span>₦0.00</span>
               </div>
               <div className="flex justify-between text-lg font-bold text-gray-900 pt-2 border-t border-gray-200">
                 <span>Total</span>
-                <span>${selectedOrder.total.toFixed(2)}</span>
+                <span>₦{selectedOrder.total.toFixed(2)}</span>
               </div>
             </div>
           </div>

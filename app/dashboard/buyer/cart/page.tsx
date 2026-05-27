@@ -124,7 +124,7 @@ const CartPage = () => {
                     </button>
                   </div>
                   <span className="font-bold text-gray-900">
-                    ${(item.product.price * item.quantity).toFixed(2)}
+                    ₦{(item.product.price * item.quantity).toFixed(2)}
                   </span>
                 </div>
               </div>
@@ -140,21 +140,21 @@ const CartPage = () => {
             <div className="space-y-3 text-sm border-b border-gray-100 pb-4 mb-4">
               <div className="flex justify-between text-gray-600">
                 <span>Subtotal</span>
-                <span>${subtotal.toFixed(2)}</span>
+                <span>₦{subtotal.toFixed(2)}</span>
               </div>
               <div className="flex justify-between text-gray-600">
                 <span>Shipping estimate</span>
-                <span>${shipping.toFixed(2)}</span>
+                <span>₦{shipping.toFixed(2)}</span>
               </div>
               <div className="flex justify-between text-gray-600">
                 <span>Tax estimate (8%)</span>
-                <span>${tax.toFixed(2)}</span>
+                <span>₦{tax.toFixed(2)}</span>
               </div>
             </div>
 
             <div className="flex justify-between font-bold text-lg text-gray-900 mb-6">
               <span>Order Total</span>
-              <span>${orderTotal.toFixed(2)}</span>
+              <span>₦{orderTotal.toFixed(2)}</span>
             </div>
 
             <Button className="w-full" onClick={handleCheckout}>

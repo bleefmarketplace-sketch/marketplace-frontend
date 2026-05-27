@@ -51,7 +51,7 @@ export default function AdminDashboard() {
                 <Card className="bg-zinc-950 text-zinc-50 p-5 border border-zinc-900 relative overflow-hidden rounded-none shadow-none">
                     <div className="relative z-10 space-y-1">
                         <p className="text-green-500 text-[9px] font-bold uppercase tracking-widest leading-none">Net Fee Profit</p>
-                        <h2 className="text-3xl font-black text-white font-mono pt-1">${stats.revenue.toLocaleString()}</h2>
+                        <h2 className="text-3xl font-black text-white font-mono pt-1">₦{stats.revenue.toLocaleString()}</h2>
                         <div className="mt-4 flex items-center gap-2 text-zinc-400 text-[10px] font-bold uppercase tracking-wider pt-2.5 border-t border-zinc-800">
                             <TrendingUp size={14} className="text-green-600" />
                             From {stats?.totalOrders} bound escrow orders
@@ -63,7 +63,7 @@ export default function AdminDashboard() {
                 <Card className="p-5 bg-white border border-zinc-200 shadow-none rounded-none flex flex-col justify-between">
                     <div>
                         <p className="text-zinc-400 text-[9px] font-bold uppercase tracking-widest mb-1">Market GMV Volume</p>
-                        <h3 className="text-2xl font-black text-zinc-950 font-mono">${stats?.gmv.toLocaleString()}</h3>
+                        <h3 className="text-2xl font-black text-zinc-950 font-mono">₦{stats?.gmv.toLocaleString()}</h3>
                     </div>
                     <div className="pt-2.5 border-t border-zinc-100 mt-4 flex justify-between items-center text-[9px] font-bold uppercase text-zinc-400 tracking-wider">
                         <span>Liquidity Aggregate</span>

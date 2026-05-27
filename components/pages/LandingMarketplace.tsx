@@ -214,7 +214,7 @@ export const Marketplace = () => {
                             {/* Price Filter */}
                             <div className="border border-zinc-200 bg-white p-4">
                                 <h3 className="font-bold text-zinc-900 uppercase tracking-widest text-[10px] border-b border-zinc-150 pb-2 mb-3">
-                                    PRICE RANGE ($)
+                                    PRICE RANGE (₦)
                                 </h3>
                                 <div className="flex items-center gap-2">
                                     <input
@@ -328,7 +328,7 @@ export const Marketplace = () => {
 
                                             <div className="space-y-2 pt-1 border-t border-zinc-100 bg-zinc-50/20">
                                                 <div className="flex items-baseline gap-0.5">
-                                                    <span className="text-[10px] text-zinc-400 font-bold">$</span>
+                                                    <span className="text-[10px] text-zinc-400 font-bold">₦</span>
                                                     <span className="text-md font-black text-zinc-950">{product.price}</span>
                                                 </div>
 
