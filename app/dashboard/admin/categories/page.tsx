@@ -6,7 +6,7 @@ import { Input } from '@/components/Input';
 import { Modal } from '@/components/Modal';
 import {
     Plus, Folder, ChevronRight, Trash2, Edit3,
-    Loader2, AlertCircle, Upload, Camera
+    Loader2, AlertCircle, Upload, Camera, FolderOpen
 } from 'lucide-react';
 import { useApi } from '@/hooks/useApi';
 import { toast } from 'react-toastify';
@@ -26,6 +26,9 @@ export default function AdminCategoriesPage() {
     const [form, setForm] = useState({ name: '', icon: '', parentId: '' });
     const [saving, setSaving] = useState(false);
     const [uploadingImage, setUploadingImage] = useState(false);
+
+    // Accordion expand states for Level 2 children
+    const [expandedChildIds, setExpandedChildIds] = useState<Record<string, boolean>>({});
 
     // --- Drag & Drop & Webcam States & Handlers ---
     const [isDragging, setIsDragging] = useState(false);
@@ -112,11 +115,36 @@ export default function AdminCategoriesPage() {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
+    // Helper to find the actual category object anywhere in the 3-tier tree
+    const findCategoryById = (id: string, list: any[]): any | null => {
+        for (const cat of list) {
+            if (cat.id === id) return cat;
+            if (cat.children) {
+                const found = findCategoryById(id, cat.children);
+                if (found) return found;
+            }
+        }
+        return null;
+    };
+
+    // Helper to find the parent category ID in the tree
+    const findParentIdInTree = (childId: string, list: any[]): string => {
+        for (const cat of list) {
+            if (cat.children && cat.children.some((c: any) => c.id === childId)) {
+                return cat.id;
+            }
+            if (cat.children) {
+                const found = findParentIdInTree(childId, cat.children);
+                if (found) return found;
+            }
+        }
+        return '';
+    };
+
     // TRIGGER EDIT MODAL
     const onEditClick = (cat: any) => {
         setEditingCategory(cat);
-        // Find parentId from either cat.parent or scanning root categories to match child lists
-        const parentId = cat.parent?.id || categories.find(c => c.children?.some((child: any) => child.id === cat.id))?.id || '';
+        const parentId = cat.parent?.id || findParentIdInTree(cat.id, categories);
         setForm({
             name: cat.name,
             icon: cat.icon || '',
@@ -160,6 +188,12 @@ export default function AdminCategoriesPage() {
 
             toast.success(editingCategory ? "Category updated" : "Category created");
             setIsModalOpen(false);
+            
+            // If we created/updated a child category, preserve expansion state of parent
+            if (form.parentId) {
+                setExpandedChildIds(prev => ({ ...prev, [form.parentId]: true }));
+            }
+
             loadData();
         } catch (err: any) {
             toast.error(err.message);
@@ -169,7 +203,7 @@ export default function AdminCategoriesPage() {
     };
 
     const handleDelete = async (id: string) => {
-        if (!confirm("Remove this category? Note: Categories with products cannot be deleted.")) return;
+        if (!confirm("Remove this category? Note: Categories with products or sub-categories cannot be deleted.")) return;
         try {
             await fetcher(`/api/admin/categories/${id}`, { method: 'DELETE' });
             toast.success("Category removed");
@@ -214,7 +248,7 @@ export default function AdminCategoriesPage() {
                     <div className="lg:col-span-5 space-y-4">
                         <div className="border border-zinc-200 bg-zinc-50 p-4 flex justify-between items-center">
                             <span className="text-[10px] font-bold text-zinc-650 uppercase tracking-widest font-mono">
-                                PARENT LEDGER DIRECTORY
+                                PARENT LEDGER DIRECTORY (LEVEL 1)
                             </span>
                             <span className="px-1.5 py-0.5 text-[8px] font-mono font-bold bg-white border border-zinc-200 text-zinc-600 uppercase">
                                 {categories.length} GROUPS
@@ -235,7 +269,7 @@ export default function AdminCategoriesPage() {
                                         <div
                                             key={cat.id}
                                             onClick={() => setSelectedParentId(cat.id)}
-                                            className={`p-4 border cursor-pointer transition-all flex items-center justify-between ${isActive
+                                            className={`p-4 border cursor-pointer transition-all flex items-center justify-between group/row ${isActive
                                                 ? 'bg-green-50/40 border-l-4 border-l-green-700 border-zinc-300'
                                                 : 'bg-white border-zinc-200 hover:bg-zinc-50/50'
                                                 }`}
@@ -255,7 +289,17 @@ export default function AdminCategoriesPage() {
                                                     </span>
                                                 </div>
                                             </div>
-                                            <div className="shrink-0 flex items-center gap-3">
+                                            <div className="shrink-0 flex items-center gap-2">
+                                                <button
+                                                    title="Add Sub-Category"
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        onAddSubClick(cat);
+                                                    }}
+                                                    className="p-1 border border-zinc-200 bg-white hover:bg-green-50 hover:text-green-755 hover:border-green-300 text-zinc-400 transition cursor-pointer flex items-center justify-center"
+                                                >
+                                                    <Plus size={12} />
+                                                </button>
                                                 <span className={`px-2 py-0.5 text-[8px] font-mono font-bold uppercase tracking-wider border ${childCount > 0
                                                     ? 'bg-zinc-100 text-zinc-650 border-zinc-250'
                                                     : 'bg-zinc-50 text-zinc-400 border-zinc-200 border-dashed'
@@ -271,7 +315,7 @@ export default function AdminCategoriesPage() {
                         </div>
                     </div>
 
-                    {/* Right Column: Active Parent details & Sub-categories table */}
+                    {/* Right Column: Active Parent details & Collapsible Subcategories Accordion */}
                     <div className="lg:col-span-7 space-y-4">
                         {selectedParent ? (
                             <div className="space-y-4">
@@ -289,7 +333,7 @@ export default function AdminCategoriesPage() {
                                             </div>
                                             <div>
                                                 <span className="px-1.5 py-0.5 text-[8px] font-bold uppercase tracking-widest border border-green-200 bg-green-50 text-green-800">
-                                                    ACTIVE PARENT CATALOG
+                                                    ACTIVE SECTOR GROUP
                                                 </span>
                                                 <h3 className="text-sm font-black text-zinc-950 uppercase tracking-wide mt-1.5">{selectedParent.name}</h3>
                                                 <p className="text-[9px] font-mono text-zinc-400 uppercase mt-0.5">SLUG: {selectedParent.slug}</p>
@@ -313,11 +357,11 @@ export default function AdminCategoriesPage() {
                                     </div>
                                 </Card>
 
-                                {/* Subcategories ledger table */}
+                                {/* Collapsible Accordions subcategory list */}
                                 <Card noPadding className="border border-zinc-200 bg-white shadow-none rounded-none">
                                     <div className="border-b border-zinc-200 bg-zinc-50 p-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
                                         <span className="text-[10px] font-bold text-zinc-650 uppercase tracking-widest font-mono">
-                                            SUB-CATEGORIES REGISTRY UNDER {selectedParent.name.toUpperCase()}
+                                            SUB-CATEGORIES REGISTRY (LEVEL 2 & LEVEL 3) UNDER {selectedParent.name.toUpperCase()}
                                         </span>
                                         <button
                                             onClick={() => onAddSubClick(selectedParent)}
@@ -335,50 +379,116 @@ export default function AdminCategoriesPage() {
                                                 <p className="text-zinc-400 text-[9px] mt-1.5 uppercase">Click "Add Sub-Category" above to configure classifications under this parent group.</p>
                                             </div>
                                         ) : (
-                                            <div className="border border-zinc-200 overflow-hidden font-mono text-[10px]">
-                                                <table className="w-full text-left border-collapse">
-                                                    <thead>
-                                                        <tr className="bg-zinc-50 border-b border-zinc-200 text-zinc-500 font-bold uppercase tracking-wider">
-                                                            <th className="p-3">Index Sub-Class</th>
-                                                            <th className="p-3 hidden sm:table-cell">Sub-Category Slug</th>
-                                                            <th className="p-3 text-right">Actions</th>
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody className="divide-y divide-zinc-200">
-                                                        {selectedParent.children.map((child: any) => (
-                                                            <tr key={child.id} className="hover:bg-zinc-50/50 transition-colors">
-                                                                <td className="p-3 font-bold text-zinc-900 flex items-center gap-3">
-                                                                    <ChevronRight size={12} className="text-green-700 shrink-0" />
-                                                                    <div className="w-8 h-8 border border-zinc-250 bg-zinc-50 flex items-center justify-center text-xs rounded-none shrink-0 overflow-hidden">
+                                            <div className="space-y-3 font-mono">
+                                                {selectedParent.children.map((child: any) => {
+                                                    const isExpanded = !!expandedChildIds[child.id];
+                                                    const grandchildren = child.children || [];
+                                                    const hasGrandchildren = grandchildren.length > 0;
+
+                                                    return (
+                                                        <div key={child.id} className="border border-zinc-200 bg-white overflow-hidden rounded-none shadow-none transition-all duration-150">
+                                                            
+                                                            {/* Level 2 Sub-Category folder bar */}
+                                                            <div className="flex items-center justify-between p-3 bg-zinc-50/60 hover:bg-zinc-50 transition-colors border-b border-zinc-150">
+                                                                <div 
+                                                                    onClick={() => {
+                                                                        if (hasGrandchildren) {
+                                                                            setExpandedChildIds(prev => ({ ...prev, [child.id]: !prev[child.id] }));
+                                                                        }
+                                                                    }}
+                                                                    className={`flex items-center gap-3 min-w-0 flex-1 ${hasGrandchildren ? 'cursor-pointer' : 'cursor-default'}`}
+                                                                >
+                                                                    <div className="w-8 h-8 border border-zinc-250 bg-white flex items-center justify-center text-xs shrink-0 overflow-hidden font-bold">
                                                                         {child.icon && (child.icon.startsWith('http') || child.icon.startsWith('/')) ? (
                                                                             <img src={child.icon} alt={child.name} className="w-full h-full object-cover" />
                                                                         ) : (
-                                                                            (child.icon && !child.icon.includes('/') ? child.icon : null) || <Folder className="text-zinc-400" size={14} />
+                                                                            (child.icon && !child.icon.includes('/') ? child.icon : null) || <Folder className="text-zinc-450" size={14} />
                                                                         )}
                                                                     </div>
-                                                                    <span className="uppercase">{child.name}</span>
-                                                                </td>
-                                                                <td className="p-3 text-zinc-400 font-mono hidden sm:table-cell">{child.slug}</td>
-                                                                <td className="p-3 text-right">
-                                                                    <div className="inline-flex gap-2">
-                                                                        <button
-                                                                            onClick={() => onEditClick(child)}
-                                                                            className="h-7 px-3 border border-zinc-350 bg-white hover:bg-zinc-50 text-zinc-700 font-bold uppercase tracking-wider text-[8px] cursor-pointer"
-                                                                        >
-                                                                            Edit
-                                                                        </button>
-                                                                        <button
-                                                                            onClick={() => handleDelete(child.id)}
-                                                                            className="h-7 px-3 border border-red-200 bg-red-50 hover:bg-red-100 text-red-700 font-bold uppercase tracking-wider text-[8px] cursor-pointer"
-                                                                        >
-                                                                            Delete
-                                                                        </button>
+                                                                    <div className="min-w-0">
+                                                                        <span className="font-bold text-zinc-950 uppercase tracking-tight flex items-center gap-2 text-[11px]">
+                                                                            {child.name}
+                                                                            {hasGrandchildren && (
+                                                                                <span className="text-[7.5px] bg-zinc-250 border border-zinc-350 text-zinc-700 px-1.5 py-0.25 font-black uppercase tracking-widest leading-none">
+                                                                                    {isExpanded ? 'CLOSE' : 'OPEN'} [{grandchildren.length}]
+                                                                                </span>
+                                                                            )}
+                                                                        </span>
+                                                                        <span className="text-[7.5px] text-zinc-400 font-bold uppercase tracking-widest mt-0.5 block truncate">
+                                                                            SLUG: {child.slug}
+                                                                        </span>
                                                                     </div>
-                                                                </td>
-                                                            </tr>
-                                                        ))}
-                                                    </tbody>
-                                                </table>
+                                                                </div>
+
+                                                                <div className="flex items-center gap-2 shrink-0 ml-4">
+                                                                    {/* Add Sub (Level 3 Child) inside Level 2 row */}
+                                                                    <button
+                                                                        title={`Create variety subcategory under ${child.name}`}
+                                                                        onClick={() => onAddSubClick(child)}
+                                                                        className="h-7 px-2.5 border border-green-200 bg-green-50/50 hover:bg-green-50 text-green-755 hover:border-green-300 font-bold uppercase tracking-wider text-[8px] cursor-pointer flex items-center gap-1.5"
+                                                                    >
+                                                                        <Plus size={10} /> Add Sub
+                                                                    </button>
+                                                                    <button
+                                                                        onClick={() => onEditClick(child)}
+                                                                        className="h-7 px-3 border border-zinc-350 bg-white hover:bg-zinc-50 text-zinc-700 font-bold uppercase tracking-wider text-[8px] cursor-pointer"
+                                                                    >
+                                                                        Edit
+                                                                    </button>
+                                                                    <button
+                                                                        onClick={() => handleDelete(child.id)}
+                                                                        className="h-7 px-3 border border-red-200 bg-red-50 hover:bg-red-100 text-red-700 font-bold uppercase tracking-wider text-[8px] cursor-pointer"
+                                                                    >
+                                                                        Delete
+                                                                    </button>
+                                                                </div>
+                                                            </div>
+
+                                                            {/* Level 3 Children Accordion Panel */}
+                                                            {isExpanded && hasGrandchildren && (
+                                                                <div className="bg-white divide-y divide-zinc-100 border-t border-zinc-150 animate-in slide-in-from-top-1 duration-150">
+                                                                    {grandchildren.map((grandchild: any) => (
+                                                                        <div key={grandchild.id} className="flex items-center justify-between p-3.5 pl-8 hover:bg-zinc-50/30 transition-colors">
+                                                                            <div className="flex items-center gap-3 min-w-0">
+                                                                                <span className="text-zinc-300 font-mono text-xs select-none">└─</span>
+                                                                                <div className="w-7 h-7 border border-zinc-200 bg-zinc-50 flex items-center justify-center text-xs shrink-0 overflow-hidden">
+                                                                                    {grandchild.icon && (grandchild.icon.startsWith('http') || grandchild.icon.startsWith('/')) ? (
+                                                                                        <img src={grandchild.icon} alt={grandchild.name} className="w-full h-full object-cover" />
+                                                                                    ) : (
+                                                                                        (grandchild.icon && !grandchild.icon.includes('/') ? grandchild.icon : null) || <Folder className="text-zinc-400" size={11} />
+                                                                                    )}
+                                                                                </div>
+                                                                                <div className="min-w-0">
+                                                                                    <span className="font-bold text-zinc-850 uppercase tracking-tight text-[10px]">
+                                                                                        {grandchild.name}
+                                                                                    </span>
+                                                                                    <span className="text-[7px] text-zinc-400 font-mono font-bold uppercase mt-0.5 block truncate">
+                                                                                        SLUG: {grandchild.slug}
+                                                                                    </span>
+                                                                                </div>
+                                                                            </div>
+
+                                                                            <div className="flex items-center gap-2 shrink-0 ml-4">
+                                                                                <button
+                                                                                    onClick={() => onEditClick(grandchild)}
+                                                                                    className="h-6 px-2.5 border border-zinc-350 bg-white hover:bg-zinc-50 text-zinc-700 font-bold uppercase tracking-wider text-[8px] cursor-pointer"
+                                                                                >
+                                                                                    Edit
+                                                                                </button>
+                                                                                <button
+                                                                                    onClick={() => handleDelete(grandchild.id)}
+                                                                                    className="h-6 px-2.5 border border-red-200 bg-red-50 hover:bg-red-100 text-red-700 font-bold uppercase tracking-wider text-[8px] cursor-pointer"
+                                                                                >
+                                                                                    Delete
+                                                                                </button>
+                                                                            </div>
+                                                                        </div>
+                                                                    ))}
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                    );
+                                                })}
                                             </div>
                                         )}
                                     </div>
@@ -460,7 +570,6 @@ export default function AdminCategoriesPage() {
                         {form.icon && (form.icon.startsWith('http') || form.icon.startsWith('/')) && (
                             <div className="mt-3 p-3 bg-zinc-50 rounded-none flex items-center gap-3 border border-zinc-200">
                                 <img src={form.icon} alt="Preview" className="w-10 h-10 object-cover rounded-none" />
-
                             </div>
                         )}
                     </div>
@@ -468,14 +577,26 @@ export default function AdminCategoriesPage() {
                     <div>
                         <label className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest block mb-1.5 font-mono">Parent Category</label>
                         <select
-                            className="w-full mt-1 p-3 bg-zinc-50 border border-zinc-300 rounded-none outline-none focus:border-green-600 focus:ring-1 focus:ring-green-600/30 text-xs font-mono"
+                            className="w-full mt-1 p-3 bg-zinc-50 border border-zinc-300 rounded-none outline-none focus:border-green-600 focus:ring-1 focus:ring-green-600/30 text-xs font-mono select-none"
                             value={form.parentId}
                             onChange={(e) => setForm({ ...form, parentId: e.target.value })}
                         >
                             <option value="">None (Top Level Parent Category)</option>
                             {categories
                                 .filter(c => c.id !== editingCategory?.id)
-                                .map(c => <option key={c.id} value={c.id}>{c.name.toUpperCase()}</option>)
+                                .map(c => (
+                                    <React.Fragment key={c.id}>
+                                        <option value={c.id}>{c.name.toUpperCase()}</option>
+                                        {c.children && c.children
+                                            .filter((child: any) => child.id !== editingCategory?.id)
+                                            .map((child: any) => (
+                                                <option key={child.id} value={child.id}>
+                                                    &nbsp;&nbsp;&nbsp;&nbsp;└─ {child.name.toUpperCase()}
+                                                </option>
+                                            ))
+                                        }
+                                    </React.Fragment>
+                                ))
                             }
                         </select>
                     </div>

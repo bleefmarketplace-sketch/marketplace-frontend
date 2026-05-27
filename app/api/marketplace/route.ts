@@ -4,9 +4,9 @@ import { handleAxiosError } from "@/helpers/__helper";
 
 export async function GET(request: NextRequest) {
     try {
-       
+
         const { searchParams } = new URL(request.url);
-        
+
         const search = searchParams.get("search");
         const category = searchParams.get("category");
         const subCategory = searchParams.get("subCategory");
@@ -17,7 +17,7 @@ export async function GET(request: NextRequest) {
         const limit = searchParams.get("limit");
         const offset = searchParams.get("offset");
 
-        
+
         const queryParams = {
             ...(search && { search }),
             ...(category && { category }),
@@ -32,7 +32,7 @@ export async function GET(request: NextRequest) {
 
         // 3. Call the NestJS backend
         const response = await axios.get(`${process.env.BASE_URL}/products`, {
-         params: queryParams,
+            params: queryParams,
             headers: {
                 "Content-Type": "application/json",
             }
@@ -40,10 +40,10 @@ export async function GET(request: NextRequest) {
 
 
         // 4. Return the data to the frontend
-        return NextResponse.json(response.data);
-        
+        return NextResponse.json(response.data?.data);
+
     } catch (error) {
-         
+
         return handleAxiosError(error);
     }
 }

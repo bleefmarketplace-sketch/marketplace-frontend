@@ -1,5 +1,3 @@
-
-
 import { BuyerProvider } from "@/context/BuyerContext";
 import { Loader2 } from "lucide-react";
 import { Suspense } from "react";

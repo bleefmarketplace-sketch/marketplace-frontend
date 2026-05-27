@@ -1,14 +1,50 @@
 'use client';
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useCartStore } from '@/store/useCartStore';
 import { X, Trash2, Minus, Plus, ShoppingBag, ArrowRight } from 'lucide-react';
 import Image from 'next/image';
 import { Button } from '@/components/Button';
 import { useRouter } from 'next/navigation';
+import { toast } from 'react-toastify';
 
 export const CartDrawer = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) => {
   const router = useRouter();
   const { items, updateQuantity, removeItem, getTotalPrice } = useCartStore();
+  const [liveStocks, setLiveStocks] = useState<Record<string, number>>({});
+  const [checkingStock, setCheckingStock] = useState(false);
+
+  useEffect(() => {
+    if (isOpen && items.length > 0) {
+      const fetchLiveStocks = async () => {
+        setCheckingStock(true);
+        try {
+          const stocks: Record<string, number> = {};
+          await Promise.all(
+            items.map(async (item) => {
+              try {
+                const res = await fetch(`/api/marketplace/${item.slug}`);
+                if (res.ok) {
+                  const data = await res.json();
+                  const productData = data.data || data;
+                  if (productData && typeof productData.stock === 'number') {
+                    stocks[item.id] = productData.stock;
+                  }
+                }
+              } catch (e) {
+                console.error("Error fetching live stock for", item.title, e);
+              }
+            })
+          );
+          setLiveStocks(stocks);
+        } catch (err) {
+          console.error(err);
+        } finally {
+          setCheckingStock(false);
+        }
+      };
+      fetchLiveStocks();
+    }
+  }, [isOpen, items.length]);
 
   if (!isOpen) return null;
 
@@ -74,7 +110,14 @@ export const CartDrawer = ({ isOpen, onClose }: { isOpen: boolean; onClose: () =
                         </button>
                         <span className="px-3 text-[11px] font-black text-center w-8">{item.quantity}</span>
                         <button 
-                          onClick={() => updateQuantity(item.id, item.quantity + 1)} 
+                          onClick={() => {
+                            const maxStock = liveStocks[item.id] ?? item.stock ?? 999;
+                            if (item.quantity >= maxStock) {
+                              toast.error(`Only ${maxStock} units of this item are available in stock.`);
+                              return;
+                            }
+                            updateQuantity(item.id, item.quantity + 1);
+                          }}
                           className="px-2 py-1 hover:text-green-700 transition-colors border-l border-zinc-200 cursor-pointer"
                         >
                           <Plus size={10} strokeWidth={2.5}/>
@@ -106,7 +149,39 @@ export const CartDrawer = ({ isOpen, onClose }: { isOpen: boolean; onClose: () =
               SHIPPING AND TAXES ESTIMATED AT CHECKOUT
             </p>
             <Button 
-              onClick={() => {
+              disabled={checkingStock}
+              onClick={async () => {
+                setCheckingStock(true);
+                let stockError = false;
+                
+                try {
+                  await Promise.all(
+                    items.map(async (item) => {
+                      const res = await fetch(`/api/marketplace/${item.slug}`);
+                      if (res.ok) {
+                        const data = await res.json();
+                        const productData = data.data || data;
+                        if (productData && typeof productData.stock === 'number') {
+                          if (item.quantity > productData.stock) {
+                            stockError = true;
+                            // Automatically adjust quantity to match max available stock
+                            updateQuantity(item.id, productData.stock);
+                            toast.error(`"${item.title}" stock updated. Only ${productData.stock} units available.`);
+                          }
+                        }
+                      }
+                    })
+                  );
+                } catch (e) {
+                  console.error("Error doing live stock check:", e);
+                } finally {
+                  setCheckingStock(false);
+                }
+                
+                if (stockError) {
+                  return;
+                }
+                
                 onClose();
                 router.push("/marketplace/checkout");
               }} 
@@ -114,7 +189,7 @@ export const CartDrawer = ({ isOpen, onClose }: { isOpen: boolean; onClose: () =
               size="lg" 
               className="w-full py-4 text-xs font-bold uppercase tracking-wider rounded-none flex items-center justify-center gap-2 cursor-pointer"
             >
-              PROCEED TO CHECKOUT <ArrowRight size={14} />
+              {checkingStock ? "VALIDATING STOCK..." : <>PROCEED TO CHECKOUT <ArrowRight size={14} /></>}
             </Button>
           </div>
         )}

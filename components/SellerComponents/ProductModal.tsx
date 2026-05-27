@@ -31,20 +31,20 @@ const ProductModal: React.FC<ProductModalProps> = ({
     initialData,
 }) => {
     const fetcher = useApi();
+    const isPublished = initialData?.status === "published";
     const [categories, setCategories] = useState<Category[]>([]);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [slug, setSlug] = useState(initialData?.slug || "");
     const [title, setTitle] = useState(initialData?.title || "");
     const [slugEdited, setSlugEdited] = useState(false);
 
-    // --- Category & Subcategory State ---
-    const [selectedCategory, setSelectedCategory] = useState(
-        initialData?.category?.id || initialData?.categoryId || ""
-    );
-    const [selectedSubCategory, setSelectedSubCategory] = useState(
-        initialData?.subCategory?.id || initialData?.subCategoryId || ""
-    );
-    const [subCategories, setSubCategories] = useState<Category[]>([]);
+    // --- 3-Tier Category States ---
+    const [selectedLevel1, setSelectedLevel1] = useState("");
+    const [selectedLevel2, setSelectedLevel2] = useState("");
+    const [selectedLevel3, setSelectedLevel3] = useState("");
+
+    const [level2List, setLevel2List] = useState<Category[]>([]);
+    const [level3List, setLevel3List] = useState<Category[]>([]);
 
     // --- Primary Image State ---
     const [primaryFile, setPrimaryFile] = useState<File | null>(null);
@@ -132,18 +132,66 @@ const ProductModal: React.FC<ProductModalProps> = ({
         fetchCategories();
     }, [fetchCategories]);
 
+    // Reconstruct product category lineage for edit hydration
     useEffect(() => {
-        if (selectedCategory && categories.length > 0) {
-            const parent = categories.find((c: any) => c.id === selectedCategory);
-            setSubCategories(parent?.children || []);
-        } else {
-            setSubCategories([]);
-        }
-    }, [selectedCategory, categories]);
+        if (categories.length > 0 && initialData) {
+            const catId = initialData?.category?.id || initialData?.categoryId || "";
+            const subCatId = initialData?.subCategory?.id || initialData?.subCategoryId || "";
 
-    const handleCategoryChange = (catId: string) => {
-        setSelectedCategory(catId);
-        setSelectedSubCategory(""); // Reset selected subcategory
+            if (catId) {
+                // Check if catId is a Level 2 child of any Level 1 parent
+                let foundLevel1Id = "";
+                for (const c of categories) {
+                    if (c.children?.some((child: any) => child.id === catId)) {
+                        foundLevel1Id = c.id;
+                        break;
+                    }
+                }
+
+                if (foundLevel1Id) {
+                    // 3rd-tier classification scenario: Level 1 -> Level 2 -> Level 3
+                    setSelectedLevel1(foundLevel1Id);
+                    setSelectedLevel2(catId);
+                    setSelectedLevel3(subCatId);
+                } else {
+                    // 2-tier classification scenario: Level 1 -> Level 2
+                    setSelectedLevel1(catId);
+                    setSelectedLevel2(subCatId);
+                    setSelectedLevel3("");
+                }
+            }
+        }
+    }, [categories, initialData]);
+
+    // Cascading effect Level 1 -> Level 2
+    useEffect(() => {
+        if (selectedLevel1 && categories.length > 0) {
+            const parent = categories.find((c) => c.id === selectedLevel1);
+            setLevel2List(parent?.children || []);
+        } else {
+            setLevel2List([]);
+        }
+    }, [selectedLevel1, categories]);
+
+    // Cascading effect Level 2 -> Level 3
+    useEffect(() => {
+        if (selectedLevel2 && level2List.length > 0) {
+            const subParent = level2List.find((c) => c.id === selectedLevel2);
+            setLevel3List(subParent?.children || []);
+        } else {
+            setLevel3List([]);
+        }
+    }, [selectedLevel2, level2List]);
+
+    const handleLevel1Change = (val: string) => {
+        setSelectedLevel1(val);
+        setSelectedLevel2("");
+        setSelectedLevel3("");
+    };
+
+    const handleLevel2Change = (val: string) => {
+        setSelectedLevel2(val);
+        setSelectedLevel3("");
     };
 
     /* ---------------- API: UPLOAD SINGLE (PRIMARY) ---------------- */
@@ -216,14 +264,26 @@ const ProductModal: React.FC<ProductModalProps> = ({
                 ...newUploadedUrls,
             ];
 
+            // Adaptive 3-Tier Classification Mapping Rule
+            let categoryId = "";
+            let subCategoryId: string | null = null;
+
+            if (selectedLevel3) {
+                categoryId = selectedLevel2;
+                subCategoryId = selectedLevel3;
+            } else {
+                categoryId = selectedLevel1;
+                subCategoryId = selectedLevel2 || null;
+            }
+
             const payload = {
                 title,
                 slug,
                 description: formData.get("description"),
                 price: Number(formData.get("price")),
                 stock: Number(formData.get("stock")),
-                categoryId: selectedCategory,
-                subCategoryId: selectedSubCategory || null,
+                categoryId,
+                subCategoryId,
                 location: formData.get("location"),
                 primaryImage: primaryImageUrl,
                 otherImages: finalOtherImages,
@@ -259,22 +319,28 @@ const ProductModal: React.FC<ProductModalProps> = ({
     return (
         <Modal isOpen={isOpen} onClose={onClose} title={initialData ? "Edit Product" : "Add Product"}>
             <form onSubmit={handleSubmit} className="space-y-5 max-h-[80vh] px-1 font-mono text-xs text-zinc-900">
+                {isPublished && (
+                    <div className="border border-amber-200 bg-amber-50 text-amber-900 p-3.5 mb-2 rounded-none font-mono text-[9px] uppercase tracking-wider leading-relaxed">
+                        <span className="font-black text-amber-700">⚠️ COMPLIANCE ADVISORY</span>: This product is currently live and PUBLISHED. To modify its specs, details, or catalog fields, please unpublish it (set to Draft) using the quick-toggle on the inventory dashboard.
+                    </div>
+                )}
 
                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {/* PRIMARY IMAGE SECTION */}
                     <div>
                         <label className="block text-[10px] font-bold uppercase tracking-widest mb-1.5 text-zinc-500">Primary Image (Cover)</label>
                         <div 
-                            className={`flex gap-2 h-36 border transition-all duration-150 ${isDraggingPrimary ? "border-green-600 bg-green-50/20" : "border-transparent"}`}
-                            onDragOver={handlePrimaryDragOver}
-                            onDragLeave={handlePrimaryDragLeave}
-                            onDrop={handlePrimaryDrop}
+                            className={`flex gap-2 h-36 border transition-all duration-150 ${isDraggingPrimary && !isPublished ? "border-green-600 bg-green-50/20" : "border-transparent"}`}
+                            onDragOver={isPublished ? undefined : handlePrimaryDragOver}
+                            onDragLeave={isPublished ? undefined : handlePrimaryDragLeave}
+                            onDrop={isPublished ? undefined : handlePrimaryDrop}
                         >
                             {primaryPreview ? (
-                                <label className="relative flex-1 cursor-pointer group rounded-none border border-zinc-200 overflow-hidden">
+                                <label className={`relative flex-1 rounded-none border border-zinc-200 overflow-hidden ${isPublished ? "cursor-not-allowed" : "cursor-pointer group"}`}>
                                     <input
                                         type="file"
                                         hidden
+                                        disabled={isPublished}
                                         accept="image/*"
                                         onChange={(e) => {
                                             const file = e.target.files?.[0];
@@ -285,16 +351,19 @@ const ProductModal: React.FC<ProductModalProps> = ({
                                         }}
                                     />
                                     <Image src={primaryPreview} alt="Primary" unoptimized fill className="object-cover" />
-                                    <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition duration-150">
-                                        <p className="text-white text-[10px] font-bold uppercase tracking-wider">Change Cover</p>
-                                    </div>
+                                    {!isPublished && (
+                                        <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition duration-150">
+                                            <p className="text-white text-[10px] font-bold uppercase tracking-wider">Change Cover</p>
+                                        </div>
+                                    )}
                                 </label>
                             ) : (
                                 <>
-                                    <label className="flex-1 border border-dashed border-zinc-300 rounded-none cursor-pointer bg-zinc-50 hover:bg-zinc-100/60 flex flex-col items-center justify-center text-zinc-400 transition">
+                                    <label className={`flex-1 border border-dashed border-zinc-300 rounded-none bg-zinc-50 flex flex-col items-center justify-center text-zinc-400 transition ${isPublished ? "cursor-not-allowed opacity-50" : "cursor-pointer hover:bg-zinc-100/60"}`}>
                                         <input
                                             type="file"
                                             hidden
+                                            disabled={isPublished}
                                             accept="image/*"
                                             onChange={(e) => {
                                                 const file = e.target.files?.[0];
@@ -309,8 +378,9 @@ const ProductModal: React.FC<ProductModalProps> = ({
                                     </label>
                                     <button 
                                         type="button"
+                                        disabled={isPublished}
                                         onClick={() => { setCameraTarget('primary'); setIsCameraOpen(true); }}
-                                        className="flex-1 border border-dashed border-green-200 rounded-none bg-green-50/50 hover:bg-green-50 flex flex-col items-center justify-center text-green-700 transition cursor-pointer"
+                                        className="flex-1 border border-dashed border-green-200 rounded-none bg-green-50/50 hover:bg-green-50 flex flex-col items-center justify-center text-green-700 transition cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
                                     >
                                         <Camera size={20} className="mb-1" />
                                         <span className="text-[9px] uppercase font-bold tracking-wider">Take Photo</span>
@@ -324,35 +394,41 @@ const ProductModal: React.FC<ProductModalProps> = ({
                     <div>
                         <label className="block text-[10px] font-bold uppercase tracking-widest mb-1.5 text-zinc-500">Product Gallery</label>
                         <div 
-                            className={`grid grid-cols-3 gap-2 border transition-all duration-150 p-1.5 min-h-[9rem] ${isDraggingGallery ? "border-green-600 bg-green-50/20" : "border-transparent"}`}
-                            onDragOver={handleGalleryDragOver}
-                            onDragLeave={handleGalleryDragLeave}
-                            onDrop={handleGalleryDrop}
+                            className={`grid grid-cols-3 gap-2 border transition-all duration-150 p-1.5 min-h-[9rem] ${isDraggingGallery && !isPublished ? "border-green-600 bg-green-50/20" : "border-transparent"}`}
+                            onDragOver={isPublished ? undefined : handleGalleryDragOver}
+                            onDragLeave={isPublished ? undefined : handleGalleryDragLeave}
+                            onDrop={isPublished ? undefined : handleGalleryDrop}
                         >
                             {otherPreviews.map((url, idx) => (
                                 <div key={idx} className="relative h-16 bg-zinc-50 border border-zinc-200 rounded-none overflow-hidden">
                                     <Image src={url} unoptimized alt="Gallery" fill className="object-cover" />
-                                    <button
-                                        type="button"
-                                        onClick={() => removeOtherImage(idx)}
-                                        className="absolute top-0 right-0 bg-red-600 text-white rounded-none p-1 border border-zinc-200 border-t-0 border-r-0 cursor-pointer"
-                                    >
-                                        <X size={10} />
-                                    </button>
+                                    {!isPublished && (
+                                        <button
+                                            type="button"
+                                            onClick={() => removeOtherImage(idx)}
+                                            className="absolute top-0 right-0 bg-red-600 text-white rounded-none p-1 border border-zinc-200 border-t-0 border-r-0 cursor-pointer"
+                                        >
+                                            <X size={10} />
+                                        </button>
+                                    )}
                                 </div>
                             ))}
-                            <label className="flex items-center justify-center h-16 border border-dashed border-zinc-300 rounded-none cursor-pointer bg-zinc-50 hover:bg-zinc-100/60">
-                                <input type="file" hidden multiple accept="image/*" onChange={handleOtherImagesChange} />
-                                <Plus className="text-zinc-400" size={16} />
-                            </label>
-                            <button
-                                type="button"
-                                onClick={() => { setCameraTarget('gallery'); setIsCameraOpen(true); }}
-                                className="flex items-center justify-center h-16 border border-dashed border-green-200 bg-green-50/20 hover:bg-green-50 text-green-755 rounded-none cursor-pointer"
-                                title="Snap photo from webcam"
-                            >
-                                <Camera size={16} />
-                            </button>
+                            {!isPublished && (
+                                <>
+                                    <label className="flex items-center justify-center h-16 border border-dashed border-zinc-300 rounded-none cursor-pointer bg-zinc-50 hover:bg-zinc-100/60">
+                                        <input type="file" hidden multiple accept="image/*" onChange={handleOtherImagesChange} />
+                                        <Plus className="text-zinc-400" size={16} />
+                                    </label>
+                                    <button
+                                        type="button"
+                                        onClick={() => { setCameraTarget('gallery'); setIsCameraOpen(true); }}
+                                        className="flex items-center justify-center h-16 border border-dashed border-green-200 bg-green-50/20 hover:bg-green-50 text-green-755 rounded-none cursor-pointer"
+                                        title="Snap photo from webcam"
+                                    >
+                                        <Camera size={16} />
+                                    </button>
+                                </>
+                            )}
                         </div>
                     </div>
                 </div>
@@ -361,7 +437,7 @@ const ProductModal: React.FC<ProductModalProps> = ({
                 <div className="space-y-4">
                     <Input name="title" label="Product Title" defaultValue={initialData?.title}
                         onChange={(e) => setTitle(e.target.value)}
-                        required />
+                        required disabled={isPublished} />
 
                     <div className="space-y-1 font-mono">
                         <label className="text-[10px] font-bold uppercase tracking-widest text-zinc-400 block">Product URL path</label>
@@ -373,7 +449,8 @@ const ProductModal: React.FC<ProductModalProps> = ({
                                     setSlug(slugify(e.target.value));
                                     setSlugEdited(true);
                                 }}
-                                className="bg-transparent outline-none flex-1 text-zinc-800 font-mono text-xs focus:ring-0"
+                                disabled={isPublished}
+                                className="bg-transparent outline-none flex-1 text-zinc-800 font-mono text-xs focus:ring-0 disabled:cursor-not-allowed disabled:text-zinc-400"
                             />
                         </div>
                         <p className="text-[9px] text-zinc-400 uppercase font-bold tracking-wider pt-0.5">
@@ -382,21 +459,21 @@ const ProductModal: React.FC<ProductModalProps> = ({
                     </div>
 
                     <div className="grid grid-cols-2 gap-4">
-                        <Input name="price" label="Price (₦)" type="number" step="0.01" defaultValue={initialData?.price} required />
-                        <Input name="stock" label="Stock Quantity" type="number" defaultValue={initialData?.stock} required />
+                        <Input name="price" label="Price (₦)" type="number" step="0.01" defaultValue={initialData?.price} required disabled={isPublished} />
+                        <Input name="stock" label="Stock Quantity" type="number" defaultValue={initialData?.stock} required disabled={isPublished} />
                     </div>
 
-                    <div className="grid grid-cols-2 gap-4 font-mono">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 font-mono animate-in fade-in duration-200">
                         <div className="space-y-1">
-                            <label className="text-[10px] font-bold uppercase tracking-widest text-zinc-400 block mb-0.5">Main Category</label>
+                            <label className="text-[10px] font-bold uppercase tracking-widest text-zinc-400 block mb-0.5">Sector/Division</label>
                             <select
-                                name="category"
-                                value={selectedCategory}
-                                onChange={(e) => handleCategoryChange(e.target.value)}
+                                value={selectedLevel1}
+                                onChange={(e) => handleLevel1Change(e.target.value)}
                                 required
-                                className="w-full border border-zinc-250 p-2 text-xs bg-white rounded-none font-mono focus:border-green-600 focus:outline-none animate-in fade-in duration-100"
+                                disabled={isPublished}
+                                className="w-full border border-zinc-250 p-2 text-xs bg-white rounded-none font-mono focus:border-green-600 focus:outline-none animate-in fade-in duration-100 disabled:bg-zinc-50 disabled:cursor-not-allowed disabled:text-zinc-400"
                             >
-                                <option value="">Select Main Category</option>
+                                <option value="">Select Division</option>
                                 {categories.map((c: any) => (
                                     <option key={c.id} value={c.id}>{c.name.toUpperCase()}</option>
                                 ))}
@@ -404,16 +481,31 @@ const ProductModal: React.FC<ProductModalProps> = ({
                         </div>
 
                         <div className="space-y-1">
-                            <label className="text-[10px] font-bold uppercase tracking-widest text-zinc-400 block mb-0.5">Sub Category</label>
+                            <label className="text-[10px] font-bold uppercase tracking-widest text-zinc-400 block mb-0.5">Main Category</label>
                             <select
-                                name="subCategory"
-                                value={selectedSubCategory}
-                                onChange={(e) => setSelectedSubCategory(e.target.value)}
-                                className="w-full border border-zinc-250 p-2 text-xs bg-white rounded-none font-mono focus:border-green-600 focus:outline-none"
-                                disabled={subCategories.length === 0}
+                                value={selectedLevel2}
+                                onChange={(e) => handleLevel2Change(e.target.value)}
+                                required={level2List.length > 0}
+                                disabled={isPublished || level2List.length === 0}
+                                className="w-full border border-zinc-250 p-2 text-xs bg-white rounded-none font-mono focus:border-green-600 focus:outline-none disabled:bg-zinc-50 disabled:cursor-not-allowed disabled:text-zinc-400"
                             >
-                                <option value="">Select Sub Category (Optional)</option>
-                                {subCategories.map((child: any) => (
+                                <option value="">Select Category</option>
+                                {level2List.map((child: any) => (
+                                    <option key={child.id} value={child.id}>{child.name.toUpperCase()}</option>
+                                ))}
+                            </select>
+                        </div>
+
+                        <div className="space-y-1">
+                            <label className="text-[10px] font-bold uppercase tracking-widest text-zinc-400 block mb-0.5">Sub-Category</label>
+                            <select
+                                value={selectedLevel3}
+                                onChange={(e) => setSelectedLevel3(e.target.value)}
+                                disabled={isPublished || level3List.length === 0}
+                                className="w-full border border-zinc-250 p-2 text-xs bg-white rounded-none font-mono focus:border-green-600 focus:outline-none disabled:bg-zinc-50 disabled:cursor-not-allowed disabled:text-zinc-400"
+                            >
+                                <option value="">Select Sub-Category (Optional)</option>
+                                {level3List.map((child: any) => (
                                     <option key={child.id} value={child.id}>{child.name.toUpperCase()}</option>
                                 ))}
                             </select>
@@ -421,7 +513,7 @@ const ProductModal: React.FC<ProductModalProps> = ({
                     </div>
 
                     <div className="grid grid-cols-1 font-mono">
-                        <Input name="location" label="Location" defaultValue={initialData?.location} required />
+                        <Input name="location" label="Location" defaultValue={initialData?.location} required disabled={isPublished} />
                     </div>
 
                     <div className="space-y-1">
@@ -431,8 +523,9 @@ const ProductModal: React.FC<ProductModalProps> = ({
                             rows={3}
                             defaultValue={initialData?.description}
                             placeholder="Provide laboratory specifications, humidity indexes, moisture percentages, loading constraints..."
-                            className="w-full border border-zinc-250 p-2 text-xs bg-white rounded-none font-mono focus:border-green-600 focus:outline-none"
+                            className="w-full border border-zinc-250 p-2 text-xs bg-white rounded-none font-mono focus:border-green-600 focus:outline-none disabled:bg-zinc-55 disabled:cursor-not-allowed disabled:text-zinc-450"
                             required
+                            disabled={isPublished}
                         />
                     </div>
                 </div>
@@ -441,11 +534,11 @@ const ProductModal: React.FC<ProductModalProps> = ({
                 <div className="bg-zinc-50 p-4 border border-zinc-200 rounded-none shadow-none space-y-3 font-mono">
                     <p className="text-[10px] font-bold uppercase tracking-widest text-zinc-700 leading-none pb-1.5 border-b border-zinc-200">Additional Specifications</p>
                     <div className="grid grid-cols-2 gap-4">
-                        <Input name="weight" label="Weight (e.g. 1000kg bulk)" defaultValue={initialData?.attributes?.weight} />
-                        <Input name="origin" label="Origin (e.g. Kano, Nigeria)" defaultValue={initialData?.attributes?.origin} />
+                        <Input name="weight" label="Weight (e.g. 1000kg bulk)" defaultValue={initialData?.attributes?.weight} disabled={isPublished} />
+                        <Input name="origin" label="Origin (e.g. Kano, Nigeria)" defaultValue={initialData?.attributes?.origin} disabled={isPublished} />
                     </div>
                     <label className="flex gap-2 items-center cursor-pointer select-none mt-2">
-                        <input type="checkbox" name="isOrganic" defaultChecked={initialData?.isOrganic} className="w-3.5 h-3.5 rounded-none border border-zinc-300 accent-green-600 cursor-pointer" />
+                        <input type="checkbox" name="isOrganic" defaultChecked={initialData?.isOrganic} disabled={isPublished} className="w-3.5 h-3.5 rounded-none border border-zinc-300 accent-green-600 cursor-pointer disabled:cursor-not-allowed" />
                         <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-650">Certified Organic Produce Batch</span>
                     </label>
                 </div>
@@ -453,7 +546,7 @@ const ProductModal: React.FC<ProductModalProps> = ({
                 {/* ACTIONS */}
                 <div className="flex justify-end gap-3 pt-3 border-t border-zinc-150">
                     <Button type="button" variant="ghost" className="rounded-none text-[10px]" onClick={onClose}>Cancel</Button>
-                    <Button type="submit" disabled={isSubmitting} className="min-w-32 rounded-none text-[10px] uppercase font-bold tracking-wider">
+                    <Button type="submit" disabled={isSubmitting || isPublished} className="min-w-32 rounded-none text-[10px] uppercase font-bold tracking-wider">
                         {isSubmitting ? <Loader2 className="animate-spin text-green-700" size={14} /> : "Save Batch"}
                     </Button>
                 </div>

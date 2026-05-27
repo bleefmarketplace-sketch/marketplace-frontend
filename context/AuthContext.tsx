@@ -115,13 +115,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
       if (response.ok && result.success) {
         updateLocalUser(result.data); // Update state + cookies with fresh data
-      } else if (response.status === 401) { 
+      } else if (response.status === 401) {
         logout(true);
       }
     } catch (error) {
       console.log(error)
     }
-  }, [ logout]);
+  }, [logout]);
 
 
 
@@ -189,7 +189,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }, [router, logout]);
 
   const signIn = async (email: string, password: string, rememberMe: boolean): Promise<any> => {
-   
+
     setIsLoading(true);
     try {
       const response = await fetch("/api/auth/login", {
@@ -208,7 +208,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
       const { user: userData } = data;
 
-      
+
 
 
       // Security Check: Verification
@@ -225,17 +225,17 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       }
       handleLoginSuccess(data, rememberMe);
 
-       return data;
+      return data;
     } catch (err: any) {
       toast.error(err.message || "An error occurred");
-         return null;
+      return null;
     } finally {
       setIsLoading(false);
     }
   };
 
   const handleLoginSuccess = (data: any, rememberMe: boolean) => {
-     
+
     const { user: userData, token: rawToken, refreshToken: refreshToken
     } = data;
     const options = getCookieOptions(rememberMe ? 30 : 1);
@@ -256,14 +256,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       router.push(`/auth/onboarding?u=${userData.id}`);
     } else {
       const rawRedirect = searchParams.get("redirect");
-      let redirectUrl = userData.role.toLowerCase() === "buyer" 
-        ? "/account" 
+      let redirectUrl = userData.role.toLowerCase() === "buyer"
+        ? "/account"
         : `/dashboard/${userData.role.toLowerCase()}`;
-      
+
       if (rawRedirect && rawRedirect.startsWith("/") && !rawRedirect.includes("://")) {
         redirectUrl = decodeURIComponent(rawRedirect);
       }
-      
+
       router.push(redirectUrl);
     }
   };
@@ -291,7 +291,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const completeOnboarding = async (
     formData: OnboardingData
   ): Promise<boolean> => {
-    
+
 
     try {
       const response = await fetch(`/api/auth/onboard`, {
@@ -384,7 +384,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       window.localStorage.setItem("login_event", Date.now().toString());
 
       toast.success(`Successfully switched to ${targetRole} view!`);
-      if (targetRole.toUpperCase() === 'BUYER') {
+      console.log(targetRole)
+      if (targetRole.toUpperCase() === 'buyer') {
         router.push('/account');
       } else {
         router.push(`/dashboard/${targetRole.toLowerCase()}`);

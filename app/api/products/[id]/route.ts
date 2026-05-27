@@ -47,7 +47,7 @@ export async function PATCH(
 
     return NextResponse.json(response.data);
   } catch (error) {
-     handleAxiosError(error)
+     return handleAxiosError(error);
   }
 }
 

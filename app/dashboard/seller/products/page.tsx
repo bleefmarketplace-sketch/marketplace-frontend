@@ -85,6 +85,35 @@ const Page = () => {
     }
   };
 
+  /* ---------------- TOGGLE PRODUCT STATUS ---------------- */
+  const handleToggleStatus = async (id: string, currentStatus: string) => {
+    const newStatus = currentStatus === "published" ? "draft" : "published";
+    const loadingToast = toast.loading(`Updating status to ${newStatus}...`);
+    try {
+      await fetcher(`/api/products/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: newStatus }),
+      });
+      toast.update(loadingToast, {
+        render: `Product status updated to ${newStatus}`,
+        type: "success",
+        isLoading: false,
+        autoClose: 3000,
+      });
+      setProducts((prev) =>
+        prev.map((p) => (p.id === id ? { ...p, status: newStatus } : p))
+      );
+    } catch (err: any) {
+      toast.update(loadingToast, {
+        render: err.message || "Failed to update product status",
+        type: "error",
+        isLoading: false,
+        autoClose: 3000,
+      });
+    }
+  };
+
   /* ---------------- DELETE (ARCHIVE) ---------------- */
   const handleDeleteProduct = async (id: string) => {
     if (!confirm("Are you sure you want to archive this product?")) return;
@@ -198,13 +227,17 @@ const Page = () => {
                               {product.stock} Units
                             </div>
                             <div>
-                              <span className={`inline-block px-1.5 py-0.5 text-[8px] font-bold uppercase border ${
-                                product.status === "published" 
-                                  ? "border-green-200 bg-green-50 text-green-800" 
-                                  : "border-amber-200 bg-amber-50 text-amber-800"
-                              }`}>
+                              <button
+                                title={product.status === "published" ? "Click to unpublish (set to draft)" : "Click to publish"}
+                                onClick={() => handleToggleStatus(product.id, product.status)}
+                                className={`inline-block px-1.5 py-0.5 text-[8px] font-bold uppercase border cursor-pointer hover:opacity-80 transition-all duration-150 rounded-none select-none ${
+                                  product.status === "published" 
+                                    ? "border-green-200 bg-green-50 text-green-800 hover:bg-green-100" 
+                                    : "border-amber-200 bg-amber-50 text-amber-800 hover:bg-amber-100"
+                                }`}
+                              >
                                 {product.status}
-                              </span>
+                              </button>
                             </div>
                           </div>
                         </td>

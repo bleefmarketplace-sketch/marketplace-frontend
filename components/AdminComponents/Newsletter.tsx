@@ -110,7 +110,7 @@ export default function NewsletterAdmin() {
     setSubsLoading(true);
     try {
       const res = await fetcher(`/api/admin/newsletter/subscribers?page=${page}&limit=20&search=${search}`);
-      setSubscribers(res.data || res);
+      setSubscribers(res.data.data || res);
     } catch (err: any) {
       console.error(err);
       toast.error('Failed to load subscribers');

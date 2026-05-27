@@ -12,13 +12,37 @@ import Footer from '@/components/Marketplace/Footer';
 
 export default function CheckoutPage() {
     const router = useRouter();
-    const { items, getTotalPrice, clearCart } = useCartStore();
+    const { items, removeItem, updateQuantity, clearCart } = useCartStore();
     const [loading, setLoading] = useState(false);
     const [address, setAddress] = useState('');
     const [paymentMethod, setPaymentMethod] = useState<'paystack' | 'flutterwave'>('paystack');
 
     const [showSuccessModal, setShowSuccessModal] = useState(false);
     const [placedOrderId, setPlacedOrderId] = useState('');
+
+    const [selectedItemIds, setSelectedItemIds] = useState<string[]>([]);
+    const initializedRef = React.useRef(false);
+
+    React.useEffect(() => {
+        if (items.length > 0 && !initializedRef.current) {
+            setSelectedItemIds(items.map(i => i.id));
+            initializedRef.current = true;
+        }
+    }, [items]);
+
+    const showCheckboxes = items.length > 1;
+
+    const toggleItemSelection = (id: string) => {
+        setSelectedItemIds(prev =>
+            prev.includes(id) ? prev.filter(itemId => itemId !== id) : [...prev, id]
+        );
+    };
+
+    const selectedItems = items.filter(item => !showCheckboxes || selectedItemIds.includes(item.id));
+
+    const getSelectedTotalPrice = () => {
+        return selectedItems.reduce((acc, item) => acc + item.price * item.quantity, 0);
+    };
 
     // Group items by seller for AliExpress style layout
     const groupedItems = items.reduce((acc: any, item) => {
@@ -29,12 +53,48 @@ export default function CheckoutPage() {
     }, {});
 
     const handlePlaceOrder = async () => {
+        if (selectedItems.length === 0) return toast.error("Please select at least one item to checkout");
         if (!address.trim()) return toast.error("Please enter your shipping address");
 
         setLoading(true);
+
+        // Real-time stock check
+        let stockError = false;
+        try {
+            await Promise.all(
+                selectedItems.map(async (item) => {
+                    const res = await fetch(`/api/marketplace/${item.slug}`);
+                    if (res.ok) {
+                        const data = await res.json();
+                        const productData = data.data || data;
+                        if (productData && typeof productData.stock === 'number') {
+                            if (item.quantity > productData.stock) {
+                                stockError = true;
+                                if (productData.stock <= 0) {
+                                    toast.error(`"${item.title}" is out of stock. Removed from your selection.`);
+                                    setSelectedItemIds(prev => prev.filter(id => id !== item.id));
+                                    removeItem(item.id);
+                                } else {
+                                    toast.error(`Insufficient stock for "${item.title}". Only ${productData.stock} units left.`);
+                                    updateQuantity(item.id, productData.stock);
+                                }
+                            }
+                        }
+                    }
+                })
+            );
+        } catch (err) {
+            console.error("Live stock check failed:", err);
+        }
+
+        if (stockError) {
+            setLoading(false);
+            return;
+        }
+
         try {
             const orderData = {
-                items: items.map(i => ({ productId: i.id, quantity: i.quantity })),
+                items: selectedItems.map(i => ({ productId: i.id, quantity: i.quantity })),
                 shippingAddress: address,
                 paymentMethod: paymentMethod
             };
@@ -53,13 +113,15 @@ export default function CheckoutPage() {
 
             const data = await res.json();
 
-            if (res.ok && data.order?.id) {
-                setPlacedOrderId(data.order.id);
+            if (res.ok && data.data?.order?.id) {
+                setPlacedOrderId(data.data.order.id);
 
-                if (data.authorization_url) {
+                // Remove only the checked out items from the cart
+                selectedItems.forEach(item => removeItem(item.id));
+
+                if (data.data.authorization_url) {
                     toast.info("Redirecting to secure payment...");
-                    clearCart();
-                    window.location.href = data.authorization_url;
+                    window.location.href = data.data.authorization_url;
                 } else {
                     setShowSuccessModal(true);
                 }
@@ -78,10 +140,10 @@ export default function CheckoutPage() {
         <div className="min-h-screen bg-zinc-50 text-zinc-900 font-sans flex flex-col antialiased">
             <LandingPagesNav />
             <div className="flex-1 max-w-6xl mx-auto px-4 py-8 w-full">
-                
+
                 {/* Return breadcrumb */}
-                <button 
-                    onClick={() => router.back()} 
+                <button
+                    onClick={() => router.back()}
                     className="flex items-center gap-1.5 text-zinc-450 hover:text-zinc-950 font-mono text-[10px] font-bold uppercase tracking-widest mb-8 border border-zinc-200 bg-white px-3 py-1.5 hover:border-zinc-350 cursor-pointer transition-colors"
                 >
                     <ChevronLeft size={14} strokeWidth={2.5} /> <span>RETURN TO BASKET</span>
@@ -91,7 +153,7 @@ export default function CheckoutPage() {
 
                     {/* LEFT FORM & SHIPPING DECK */}
                     <div className="lg:col-span-8 space-y-4">
-                        
+
                         {/* Delivery Info */}
                         <div className="bg-white border border-zinc-200 p-6 rounded-none shadow-none font-mono text-xs">
                             <h2 className="text-[10px] font-bold text-zinc-950 uppercase tracking-widest mb-4 flex items-center gap-2 border-b border-zinc-100 pb-2.5">
@@ -106,6 +168,30 @@ export default function CheckoutPage() {
                             />
                         </div>
 
+                        {/* Select All Toggle Bar */}
+                        {showCheckboxes && (
+                            <div className="bg-white border border-zinc-200 p-4 rounded-none shadow-none font-mono text-xs flex justify-between items-center select-none">
+                                <label className="flex items-center gap-2 cursor-pointer font-bold uppercase tracking-wider text-zinc-700 hover:text-zinc-950">
+                                    <input
+                                        type="checkbox"
+                                        checked={selectedItemIds.length === items.length}
+                                        onChange={() => {
+                                            if (selectedItemIds.length === items.length) {
+                                                setSelectedItemIds([]);
+                                            } else {
+                                                setSelectedItemIds(items.map(i => i.id));
+                                            }
+                                        }}
+                                        className="w-4 h-4 rounded-none border-zinc-300 text-green-700 focus:ring-green-500 accent-green-700 cursor-pointer"
+                                    />
+                                    SELECT ALL ITEMS ({items.length})
+                                </label>
+                                <span className="font-bold text-zinc-450 uppercase tracking-widest text-[9px]">
+                                    {selectedItemIds.length} SELECTED
+                                </span>
+                            </div>
+                        )}
+
                         {/* Items Section Grouped by Seller */}
                         {Object.entries(groupedItems).map(([seller, sellerItems]: any) => (
                             <div key={seller} className="bg-white border border-zinc-200 p-6 rounded-none shadow-none font-mono text-xs">
@@ -118,21 +204,32 @@ export default function CheckoutPage() {
                                     </span>
                                 </div>
                                 <div className="space-y-4">
-                                    {sellerItems.map((item: any) => (
-                                        <div key={item.id} className="flex gap-4 items-center">
-                                            <div className="relative w-12 h-12 rounded-none border border-zinc-200 bg-zinc-50 flex-shrink-0">
-                                                <Image unoptimized fill src={item.primaryImage} alt="" className="object-cover" />
+                                    {sellerItems.map((item: any) => {
+                                        const isSelected = selectedItemIds.includes(item.id);
+                                        return (
+                                            <div key={item.id} className={`flex gap-4 items-center transition-opacity duration-200 ${!isSelected && showCheckboxes ? 'opacity-50' : ''}`}>
+                                                {showCheckboxes && (
+                                                    <input
+                                                        type="checkbox"
+                                                        checked={isSelected}
+                                                        onChange={() => toggleItemSelection(item.id)}
+                                                        className="w-4 h-4 rounded-none border-zinc-350 text-green-700 focus:ring-green-550 accent-green-700 cursor-pointer"
+                                                    />
+                                                )}
+                                                <div className="relative w-12 h-12 rounded-none border border-zinc-200 bg-zinc-50 flex-shrink-0">
+                                                    <Image unoptimized fill src={item.primaryImage} alt="" className="object-cover" />
+                                                </div>
+                                                <div className="flex-1 min-w-0">
+                                                    <h4 className="text-xs font-bold text-zinc-950 uppercase truncate">{item.title}</h4>
+                                                    <p className="text-[10px] text-zinc-400 font-bold uppercase block mt-0.5">QTY: {item.quantity} UNITS</p>
+                                                </div>
+                                                <div className="text-right flex-shrink-0">
+                                                    <p className="font-black text-zinc-950">₦{(item.price * item.quantity).toLocaleString()}</p>
+                                                    <p className="text-[9px] text-zinc-400 font-bold">₦{item.price.toLocaleString()} PER UNIT</p>
+                                                </div>
                                             </div>
-                                            <div className="flex-1 min-w-0">
-                                                <h4 className="text-xs font-bold text-zinc-950 uppercase truncate">{item.title}</h4>
-                                                <p className="text-[10px] text-zinc-400 font-bold uppercase block mt-0.5">QTY: {item.quantity} UNITS</p>
-                                            </div>
-                                            <div className="text-right flex-shrink-0">
-                                                <p className="font-black text-zinc-950">₦{(item.price * item.quantity).toLocaleString()}</p>
-                                                <p className="text-[9px] text-zinc-400 font-bold">₦{item.price.toLocaleString()} PER UNIT</p>
-                                            </div>
-                                        </div>
-                                    ))}
+                                        );
+                                    })}
                                 </div>
                             </div>
                         ))}
@@ -143,26 +240,25 @@ export default function CheckoutPage() {
                                 <CreditCard size={13} className="text-green-700" /> SECURE GATEWAY TRANSACTION METHOD
                             </h2>
                             <div className="grid grid-cols-2 gap-4">
-                                
+
                                 {/* Paystack */}
-                                <button 
+                                <button
                                     onClick={() => setPaymentMethod('paystack')}
-                                    className={`p-5 rounded-none border-2 transition-colors flex flex-col items-center gap-3 cursor-pointer select-none ${
-                                        paymentMethod === 'paystack' 
-                                        ? 'border-green-600 bg-green-50/50' 
+                                    className={`p-5 rounded-none border-2 transition-colors flex flex-col items-center gap-3 cursor-pointer select-none ${paymentMethod === 'paystack'
+                                        ? 'border-green-600 bg-green-50/50'
                                         : 'border-zinc-200 bg-white hover:bg-zinc-50'
-                                    }`}
+                                        }`}
                                 >
                                     <div className="w-10 h-10 bg-white border border-zinc-200 rounded-none flex items-center justify-center font-black text-blue-600 text-sm">
                                         P
                                     </div>
                                     <span className={`text-[10px] font-black uppercase tracking-wider ${paymentMethod === 'paystack' ? 'text-green-800' : 'text-zinc-400'}`}>
-                                        PAYSTACK SYSTEM
+                                        PAYSTACK
                                     </span>
                                 </button>
 
                                 {/* Flutterwave */}
-                                <button 
+                                {/* <button 
                                     onClick={() => setPaymentMethod('flutterwave')}
                                     className={`p-5 rounded-none border-2 transition-colors flex flex-col items-center gap-3 cursor-pointer select-none ${
                                         paymentMethod === 'flutterwave' 
@@ -170,13 +266,13 @@ export default function CheckoutPage() {
                                         : 'border-zinc-200 bg-white hover:bg-zinc-50'
                                     }`}
                                 >
-                                    <div className="w-10 h-10 bg-white border border-zinc-200 rounded-none flex items-center justify-center font-black text-orange-500 text-sm">
+                                    <div className="w-10 h-10 bg-white border border-orange-500 rounded-none flex items-center justify-center font-black text-orange-500 text-sm">
                                         F
                                     </div>
                                     <span className={`text-[10px] font-black uppercase tracking-wider ${paymentMethod === 'flutterwave' ? 'text-green-800' : 'text-zinc-400'}`}>
                                         FLUTTERWAVE GATE
                                     </span>
-                                </button>
+                                </button> */}
                             </div>
                         </div>
                     </div>
@@ -184,7 +280,7 @@ export default function CheckoutPage() {
                     {/* RIGHT SECURE CHECKOUT SUMMARY */}
                     <div className="lg:col-span-4 sticky top-24">
                         <div className="bg-zinc-950 border border-zinc-800 p-6 rounded-none text-zinc-450 shadow-none font-mono text-xs">
-                            
+
                             <h3 className="text-zinc-50 font-bold uppercase tracking-widest text-[10px] border-b border-zinc-850 pb-3 mb-6">
                                 TRANSACTION RECORD SUMMARY
                             </h3>
@@ -192,11 +288,11 @@ export default function CheckoutPage() {
                             <div className="space-y-4 mb-6">
                                 <div className="flex justify-between text-zinc-400">
                                     <span>SUBTOTAL VALUE</span>
-                                    <span className="font-bold text-zinc-50">₦{getTotalPrice().toLocaleString()}</span>
+                                    <span className="font-bold text-zinc-50">₦{getSelectedTotalPrice().toLocaleString()}</span>
                                 </div>
                                 <div className="flex justify-between text-zinc-400">
                                     <span>GOVT VAT (7.5%)</span>
-                                    <span className="font-bold text-zinc-50">₦{(getTotalPrice() * 0.075).toLocaleString()}</span>
+                                    <span className="font-bold text-zinc-50">₦{(getSelectedTotalPrice() * 0.075).toLocaleString()}</span>
                                 </div>
                                 <div className="flex justify-between text-zinc-400">
                                     <span>EST. FREIGHT LOGISTICS</span>
@@ -204,7 +300,7 @@ export default function CheckoutPage() {
                                 </div>
                                 <div className="pt-4 border-t border-zinc-800 flex justify-between items-center">
                                     <span className="font-bold text-zinc-50">GRAND TOTAL</span>
-                                    <span className="text-md font-black text-green-500">₦{(getTotalPrice() * 1.075).toLocaleString()}</span>
+                                    <span className="text-md font-black text-green-500">₦{(getSelectedTotalPrice() * 1.075).toLocaleString()}</span>
                                 </div>
                             </div>
 
@@ -214,7 +310,7 @@ export default function CheckoutPage() {
                                     size="lg"
                                     className="w-full py-4 text-xs font-bold uppercase tracking-wider rounded-none"
                                     onClick={handlePlaceOrder}
-                                    disabled={loading}
+                                    disabled={loading || selectedItems.length === 0}
                                 >
                                     {loading ? "PROCESSING TRANSIT..." : "PLACE SECURE ORDER NOW"}
                                 </Button>
@@ -228,13 +324,12 @@ export default function CheckoutPage() {
                 </div>
             </div>
             <Footer />
-            
+
             <OrderSuccessModal
                 isOpen={showSuccessModal}
                 orderId={placedOrderId}
                 onClose={() => {
                     setShowSuccessModal(false);
-                    clearCart();
                     router.push('/marketplace');
                 }}
             />

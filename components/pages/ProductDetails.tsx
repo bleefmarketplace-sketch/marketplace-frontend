@@ -50,7 +50,7 @@ export default function ProductDetails() {
       <div className="min-h-screen flex items-center justify-center bg-zinc-50 font-mono text-xs">
         <div className="flex flex-col items-center gap-3">
           <div className="animate-spin h-6 w-6 border-2 border-zinc-300 border-t-green-700 rounded-full" />
-          <p className="text-zinc-500 font-bold uppercase tracking-widest">LOADING ASSET DECK...</p>
+
         </div>
       </div>
     );
@@ -62,7 +62,7 @@ export default function ProductDetails() {
         <div className="text-center p-12 bg-white border border-dashed border-zinc-250 max-w-sm w-full">
           <AlertCircle className="w-8 h-8 text-zinc-400 mx-auto mb-3" />
           <h3 className="font-bold text-zinc-950 uppercase tracking-tight">ASSET NOT REGISTERED</h3>
-          <p className="text-zinc-500 text-xs font-sans mt-1 mb-4">The dynamic slug provided could not be matched with current database models.</p>
+          <p className="text-zinc-500 text-xs font-sans mt-1 mb-4">The dynamic slug provided could not be matched.</p>
           <Button onClick={() => router.push('/marketplace')} size="sm">RETURN TO CATALOG</Button>
         </div>
       </div>
@@ -166,7 +166,7 @@ export default function ProductDetails() {
                     <Star size={9} className="fill-amber-600 text-amber-600" />
                     {product.averageRating}
                   </div>
-                  <span className="text-zinc-400">({product.reviewCount} VERIFIED CROP REVIEWS)</span>
+                  <span className="text-zinc-400">({product.reviewCount} REVIEWS)</span>
                 </div>
               </div>
 
@@ -176,12 +176,12 @@ export default function ProductDetails() {
                 <p className="text-2xl font-black text-zinc-950 mt-1">
                   ₦{product.price.toLocaleString()}
                 </p>
-                <p className="text-[9px] text-zinc-400 font-bold block uppercase tracking-wider mt-0.5">PER LOT/UNIT</p>
+                <p className="text-[9px] text-zinc-400 font-bold block uppercase tracking-wider mt-0.5">PRICE PER UNIT</p>
               </div>
 
               {/* QUANTITY CONTROL */}
               <div className="flex items-center justify-between font-bold text-[11px] uppercase tracking-wider border-b border-zinc-100 pb-3">
-                <span className="text-zinc-500">Order Quantity</span>
+                <span className="text-zinc-500"> Quantity</span>
                 <div className="flex items-center border border-zinc-300 bg-white">
                   <button
                     onClick={() => setQuantity(Math.max(1, quantity - 1))}
@@ -214,7 +214,10 @@ export default function ProductDetails() {
                 </Button>
                 <Button
                   variant="outline"
-                  onClick={() => router.push('/marketplace/checkout')}
+                  onClick={() => {
+                    addItem(product, quantity);
+                    router.push('/marketplace/checkout');
+                  }}
                   className="w-full h-11 text-xs tracking-wider"
                 >
                   SECURE CHECKOUT
