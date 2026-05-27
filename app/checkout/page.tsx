@@ -27,7 +27,7 @@ export default function CheckoutCallbackPage() {
 
         const verifyPayment = async () => {
             try {
-                // This endpoint verifies the transaction with backend and updates order status
+                // This endpoint verifies the transaction and updates order status
                 const res = await fetcher(`/api/payments/verify?reference=${reference}`);
 
                 if (res.success || res.data?.status === 'success') {
@@ -98,7 +98,7 @@ export default function CheckoutCallbackPage() {
             <LandingPagesNav />
             <main className="flex-1 max-w-xl mx-auto px-4 py-12 w-full flex items-center justify-center">
                 <div className="w-full bg-white border border-zinc-200 p-6 md:p-8 rounded-none shadow-none font-mono text-xs space-y-6">
-                    
+
                     {/* Verification Badge */}
                     <div className="text-center space-y-3 pb-4 border-b border-zinc-150">
                         <div className="w-12 h-12 bg-green-50 border border-green-200 text-green-750 rounded-none flex items-center justify-center mx-auto animate-pulse">
@@ -181,21 +181,21 @@ export default function CheckoutCallbackPage() {
                                 onClick={() => router.push('/account/orders')}
                             >
                                 <ShoppingBag size={14} /> TRACK YOUR ORDER
-                          </Button>
-                      )}
+                            </Button>
+                        )}
 
-                      <Button
-                          variant="outline"
-                          fullWidth
-                          className="h-11 rounded-none text-xs font-bold uppercase tracking-wider text-zinc-450 hover:text-zinc-950 hover:border-zinc-350 flex items-center justify-center gap-2"
-                          onClick={() => router.push('/marketplace')}
-                      >
-                          BACK TO MARKETPLACE <ArrowRight size={14} />
-                      </Button>
-                  </div>
-              </div>
-          </main>
-          <Footer />
-      </div>
-  );
+                        <Button
+                            variant="outline"
+                            fullWidth
+                            className="h-11 rounded-none text-xs font-bold uppercase tracking-wider text-zinc-450 hover:text-zinc-950 hover:border-zinc-350 flex items-center justify-center gap-2"
+                            onClick={() => router.push('/marketplace')}
+                        >
+                            BACK TO MARKETPLACE <ArrowRight size={14} />
+                        </Button>
+                    </div>
+                </div>
+            </main>
+            <Footer />
+        </div>
+    );
 }
