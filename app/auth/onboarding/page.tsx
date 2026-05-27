@@ -78,7 +78,10 @@ const OnboardingPage = () => {
     };
 
     const handleFinalRedirect = () => {
-        router.push(`/dashboard/${user?.role}`);
+        const dest = user?.role?.toLowerCase() === 'buyer' 
+            ? '/account' 
+            : `/dashboard/${user?.role?.toLowerCase()}`;
+        router.push(dest);
     };
 
     const renderRoleSelection = () => (

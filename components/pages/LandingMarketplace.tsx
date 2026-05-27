@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Button } from '@/components/Button';
 import {
-    Star, MapPin, Filter, Package, Plus, X, Search, AlertCircle, Loader2
+    Star, MapPin, Filter, Package, Plus, Search, AlertCircle, Loader2
 } from 'lucide-react';
 import { CATEGORIES } from '../constants';
 import { Product } from '../types';
@@ -71,8 +71,9 @@ export const Marketplace = () => {
                 setHasMore(false);
             }
             setOffset(items.length);
-        } catch (err: any) {
-            setError(err.message || "Failed to connect to server");
+        } catch (err: unknown) {
+            const error = err as Error;
+            setError(error.message || "Failed to connect to server");
             setProducts([]);
         } finally {
             setLoading(false);
@@ -105,7 +106,7 @@ export const Marketplace = () => {
             if (items.length < 20) {
                 setHasMore(false);
             }
-        } catch (err: any) {
+        } catch (err: unknown) {
             console.error("Failed to load more products:", err);
             toast.error("Failed to load next product batch.");
         } finally {
@@ -121,20 +122,20 @@ export const Marketplace = () => {
     useEffect(() => {
         const observer = new IntersectionObserver((entries) => {
             const first = entries[0];
-            if (first.isIntersecting && hasMore && !loading && !loadingMore) {
+            if (first.isIntersecting && hasMore && !loading && !loadingMore && products.length > 0) {
                 fetchMoreProducts();
             }
         }, { threshold: 0.1 });
 
         const target = document.getElementById('infinite-scroll-sentinel');
-        if (target) {
+        if (target && products.length > 0) {
             observer.observe(target);
         }
 
         return () => {
             if (target) observer.unobserve(target);
         };
-    }, [hasMore, loading, loadingMore, fetchMoreProducts]);
+    }, [hasMore, loading, loadingMore, fetchMoreProducts, products.length]);
 
     const handleOpenProduct = (product: Product) => {
         trackEvent('click', product.id, { category: product.categoryId });
@@ -199,8 +200,8 @@ export const Marketplace = () => {
                                                 key={cat.name}
                                                 onClick={() => setFilters(f => ({ ...f, category: cat.name }))}
                                                 className={`w-full text-left uppercase font-bold tracking-tight py-2 px-3 flex items-center transition-all rounded-none border cursor-pointer ${isActive
-                                                        ? "border-green-600 bg-green-50 text-green-800 shadow-none font-extrabold"
-                                                        : "border-transparent text-zinc-650 hover:text-zinc-950 hover:bg-zinc-50"
+                                                    ? "border-green-600 bg-green-50 text-green-800 shadow-none font-extrabold"
+                                                    : "border-transparent text-zinc-650 hover:text-zinc-950 hover:bg-zinc-50"
                                                     }`}
                                             >
                                                 <span className="mr-2.5 text-xs">{cat.icon}</span>
@@ -310,7 +311,6 @@ export const Marketplace = () => {
                                                 onClick={(e) => {
                                                     e.stopPropagation();
                                                     addItem(product, 1);
-                                                    toast.success('Added to cart!');
                                                 }}
                                                 className="absolute bottom-2.5 right-2.5 bg-white border border-zinc-200 p-2 rounded-none hover:bg-green-700 hover:text-white transition-colors cursor-pointer opacity-100 sm:opacity-0 group-hover:opacity-100"
                                             >
@@ -365,7 +365,7 @@ export const Marketplace = () => {
 
                         {!hasMore && products.length > 0 && (
                             <div className="mt-6 py-3 text-center border-t border-zinc-200 font-mono text-[9px] text-zinc-400 uppercase tracking-widest select-none">
-                                ● Terminal Stream Completed. All classified products loaded.
+
                             </div>
                         )}
 

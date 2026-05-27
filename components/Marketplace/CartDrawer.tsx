@@ -187,9 +187,22 @@ export const CartDrawer = ({ isOpen, onClose }: { isOpen: boolean; onClose: () =
               }} 
               fullWidth 
               size="lg" 
-              className="w-full py-4 text-xs font-bold uppercase tracking-wider rounded-none flex items-center justify-center gap-2 cursor-pointer"
+              className="w-full py-4 text-xs font-bold uppercase tracking-wider rounded-none flex items-center justify-center gap-2 cursor-pointer mb-2"
             >
               {checkingStock ? "VALIDATING STOCK..." : <>PROCEED TO CHECKOUT <ArrowRight size={14} /></>}
+            </Button>
+
+            <Button
+              variant="ghost"
+              disabled={checkingStock}
+              onClick={() => {
+                onClose();
+                router.push("/marketplace/cart");
+              }}
+              fullWidth
+              className="w-full py-3 text-xs font-bold uppercase tracking-wider rounded-none border border-zinc-250 bg-white text-zinc-700 hover:bg-zinc-50 hover:text-zinc-950 flex items-center justify-center gap-2 cursor-pointer"
+            >
+              VIEW DETAILED CART
             </Button>
           </div>
         )}

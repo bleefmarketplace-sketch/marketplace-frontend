@@ -5,6 +5,7 @@ import { setCookie, getCookie, deleteCookie } from "cookies-next";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { toast } from "react-toastify";
 import { decrypt, encrypt } from "@/secure/__enc";
+import { getOrCreateCartSession, useCartStore } from "@/store/useCartStore";
 
 // --- Types ---
 export type UserRole = "buyer" | "seller" | "creator" | "admin";
@@ -250,6 +251,20 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     // Notify other tabs of the fresh login session
     window.localStorage.setItem("login_event", Date.now().toString());
 
+    // Merge anonymous guest cart into authenticated user account
+    const sessionId = getOrCreateCartSession();
+    fetch('/api/cart/merge', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ sessionId })
+    })
+    .then(async (res) => {
+      if (res.ok) {
+        useCartStore.getState().fetchCart();
+      }
+    })
+    .catch(err => console.error("Error merging cart on login:", err));
+
 
 
     if (!userData.isOnboarded) {
@@ -339,7 +354,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
         case 409:
           toast.info("You’ve already completed onboarding.");
-          router.replace(`/dashboard/${user?.role}`);
+          router.replace(user?.role?.toLowerCase() === 'buyer' ? '/account' : `/dashboard/${user?.role?.toLowerCase()}`);
           break;
 
         case 403:
@@ -383,9 +398,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       // Notify other tabs of role switch
       window.localStorage.setItem("login_event", Date.now().toString());
 
+      // Sync active cart from database
+      useCartStore.getState().fetchCart();
+
       toast.success(`Successfully switched to ${targetRole} view!`);
       console.log(targetRole)
-      if (targetRole.toUpperCase() === 'buyer') {
+      if (targetRole.toLowerCase() === 'buyer') {
         router.push('/account');
       } else {
         router.push(`/dashboard/${targetRole.toLowerCase()}`);

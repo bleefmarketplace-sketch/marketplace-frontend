@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { Button } from './Button';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Menu, X, ShoppingCart, User, LogOut, TrendingUp, TrendingDown, Globe } from 'lucide-react';
+import { Menu, X, ShoppingCart, User, LogOut } from 'lucide-react';
 import { useRouter, usePathname } from 'next/navigation';
 import { useCartStore } from '@/store/useCartStore';
 import { CartDrawer } from './Marketplace/CartDrawer';
@@ -24,10 +24,14 @@ const LandingPagesNav = () => {
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    setMounted(true);
+    const timeoutId = setTimeout(() => {
+      setMounted(true);
+      useCartStore.getState().fetchCart();
+    }, 0);
+    return () => clearTimeout(timeoutId);
   }, []);
 
-  const getItemCount = items.reduce((acc, item) => acc + item.quantity, 0);
+  const getItemCount = items.length;
 
   const navLinks = [
     { id: 'marketplace', label: 'Marketplace' },
@@ -90,7 +94,8 @@ const LandingPagesNav = () => {
               >
                 <ShoppingCart size={18} />
                 {mounted && getItemCount > 0 && (
-                  <span className="absolute -top-1.5 -right-1.5 bg-red-650 text-white text-[8px] font-bold w-4 h-4 rounded-none flex items-center justify-center animate-pulse">
+                  <span className="absolute -top-1.5 -right-1.5 bg-red-600 text-white text-[8px] font-bold w-4 h-4 rounded-none flex items-center justify-center animate-pulse">
+
                     {getItemCount}
                   </span>
                 )}

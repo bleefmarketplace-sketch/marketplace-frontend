@@ -26,20 +26,23 @@ export const DashboardLayout: React.FC<LayoutProps> = ({ children }) => {
 
   const role = user?.role;
 
-  if (pathname.startsWith('/dashboard/buyer')) {
-    return <>{children}</>;
-  }
 
   // Live Telemetry Ticker States
   const [tickerOffset, setTickerOffset] = useState(0);
   const [timeStr, setTimeStr] = useState("");
 
   useEffect(() => {
-    setTimeStr(new Date().toISOString().substring(11, 19));
-    const clockInterval = setInterval(() => {
+    const updateTime = () => {
       setTimeStr(new Date().toISOString().substring(11, 19));
-    }, 1000);
-    return () => clearInterval(clockInterval);
+    };
+
+    const timeoutId = setTimeout(updateTime, 0);
+    const clockInterval = setInterval(updateTime, 1000);
+
+    return () => {
+      clearTimeout(timeoutId);
+      clearInterval(clockInterval);
+    };
   }, []);
 
   const getNavItems = (role?: UserRole): NavItem[] => {
